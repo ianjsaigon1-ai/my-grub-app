@@ -20,6 +20,7 @@
     --danger: #e74c3c;
     --warn: #e67e22;
     --good: #27ae60;
+    --blue: #3498db;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -119,6 +120,23 @@
   .cal-rec { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 2px solid #eee; }
   .cal-rec strong { font-size: 1.8rem; color: var(--pine); display: block; }
 
+  /* Save buttons */
+  .save-buttons { display: flex; gap: 10px; margin-top: 15px; }
+  .save-btn { 
+    flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 700; 
+    cursor: pointer; transition: 0.3s; text-align: center; font-size: 0.9rem;
+  }
+  .save-btn.primary { background: var(--forest); color: white; }
+  .save-btn.secondary { background: var(--sunlit); color: var(--forest); border: 2px solid var(--leaf); }
+  .save-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+  .status-message { 
+    padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 0.85rem; 
+    text-align: center; display: none;
+  }
+  .status-message.success { background: #d4edda; color: #155724; display: block; }
+  .status-message.error { background: #f8d7da; color: #721c24; display: block; }
+
   @media (max-width: 1100px) { .main-grid, .report-flex, .search-grid { grid-template-columns: 1fr; } .report-flex { flex-direction: column; } }
 </style>
 </head>
@@ -163,6 +181,11 @@
           <option value="1.9">Athlete (2x day training)</option>
         </select>
       </div>
+      <div class="save-buttons">
+        <button class="save-btn primary" onclick="saveProfile()">💾 Save Profile</button>
+        <button class="save-btn secondary" onclick="loadProfile()">📂 Load Profile</button>
+      </div>
+      <div id="saveStatus" class="status-message"></div>
       <div class="mini-stat" style="background:var(--sunlit); border:none; margin-top:10px;">
         <span>Current BMR / BMI</span>
         <strong id="resBMR">0</strong> <small>kcal</small> | <strong id="resBMI">0</strong> <small>BMI</small>
@@ -187,6 +210,11 @@
       <div class="form-group"><label>Target Body Fat %</label><input type="number" id="goalBF" placeholder="0.0" step="0.1"></div>
       <div class="form-group"><label>Target Visceral Fat</label><input type="number" id="goalVF" placeholder="0"></div>
       <div class="form-group"><label>Target BMR</label><input type="number" id="goalBMR" placeholder="0"></div>
+      <div class="save-buttons">
+        <button class="save-btn primary" onclick="saveGoals()">🎯 Save Goals</button>
+        <button class="save-btn secondary" onclick="saveJournal()">📓 Save Journal</button>
+      </div>
+      <div id="goalStatus" class="status-message"></div>
       <div class="mini-stat" style="background:var(--sunlit); border:none; margin-top:auto;">
         <span>Target TDEE / BMI</span>
         <strong id="resTDEE">0</strong> <small>kcal</small> | <strong id="resGoalBMI">0</strong> <small>BMI</small>
@@ -289,6 +317,7 @@
             <option value="drinks">🥤 Drinks & Juices (50+)</option>
             <option value="alcohol">🥃 Alcoholic Beverages (50+)</option>
             <option value="meats">🍖 Meats (50+)</option>
+            <option value="fish">🐟 Fish & Shellfish (25+)</option>
             <option value="grains">🌾 Starches & Breads (50+)</option>
             <option value="dairy">🧀 Dairy & Eggs (50+)</option>
             <option value="spices">🍯 Sugars & Spices (50+)</option>
@@ -456,6 +485,7 @@ const db = {
     {name: "Green Beans", viet: "Đậu Cô Ve", cal: 31, prot: 1.8, fat: 0.1, carb: 7},
     {name: "Jicama", viet: "Củ Sắn", cal: 38, prot: 0.7, fat: 0.1, carb: 9},
     {name: "Kale", viet: "Cải Xoăn", cal: 49, prot: 4.3, fat: 0.9, carb: 9},
+    {name: "Kelp (Seaweed)", viet: "Rong Biển", cal: 43, prot: 1.7, fat: 0.6, carb: 9.6},
     {name: "Kohlrabi", viet: "Su Hào", cal: 27, prot: 1.7, fat: 0.1, carb: 6},
     {name: "Leeks", viet: "Tỏi Tây", cal: 61, prot: 1.5, fat: 0.3, carb: 14},
     {name: "Lettuce (Romaine)", viet: "Xà Lách Romaine", cal: 17, prot: 1.2, fat: 0.3, carb: 3.3},
@@ -468,6 +498,7 @@ const db = {
     {name: "Radishes", viet: "Củ Cải Đỏ", cal: 16, prot: 0.7, fat: 0.1, carb: 3.4},
     {name: "Snow Peas", viet: "Đậu Hà Lan", cal: 42, prot: 2.8, fat: 0.2, carb: 7.6},
     {name: "Spinach", viet: "Rau Bina", cal: 23, prot: 3, fat: 0.4, carb: 3.6},
+    {name: "Spirulina (dried)", viet: "Tảo Spirulina", cal: 290, prot: 57, fat: 7.7, carb: 24},
     {name: "Sweet Potato", viet: "Khoai Lang", cal: 86, prot: 1.6, fat: 0.1, carb: 20},
     {name: "Swiss Chard", viet: "Cải Cầu Vồng", cal: 19, prot: 1.8, fat: 0.2, carb: 3.7},
     {name: "Tomato", viet: "Cà Chua", cal: 18, prot: 0.9, fat: 0.2, carb: 3.9},
@@ -539,7 +570,7 @@ const db = {
     {name: "Horchata", viet: "Nước Horchata", cal: 180, prot: 3, fat: 3, carb: 35},
     {name: "Hot Chocolate (with milk)", viet: "Sôcôla Nóng", cal: 190, prot: 8, fat: 6, carb: 26},
     {name: "Iced Tea (sweetened)", viet: "Trà Đá Ngọt", cal: 90, prot: 0, fat: 0, carb: 23},
-    {name: "Iced Tea (unsweetened)", viet: "Trà Đá Không Đường", cal: 2, prot: 0, fat: 0, carb: 0},
+    {name: "Iced Tea (unsweetened)", viet: "Trá Đá Không Đường", cal: 2, prot: 0, fat: 0, carb: 0},
     {name: "Lemonade", viet: "Nước Chanh", cal: 99, prot: 0, fat: 0, carb: 26},
     {name: "Matcha Latte", viet: "Matcha Latte", cal: 150, prot: 6, fat: 5, carb: 18},
     {name: "Milkshake (vanilla)", viet: "Sữa Lắc Vani", cal: 250, prot: 6, fat: 8, carb: 40},
@@ -645,13 +676,45 @@ const db = {
     {name: "Pork Chop (loin, lean)", viet: "Sườn Heo Nạc", cal: 211, prot: 29, fat: 10, carb: 0},
     {name: "Pork Shoulder (Boston butt)", viet: "Vai Heo", cal: 250, prot: 22, fat: 18, carb: 0},
     {name: "Pork Tenderloin", viet: "Thăn Heo", cal: 143, prot: 26, fat: 3.5, carb: 0},
-    {name: "Salmon (Atlantic, cooked)", viet: "Cá Hồi", cal: 206, prot: 22, fat: 12, carb: 0},
-    {name: "Shrimp (cooked)", viet: "Tôm", cal: 99, prot: 24, fat: 0.3, carb: 0.2},
-    {name: "Tuna (canned in water)", viet: "Cá Ngừ Đóng Hộp", cal: 116, prot: 26, fat: 1, carb: 0},
     {name: "Turkey Breast (skinless)", viet: "Ức Gà Tây", cal: 135, prot: 30, fat: 1, carb: 0},
     {name: "Turkey Thigh (skinless)", viet: "Đùi Gà Tây", cal: 160, prot: 25, fat: 6, carb: 0},
     {name: "Veal Chop", viet: "Sườn Bê", cal: 180, prot: 28, fat: 7, carb: 0},
     {name: "Venison", viet: "Thịt Nai", cal: 160, prot: 30, fat: 3, carb: 0}
+  ],
+  fish: [
+    {name: "Anchovies (canned in oil)", viet: "Cá Cơm", cal: 210, prot: 29, fat: 10, carb: 0},
+    {name: "Bass (sea, cooked)", viet: "Cá Vược", cal: 124, prot: 23, fat: 3, carb: 0},
+    {name: "Catfish (cooked)", viet: "Cá Trê", cal: 150, prot: 18, fat: 8, carb: 0},
+    {name: "Cod (Atlantic, cooked)", viet: "Cá Tuyết", cal: 105, prot: 23, fat: 1, carb: 0},
+    {name: "Crab (blue, cooked)", viet: "Cua Xanh", cal: 97, prot: 20, fat: 1.5, carb: 0},
+    {name: "Crayfish (cooked)", viet: "Tôm Hùm Đất", cal: 87, prot: 17, fat: 1.4, carb: 0},
+    {name: "Eel (cooked)", viet: "Lươn", cal: 184, prot: 18, fat: 12, carb: 0},
+    {name: "Flounder (cooked)", viet: "Cá Bơn", cal: 117, prot: 24, fat: 1.5, carb: 0},
+    {name: "Grouper (cooked)", viet: "Cá Mú", cal: 118, prot: 24, fat: 1.3, carb: 0},
+    {name: "Haddock (cooked)", viet: "Cá Thu Đao", cal: 112, prot: 24, fat: 0.9, carb: 0},
+    {name: "Halibut (cooked)", viet: "Cá Bơn Halibut", cal: 140, prot: 27, fat: 2.9, carb: 0},
+    {name: "Herring (cooked)", viet: "Cá Trích", cal: 203, prot: 23, fat: 12, carb: 0},
+    {name: "Lobster (cooked)", viet: "Tôm Hùm", cal: 98, prot: 21, fat: 0.6, carb: 0.5},
+    {name: "Mackerel (Atlantic, cooked)", viet: "Cá Thu", cal: 262, prot: 24, fat: 18, carb: 0},
+    {name: "Mahi Mahi (cooked)", viet: "Cá Mahi Mahi", cal: 109, prot: 23, fat: 0.9, carb: 0},
+    {name: "Mussels (cooked)", viet: "Con Trai", cal: 172, prot: 24, fat: 4.5, carb: 7},
+    {name: "Octopus (cooked)", viet: "Bạch Tuộc", cal: 164, prot: 30, fat: 2.1, carb: 4.4},
+    {name: "Oysters (raw)", viet: "Hàu", cal: 81, prot: 9, fat: 2.3, carb: 4.2},
+    {name: "Perch (cooked)", viet: "Cá Rô", cal: 117, prot: 24, fat: 1.2, carb: 0},
+    {name: "Pollock (cooked)", viet: "Cá Pollock", cal: 111, prot: 23, fat: 1.2, carb: 0},
+    {name: "Rainbow Trout (cooked)", viet: "Cá Hồi Cầu Vồng", cal: 168, prot: 24, fat: 7, carb: 0},
+    {name: "Red Snapper (cooked)", viet: "Cá Hồng", cal: 128, prot: 26, fat: 1.7, carb: 0},
+    {name: "Salmon (Atlantic, cooked)", viet: "Cá Hồi", cal: 206, prot: 22, fat: 12, carb: 0},
+    {name: "Sardines (canned in oil)", viet: "Cá Mòi", cal: 208, prot: 25, fat: 11, carb: 0},
+    {name: "Scallops (cooked)", viet: "Sò Điệp", cal: 112, prot: 23, fat: 1.4, carb: 5.4},
+    {name: "Sea Bass (cooked)", viet: "Cá Vược Biển", cal: 124, prot: 23, fat: 3, carb: 0},
+    {name: "Shrimp (cooked)", viet: "Tôm", cal: 99, prot: 24, fat: 0.3, carb: 0.2},
+    {name: "Squid (cooked)", viet: "Mực", cal: 175, prot: 18, fat: 7.5, carb: 8},
+    {name: "Swordfish (cooked)", viet: "Cá Kiếm", cal: 155, prot: 23, fat: 6, carb: 0},
+    {name: "Tilapia (cooked)", viet: "Cá Rô Phi", cal: 128, prot: 26, fat: 2.7, carb: 0},
+    {name: "Tuna (Yellowfin, cooked)", viet: "Cá Ngừ Vàng", cal: 139, prot: 30, fat: 1, carb: 0},
+    {name: "Tuna (canned in water)", viet: "Cá Ngừ Đóng Hộp", cal: 116, prot: 26, fat: 1, carb: 0},
+    {name: "Whitefish (cooked)", viet: "Cá Trắng", cal: 172, prot: 24, fat: 7.5, carb: 0}
   ],
   grains: [
     {name: "Bagel (plain)", viet: "Bánh Bagel", cal: 275, prot: 11, fat: 1.5, carb: 54},
@@ -854,6 +917,98 @@ const db = {
   ]
 };
 
+// ==================== SAVE FUNCTIONS ====================
+function saveProfile() {
+  const profile = {
+    sex: document.getElementById('sex').value,
+    dob: document.getElementById('dob').value,
+    age: document.getElementById('curAge').value,
+    weight: document.getElementById('curWeight').value,
+    height: document.getElementById('curHeight').value,
+    bf: document.getElementById('curBF').value,
+    vf: document.getElementById('curVF').value,
+    activity: document.getElementById('curActivity').value
+  };
+  
+  localStorage.setItem('grubProfile', JSON.stringify(profile));
+  showStatus('saveStatus', 'Profile saved successfully!', 'success');
+}
+
+function loadProfile() {
+  const saved = localStorage.getItem('grubProfile');
+  if (!saved) {
+    showStatus('saveStatus', 'No saved profile found.', 'error');
+    return;
+  }
+  
+  const profile = JSON.parse(saved);
+  document.getElementById('sex').value = profile.sex || '';
+  document.getElementById('dob').value = profile.dob || '';
+  document.getElementById('curAge').value = profile.age || '';
+  document.getElementById('curWeight').value = profile.weight || '';
+  document.getElementById('curHeight').value = profile.height || '';
+  document.getElementById('curBF').value = profile.bf || '';
+  document.getElementById('curVF').value = profile.vf || '';
+  document.getElementById('curActivity').value = profile.activity || '1.55';
+  
+  // Force the analytics to run with a slight delay to ensure DOM is updated
+  setTimeout(() => {
+    runAnalytics();
+    showStatus('saveStatus', 'Profile loaded successfully!', 'success');
+  }, 100);
+}
+
+function saveGoals() {
+  const goals = {
+    goalDate: document.getElementById('goalDate').value,
+    goalWeight: document.getElementById('goalWeight').value,
+    goalBF: document.getElementById('goalBF').value,
+    goalVF: document.getElementById('goalVF').value,
+    goalBMR: document.getElementById('goalBMR').value,
+    targetCals: document.getElementById('targetCals').value
+  };
+  
+  localStorage.setItem('grubGoals', JSON.stringify(goals));
+  showStatus('goalStatus', 'Goals saved successfully!', 'success');
+}
+
+function saveJournal() {
+  const journalData = {
+    entries: journal,
+    totals: {
+      calories: document.getElementById('totCal').innerText,
+      protein: document.getElementById('totP').innerText,
+      carbs: document.getElementById('totC').innerText,
+      fats: document.getElementById('totF').innerText
+    },
+    timestamp: new Date().toISOString()
+  };
+  
+  localStorage.setItem('grubJournal', JSON.stringify(journalData));
+  showStatus('goalStatus', 'Journal saved successfully!', 'success');
+}
+
+function loadJournal() {
+  const saved = localStorage.getItem('grubJournal');
+  if (saved) {
+    const data = JSON.parse(saved);
+    journal = data.entries || [];
+    renderJournal();
+    showStatus('goalStatus', 'Journal loaded successfully!', 'success');
+  } else {
+    showStatus('goalStatus', 'No saved journal found.', 'error');
+  }
+}
+
+function showStatus(elementId, message, type) {
+  const element = document.getElementById(elementId);
+  element.textContent = message;
+  element.className = 'status-message ' + type;
+  setTimeout(() => {
+    element.className = 'status-message';
+  }, 3000);
+}
+
 // ==================== ENGINE CORE ====================
 let activeLossSpeed = 'med';
 
@@ -919,7 +1074,8 @@ function generateAnalysisReport(bmr, tdee, bmi, bf, vf, weight, goalWeight, sex)
   const content = document.getElementById('reportContent');
   const calorieRecs = document.getElementById('calorieRecommendations');
   
-  if (bmr === 0 || tdee === 0) {
+  // Check if we have valid numeric values (not NaN)
+  if (isNaN(bmr) || bmr === 0 || isNaN(tdee) || tdee === 0) {
     content.innerHTML = "<p>Input current profile data to generate your health analysis...</p>";
     calorieRecs.style.display = 'none';
     return;
@@ -1179,9 +1335,52 @@ document.getElementById('dob').addEventListener('change', function() {
   }
 });
 
-filterFoods();
-runAnalytics();
-updateMacroPlanner();
+// Auto-load saved data on page load
+window.addEventListener('load', function() {
+  // Load profile
+  const savedProfile = localStorage.getItem('grubProfile');
+  if (savedProfile) {
+    const profile = JSON.parse(savedProfile);
+    document.getElementById('sex').value = profile.sex || '';
+    document.getElementById('dob').value = profile.dob || '';
+    document.getElementById('curAge').value = profile.age || '';
+    document.getElementById('curWeight').value = profile.weight || '';
+    document.getElementById('curHeight').value = profile.height || '';
+    document.getElementById('curBF').value = profile.bf || '';
+    document.getElementById('curVF').value = profile.vf || '';
+    document.getElementById('curActivity').value = profile.activity || '1.55';
+  }
+  
+  // Load goals
+  const savedGoals = localStorage.getItem('grubGoals');
+  if (savedGoals) {
+    const goals = JSON.parse(savedGoals);
+    document.getElementById('goalDate').value = goals.goalDate || '';
+    document.getElementById('goalWeight').value = goals.goalWeight || '';
+    document.getElementById('goalBF').value = goals.goalBF || '';
+    document.getElementById('goalVF').value = goals.goalVF || '';
+    document.getElementById('goalBMR').value = goals.goalBMR || '';
+    document.getElementById('targetCals').value = goals.targetCals || '2000';
+  }
+  
+  // Load journal
+  loadJournal();
+  
+  // Run initial calculations with a slight delay to ensure DOM is ready
+  setTimeout(() => {
+    filterFoods();
+    runAnalytics();
+    updateMacroPlanner();
+    
+    // Show a message if data was loaded
+    if (savedProfile || savedGoals) {
+      const statusElement = document.getElementById('saveStatus');
+      if (statusElement) {
+        showStatus('saveStatus', 'Previous data loaded successfully!', 'success');
+      }
+    }
+  }, 150);
+});
 </script>
 </body>
 </html>
