@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Check my Grub 🌲 | Ultimate Master Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest-deep: #0f2a24;
+    --forest: #1a3c34;
+    --pine: #2e5d4e;
+    --moss: #4a7859;
+    --leaf: #8ab17d;
+    --sage: #b4c9b1;
+    --sunlit: #f4f7f1;
+    --accent: #d4a373;
+    --glass: rgba(255, 255, 255, 0.98);
+    --shadow: 0 20px 50px rgba(0,0,0,0.1);
+    --danger: #e74c3c;
+    --warn: #e67e22;
+    --good: #27ae60;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f8faf8;
+    background-image: radial-gradient(at 0% 0%, rgba(138, 177, 125, 0.15) 0px, transparent 50%);
+    color: var(--forest-deep);
+    padding: 20px;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 1440px; margin: 0 auto; }
+  header { text-align: center; padding: 20px 0 40px; }
+  h1 { font-size: 3rem; letter-spacing: -2px; color: var(--forest-deep); }
+  
+  /* Analytics Layout */
+  .main-grid { display: grid; grid-template-columns: 1fr 0.8fr 1fr; gap: 25px; margin-bottom: 30px; }
+
+  .card {
+    background: var(--glass);
+    border-radius: 28px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    border: 1px solid white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gap-card { background: var(--forest); color: white; justify-content: center; text-align: center; border: none; }
+  h2 { font-size: 1.4rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--pine); }
+  .gap-card h2 { color: var(--leaf); justify-content: center; }
+
+  .form-group { margin-bottom: 12px; }
+  label { display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--moss); margin-bottom: 5px; }
+  
+  input, select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #eef2ee;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+
+  .gap-item { margin: 10px 0; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .gap-item span { display: block; font-size: 0.75rem; opacity: 0.8; }
+  .gap-item strong { font-size: 1.7rem; color: var(--leaf); }
+
+  /* Report & Reference */
+  .report-section { grid-column: 1 / -1; margin-bottom: 30px; border-left: 10px solid var(--leaf); }
+  .report-flex { display: flex; gap: 25px; }
+  .report-main { flex: 2; padding: 10px; font-size: 1.05rem; }
+  .report-sidebar { flex: 1; background: var(--sunlit); padding: 20px; border-radius: 20px; border: 1px solid #ddd; }
+
+  .standards-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; margin-top: 10px; font-size: 0.8rem; }
+  .standards-table th, .standards-table td { padding: 8px; border: 1px solid #eee; text-align: center; }
+  .standards-table th { background: var(--pine); color: white; }
+
+  /* Macro Planner */
+  .speed-selector { display: flex; gap: 10px; margin-top: 10px; }
+  .speed-opt { 
+    flex: 1; border: 2px solid #eef2ee; padding: 12px; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; background: white;
+  }
+  .speed-opt.active { border-color: var(--leaf); background: var(--sunlit); }
+  
+  .macro-display { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+  .macro-box { padding: 15px; border-radius: 15px; text-align: center; color: white; }
+  .p-bg { background: var(--forest); } .c-bg { background: var(--moss); } .f-bg { background: var(--accent); }
+
+  /* Search area */
+  .search-area { background: var(--sunlit); padding: 20px; border-radius: 20px; margin-bottom: 30px; }
+  .search-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.5fr auto; gap: 12px; align-items: flex-end; }
+  
+  .m-btns { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+  .m-btn { padding: 8px 14px; background: white; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+  .m-btn.active { background: var(--leaf); color: white; border-color: var(--leaf); }
+
+  .tracker-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 25px 0; }
+  .mini-stat { background: white; padding: 15px; border-radius: 15px; text-align: center; border: 1px solid #eee; }
+  .mini-stat span { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: block; }
+  .mini-stat strong { font-size: 1.5rem; color: var(--forest); }
+
+  table.journal-table { width: 100%; border-collapse: collapse; background: white; font-size: 0.85rem; }
+  table.journal-table th { text-align: left; padding: 12px; background: #f9faf9; color: var(--moss); }
+  table.journal-table td { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+
+  .food-name { font-weight: 600; }
+  .viet-name { font-size: 0.75rem; color: var(--moss); font-style: italic; margin-left: 5px; }
+
+  .analysis-box { background: var(--sunlit); padding: 15px; border-radius: 12px; margin: 10px 0; border-left: 5px solid var(--leaf); }
+  .analysis-box.warning { border-left-color: var(--warn); background: #fff9e6; }
+  .analysis-box.danger { border-left-color: var(--danger); background: #ffe6e6; }
+  .analysis-box.good { border-left-color: var(--good); background: #e6f7ed; }
+
+  .calorie-recs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+  .cal-rec { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 2px solid #eee; }
+  .cal-rec strong { font-size: 1.8rem; color: var(--pine); display: block; }
+
+  @media (max-width: 1100px) { .main-grid, .report-flex, .search-grid { grid-template-columns: 1fr; } .report-flex { flex-direction: column; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Check my Grub 🌲</h1>
+    <p>Journey Intelligence & Complete Nutritional Database</p>
+  </header>
+
+  <div class="main-grid">
+    <!-- CURRENT -->
+    <div class="card">
+      <h2>Current Profile</h2>
+      <div class="form-group">
+        <label>Sex & DOB</label>
+        <div style="display:flex; gap:8px;">
+          <select id="sex"><option value="">--</option><option value="male">Male</option><option value="female">Female</option></select>
+          <input type="date" id="dob">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Age (years)</label>
+        <input type="number" id="curAge" placeholder="0" min="1" max="120">
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;"><label>Weight (kg)</label><input type="number" id="curWeight" placeholder="0.0" step="0.1"></div>
+        <div class="form-group" style="flex:1;"><label>Height (cm)</label><input type="number" id="curHeight" placeholder="0"></div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;"><label>Body Fat %</label><input type="number" id="curBF" placeholder="0.0" step="0.1"></div>
+        <div class="form-group" style="flex:1;"><label>Visceral Fat</label><input type="number" id="curVF" placeholder="0"></div>
+      </div>
+      <div class="form-group">
+        <label>Activity Intensity</label>
+        <select id="curActivity">
+          <option value="1.2">Sedentary (little/no exercise)</option>
+          <option value="1.375">Light (1-3 days/week)</option>
+          <option value="1.55" selected>Moderate (3-5 days/week)</option>
+          <option value="1.725">High (6-7 days/week)</option>
+          <option value="1.9">Athlete (2x day training)</option>
+        </select>
+      </div>
+      <div class="mini-stat" style="background:var(--sunlit); border:none; margin-top:10px;">
+        <span>Current BMR / BMI</span>
+        <strong id="resBMR">0</strong> <small>kcal</small> | <strong id="resBMI">0</strong> <small>BMI</small>
+      </div>
+    </div>
+
+    <!-- GAP -->
+    <div class="card gap-card">
+      <h2>The Gap Analysis</h2>
+      <div class="gap-item"><span>Weight Delta</span><strong id="gapWeight">--</strong></div>
+      <div class="gap-item"><span>Fat % Gap</span><strong id="gapBF">--</strong></div>
+      <div class="gap-item"><span>Visceral Gap</span><strong id="gapVF">--</strong></div>
+      <div class="gap-item"><span>Metabolic Shift</span><strong id="gapBMR">--</strong></div>
+      <div class="gap-item" style="border:none;"><span>Days Left</span><strong id="gapDays">--</strong></div>
+    </div>
+
+    <!-- TARGET -->
+    <div class="card">
+      <h2>Target Goals</h2>
+      <div class="form-group"><label>Goal Date</label><input type="date" id="goalDate"></div>
+      <div class="form-group"><label>Target Weight (kg)</label><input type="number" id="goalWeight" placeholder="0.0" step="0.1"></div>
+      <div class="form-group"><label>Target Body Fat %</label><input type="number" id="goalBF" placeholder="0.0" step="0.1"></div>
+      <div class="form-group"><label>Target Visceral Fat</label><input type="number" id="goalVF" placeholder="0"></div>
+      <div class="form-group"><label>Target BMR</label><input type="number" id="goalBMR" placeholder="0"></div>
+      <div class="mini-stat" style="background:var(--sunlit); border:none; margin-top:auto;">
+        <span>Target TDEE / BMI</span>
+        <strong id="resTDEE">0</strong> <small>kcal</small> | <strong id="resGoalBMI">0</strong> <small>BMI</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO REPORT -->
+  <div class="card report-section">
+    <h2>🌲 Health Report & Global Standards</h2>
+    <div class="report-flex">
+      <div class="report-main" id="reportContent">
+        <p>Input data above to generate your health analysis...</p>
+        <div id="calorieRecommendations" style="display:none;">
+          <h3>📊 Calorie Recommendations</h3>
+          <div class="calorie-recs">
+            <div class="cal-rec">
+              <span>Maintenance</span>
+              <strong id="calMaintain">0</strong>
+              <small>kcal/day</small>
+            </div>
+            <div class="cal-rec">
+              <span>Mild Loss (0.25kg/wk)</span>
+              <strong id="calMild">0</strong>
+              <small>kcal/day</small>
+            </div>
+            <div class="cal-rec">
+              <span>Fast Loss (0.5kg/wk)</span>
+              <strong id="calFast">0</strong>
+              <small>kcal/day</small>
+            </div>
+          </div>
+          <div class="analysis-box good">
+            <strong>Nutrient Specialist Ratios:</strong>
+            <ul style="margin-top:8px; padding-left:20px;">
+              <li><strong>Weight Loss:</strong> 40% Protein, 30% Carbs, 30% Fat</li>
+              <li><strong>Muscle Gain:</strong> 30% Protein, 40% Carbs, 30% Fat</li>
+              <li><strong>Maintenance:</strong> 25% Protein, 45% Carbs, 30% Fat</li>
+              <li><strong>Extreme Fat Loss:</strong> 50% Protein, 30% Carbs, 20% Fat</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="report-sidebar">
+        <label>World Health References</label>
+        <table class="standards-table">
+          <tr><th>Metric</th><th>Healthy Range</th></tr>
+          <tr><td>BMI</td><td>18.5 – 24.9</td></tr>
+          <tr><td>Body Fat (M)</td><td>10 – 20%</td></tr>
+          <tr><td>Body Fat (F)</td><td>18 – 28%</td></tr>
+          <tr><td>Visceral Fat</td><td>1 – 12</td></tr>
+          <tr><td>Waist/Hip Ratio (M)</td><td>< 0.90</td></tr>
+          <tr><td>Waist/Hip Ratio (F)</td><td>< 0.85</td></tr>
+        </table>
+        <div style="margin-top:15px; padding:10px; background:#f0f7f0; border-radius:8px; font-size:0.8rem;">
+          <strong>Note:</strong> 1 kg of body fat = ~7,700 calories. Safe weight loss is 0.25-0.5 kg per week.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANNER -->
+  <div class="card" style="margin-bottom:30px;">
+    <h2>🎯 Calorie & Macro Planner</h2>
+    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:20px;">
+      <div class="form-group">
+        <label>Daily Calorie Target</label>
+        <input type="number" id="targetCals" value="2000" style="font-size:1.5rem; font-weight:700;">
+      </div>
+      <div>
+        <label>Loss Speed</label>
+        <div class="speed-selector">
+          <div class="speed-opt" id="speedSlow" onclick="setSpeed('slow')"><strong>Slow</strong><br><small>25/45/30</small></div>
+          <div class="speed-opt active" id="speedMed" onclick="setSpeed('med')"><strong>Medium</strong><br><small>40/30/30</small></div>
+          <div class="speed-opt" id="speedFast" onclick="setSpeed('fast')"><strong>Fast</strong><br><small>60/30/10</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="macro-display">
+      <div class="macro-box p-bg"><span>Protein</span><br><strong id="planP">0g</strong><br><small id="pctP">0%</small></div>
+      <div class="macro-box c-bg"><span>Carbs</span><br><strong id="planC">0g</strong><br><small id="pctC">0%</small></div>
+      <div class="macro-box f-bg"><span>Fats</span><br><strong id="planF">0g</strong><br><small id="pctF">0%</small></div>
+    </div>
+  </div>
+
+  <!-- TRACKER -->
+  <div class="card tracker-card" style="grid-column:1/-1;">
+    <h2>Intake Journal</h2>
+    <div class="search-area">
+      <div class="search-grid">
+        <div class="form-group"><label>A-Z Search</label><input type="text" id="foodSearch" placeholder="Search 500+ items..." oninput="filterFoods()"></div>
+        <div class="form-group">
+          <label>Category Filter</label>
+          <select id="cat" onchange="filterFoods()">
+            <option value="all">All Items (500+)</option>
+            <option value="vietnamese">🇻🇳 Vietnamese Cuisine (50+)</option>
+            <option value="fastfood">🍔 Fast Foods (50+)</option>
+            <option value="vegetables">🥦 Vegetables (50+)</option>
+            <option value="fruits">🍎 Fruits (50+)</option>
+            <option value="drinks">🥤 Drinks & Juices (50+)</option>
+            <option value="alcohol">🥃 Alcoholic Beverages (50+)</option>
+            <option value="meats">🍖 Meats (50+)</option>
+            <option value="grains">🌾 Starches & Breads (50+)</option>
+            <option value="dairy">🧀 Dairy & Eggs (50+)</option>
+            <option value="spices">🍯 Sugars & Spices (50+)</option>
+            <option value="condiments">🧂 Condiments & Sauces (50+)</option>
+            <option value="sweets">🍰 Sweets & Desserts (50+)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Select Result</label><select id="foodItem"></select></div>
+        <div class="form-group"><label>Qty (g/ml)</label><input type="number" id="foodAmt" value="100" min="1"></div>
+        <button class="m-btn" style="background:var(--forest); color:white; border:none; padding:12px 25px; font-weight:700;" onclick="addItem()">Add</button>
+      </div>
+      <div class="m-btns">
+        <button class="m-btn active" data-m="raw">Raw</button>
+        <button class="m-btn" data-m="steamed">Steamed</button>
+        <button class="m-btn" data-m="grilled">Grilled</button>
+        <button class="m-btn" data-m="roasted">Roasted</button>
+        <button class="m-btn" data-m="fried">Pan Fried</button>
+        <button class="m-btn" data-m="deep">Deep Fried</button>
+      </div>
+      <input type="hidden" id="method" value="raw">
+    </div>
+
+    <div class="tracker-stats">
+      <div class="mini-stat"><span>Net Calories</span><strong id="totCal">0</strong></div>
+      <div class="mini-stat"><span>Protein</span><strong id="totP">0g</strong></div>
+      <div class="mini-stat"><span>Carbs</span><strong id="totC">0g</strong></div>
+      <div class="mini-stat"><span>Fats</span><strong id="totF">0g</strong></div>
+    </div>
+    <div class="journal-wrap" id="journalTable"></div>
+  </div>
+</div>
+
+<script>
+// ==================== THE MASTER DATABASE (500+ ITEMS) ====================
+const db = {
+  vietnamese: [
+    {name: "Banh Beo (Steamed Rice Cakes)", viet: "Bánh Bèo", cal: 150, prot: 3, fat: 2, carb: 30},
+    {name: "Banh Bot Loc (Shrimp & Pork Dumpling)", viet: "Bánh Bột Lọc", cal: 200, prot: 7, fat: 6, carb: 30},
+    {name: "Banh Cuon (Steamed Rice Rolls)", viet: "Bánh Cuốn", cal: 180, prot: 6, fat: 4, carb: 30},
+    {name: "Banh Khot (Mini Pancakes)", viet: "Bánh Khọt", cal: 220, prot: 5, fat: 11, carb: 25},
+    {name: "Banh Mi (Sandwich, whole)", viet: "Bánh Mì", cal: 450, prot: 15, fat: 18, carb: 55},
+    {name: "Banh Xeo (Crispy Pancake)", viet: "Bánh Xèo", cal: 250, prot: 8, fat: 13, carb: 25},
+    {name: "Bo Bia (Spring Rolls w/ Jicama)", viet: "Bò Bía", cal: 120, prot: 3, fat: 3, carb: 20},
+    {name: "Bo Luc Lac (Shaking Beef)", viet: "Bò Lúc Lắc", cal: 220, prot: 25, fat: 10, carb: 8},
+    {name: "Bo Nuong La Lot (Beef in Betel Leaf)", viet: "Bò Nướng Lá Lốt", cal: 180, prot: 18, fat: 11, carb: 3},
+    {name: "Bo Tai Chanh (Beef Carpaccio)", viet: "Bò Tái Chanh", cal: 160, prot: 20, fat: 7, carb: 5},
+    {name: "Bun Bo Hue (Spicy Beef Soup)", viet: "Bún Bò Huế", cal: 380, prot: 18, fat: 14, carb: 45},
+    {name: "Bun Cha (Grilled Pork & Noodles)", viet: "Bún Chả", cal: 320, prot: 20, fat: 12, carb: 35},
+    {name: "Bun Dau Mam Tom", viet: "Bún Đậu Mắm Tôm", cal: 350, prot: 15, fat: 12, carb: 40},
+    {name: "Ca Kho To (Caramel Fish)", viet: "Cá Kho Tộ", cal: 180, prot: 20, fat: 8, carb: 10},
+    {name: "Ca Tim Kho (Braised Eggplant)", viet: "Cà Tím Kho", cal: 90, prot: 2, fat: 5, carb: 10},
+    {name: "Canh Chua (Sour Soup)", viet: "Canh Chua", cal: 60, prot: 6, fat: 1, carb: 7},
+    {name: "Canh Khổ Qua (Bitter Melon Soup)", viet: "Canh Khổ Qua", cal: 50, prot: 4, fat: 1, carb: 6},
+    {name: "Cha Ca (Turmeric Fish w/ Dill)", viet: "Chả Cá", cal: 200, prot: 22, fat: 10, carb: 5},
+    {name: "Cha Gio (Fried Spring Roll, 1 roll)", viet: "Chả Giò", cal: 120, prot: 5, fat: 7, carb: 10},
+    {name: "Chao (Rice Porridge, plain)", viet: "Cháo", cal: 50, prot: 2, fat: 1, carb: 10},
+    {name: "Chao Ga (Chicken Porridge)", viet: "Cháo Gà", cal: 70, prot: 6, fat: 2, carb: 9},
+    {name: "Chao Long (Offal Porridge)", viet: "Cháo Lòng", cal: 85, prot: 8, fat: 3, carb: 8},
+    {name: "Che (Sweet Dessert Soup)", viet: "Chè", cal: 150, prot: 2, fat: 2, carb: 30},
+    {name: "Com Tam (Broken Rice w/ Grill)", viet: "Cơm Tấm", cal: 400, prot: 25, fat: 12, carb: 50},
+    {name: "Do Chua (Pickled Carrot & Daikon)", viet: "Đồ Chua", cal: 25, prot: 0, fat: 0, carb: 6},
+    {name: "Dua Gia (Pickled Bean Sprouts)", viet: "Dưa Giá", cal: 30, prot: 2, fat: 0, carb: 5},
+    {name: "Ga Nuong (Grilled Chicken)", viet: "Gà Nướng", cal: 180, prot: 25, fat: 8, carb: 2},
+    {name: "Ga Xao Xa Ot (Lemongrass Chicken)", viet: "Gà Xào Sả Ớt", cal: 170, prot: 22, fat: 7, carb: 5},
+    {name: "Goi Cuon (Fresh Spring Roll, 1 roll)", viet: "Gỏi Cuốn", cal: 80, prot: 4, fat: 1, carb: 12},
+    {name: "Goi Ga (Chicken Cabbage Salad)", viet: "Gỏi Gà", cal: 150, prot: 10, fat: 7, carb: 12},
+    {name: "Goi Sua (Jellyfish Salad)", viet: "Gỏi Sứa", cal: 80, prot: 10, fat: 1, carb: 8},
+    {name: "Heo Nuong (Grilled Pork)", viet: "Heo Nướng", cal: 220, prot: 23, fat: 12, carb: 3},
+    {name: "Lau (Hot Pot, broth only)", viet: "Lẩu", cal: 30, prot: 3, fat: 1, carb: 2},
+    {name: "Mam Nem (Fermented Fish Sauce)", viet: "Mắm Nêm", cal: 60, prot: 8, fat: 1, carb: 4},
+    {name: "Mi Quang (Turmeric Noodles)", viet: "Mì Quảng", cal: 280, prot: 12, fat: 10, carb: 35},
+    {name: "Muc Nuong (Grilled Squid)", viet: "Mực Nướng", cal: 150, prot: 25, fat: 3, carb: 5},
+    {name: "Nom Hoa Chuoi (Banana Flower Salad)", viet: "Nộm Hoa Chuối", cal: 120, prot: 4, fat: 3, carb: 20},
+    {name: "Nuoc Cham (Dipping Sauce)", viet: "Nước Chấm", cal: 50, prot: 1, fat: 0, carb: 12},
+    {name: "Pho Ap Chao (Pan-fried Noodles)", viet: "Phở Áp Chảo", cal: 300, prot: 12, fat: 12, carb: 35},
+    {name: "Pho Bo (Beef Noodle Soup)", viet: "Phở Bò", cal: 350, prot: 15, fat: 10, carb: 45},
+    {name: "Pho Cuon (Fresh Rice Noodle Rolls)", viet: "Phở Cuốn", cal: 130, prot: 8, fat: 3, carb: 18},
+    {name: "Pho Ga (Chicken Noodle Soup)", viet: "Phở Gà", cal: 320, prot: 14, fat: 9, carb: 42},
+    {name: "Rau Cau (Vietnamese Jelly)", viet: "Rau Câu", cal: 70, prot: 1, fat: 0, carb: 16},
+    {name: "Rau Mong Toi (Stir-fried Malabar Spinach)", viet: "Rau Mồng Tơi", cal: 35, prot: 3, fat: 1, carb: 5},
+    {name: "Rau Muong Xao (Stir-fried Water Spinach)", viet: "Rau Muống Xào", cal: 45, prot: 3, fat: 2, carb: 5},
+    {name: "Thit Kho (Braised Pork & Eggs)", viet: "Thịt Kho", cal: 250, prot: 20, fat: 16, carb: 5},
+    {name: "Tiet Canh (Blood Pudding)", viet: "Tiết Canh", cal: 120, prot: 15, fat: 6, carb: 2},
+    {name: "Tom Rim (Caramelized Shrimp)", viet: "Tôm Rim", cal: 160, prot: 22, fat: 5, carb: 8},
+    {name: "Xoi (Sticky Rice, plain)", viet: "Xôi", cal: 220, prot: 4, fat: 2, carb: 45},
+    {name: "Xoi Ga (Sticky Rice w/ Chicken)", viet: "Xôi Gà", cal: 280, prot: 15, fat: 8, carb: 40},
+    {name: "Xoi Man (Savory Sticky Rice)", viet: "Xôi Mặn", cal: 300, prot: 10, fat: 10, carb: 42},
+    {name: "Xoi Ngot (Sweet Sticky Rice)", viet: "Xôi Ngọt", cal: 280, prot: 5, fat: 5, carb: 55}
+  ],
+  fastfood: [
+    {name: "10 pc Chicken McNuggets", cal: 410, prot: 24, fat: 24, carb: 24},
+    {name: "2 Slices Cheese Pizza (Domino's)", cal: 480, prot: 20, fat: 18, carb: 60},
+    {name: "5-piece Chicken Tenders", cal: 320, prot: 22, fat: 18, carb: 16},
+    {name: "6\" Turkey Breast Sub (Subway)", cal: 280, prot: 18, fat: 3.5, carb: 46},
+    {name: "Bacon Cheeseburger (Sonic)", cal: 720, prot: 33, fat: 41, carb: 52},
+    {name: "Baconator", cal: 630, prot: 37, fat: 35, carb: 46},
+    {name: "Bacon, Egg & Cheese Biscuit", cal: 450, prot: 18, fat: 27, carb: 35},
+    {name: "Baked Potato w/ Butter", cal: 350, prot: 6, fat: 12, carb: 55},
+    {name: "Beef Burrito (regular)", cal: 380, prot: 15, fat: 16, carb: 45},
+    {name: "Beef Tostada", cal: 280, prot: 10, fat: 12, carb: 30},
+    {name: "Big Mac", cal: 590, prot: 26, fat: 34, carb: 45},
+    {name: "Bloomin' Onion (appetizer)", cal: 450, prot: 6, fat: 22, carb: 55},
+    {name: "Buffalo Chicken Wrap", cal: 380, prot: 22, fat: 18, carb: 30},
+    {name: "Chicken & Waffles", cal: 780, prot: 35, fat: 38, carb: 75},
+    {name: "Chicken Caesar Salad (no dressing)", cal: 220, prot: 30, fat: 7, carb: 10},
+    {name: "Chicken Fajita Roll-up", cal: 320, prot: 18, fat: 12, carb: 35},
+    {name: "Chicken Gyro", cal: 420, prot: 25, fat: 16, carb: 45},
+    {name: "Chicken Parmesan Sub", cal: 620, prot: 35, fat: 28, carb: 55},
+    {name: "Chicken Quesadilla", cal: 520, prot: 30, fat: 28, carb: 35},
+    {name: "Chicken Taco (hard shell)", cal: 170, prot: 8, fat: 10, carb: 13},
+    {name: "Chili Cheese Fries", cal: 420, prot: 12, fat: 22, carb: 45},
+    {name: "Chili Dog", cal: 320, prot: 12, fat: 18, carb: 25},
+    {name: "Corn Dog", cal: 280, prot: 8, fat: 14, carb: 30},
+    {name: "Crunchwrap Supreme", cal: 540, prot: 16, fat: 26, carb: 60},
+    {name: "Double Cheeseburger", cal: 490, prot: 28, fat: 27, carb: 35},
+    {name: "Fish & Chips (regular)", cal: 750, prot: 25, fat: 38, carb: 75},
+    {name: "Fish Fillet Sandwich", cal: 380, prot: 15, fat: 18, carb: 42},
+    {name: "Fried Pickle Spears", cal: 300, prot: 4, fat: 18, carb: 30},
+    {name: "Fried Shrimp Basket", cal: 420, prot: 20, fat: 22, carb: 35},
+    {name: "Grilled Cheese Sandwich", cal: 400, prot: 15, fat: 22, carb: 35},
+    {name: "Grilled Chicken Sandwich", cal: 350, prot: 28, fat: 9, carb: 40},
+    {name: "Hash Browns (2 pieces)", cal: 300, prot: 3, fat: 18, carb: 30},
+    {name: "Margherita Pizza Slice", cal: 200, prot: 9, fat: 8, carb: 24},
+    {name: "McChicken", cal: 400, prot: 14, fat: 21, carb: 39},
+    {name: "Meatball Marinara Sub (6\")", cal: 480, prot: 20, fat: 18, carb: 60},
+    {name: "Medium French Fries", cal: 320, prot: 4, fat: 15, carb: 44},
+    {name: "Mozzarella Sticks (6 pc)", cal: 450, prot: 20, fat: 25, carb: 35},
+    {name: "Nachos w/ Cheese (regular)", cal: 450, prot: 12, fat: 22, carb: 50},
+    {name: "Onion Rings (medium)", cal: 400, prot: 5, fat: 22, carb: 48},
+    {name: "Original Chicken Sandwich", cal: 660, prot: 28, fat: 38, carb: 51},
+    {name: "Pancake Breakfast (3 pancakes)", cal: 400, prot: 9, fat: 12, carb: 65},
+    {name: "Personal Pepperoni Pizza", cal: 620, prot: 28, fat: 26, carb: 70},
+    {name: "Philly Cheesesteak (medium)", cal: 550, prot: 30, fat: 28, carb: 45},
+    {name: "Popcorn Chicken (medium)", cal: 360, prot: 20, fat: 18, carb: 28},
+    {name: "Pulled Pork Sandwich", cal: 450, prot: 22, fat: 18, carb: 50},
+    {name: "Quarter Pounder w/ Cheese", cal: 520, prot: 30, fat: 27, carb: 41},
+    {name: "Sausage Biscuit", cal: 420, prot: 11, fat: 28, carb: 30},
+    {name: "Spicy Chicken Sandwich", cal: 450, prot: 28, fat: 16, carb: 51},
+    {name: "Spicy Chicken Wings (6 pc)", cal: 430, prot: 30, fat: 30, carb: 10},
+    {name: "Steak Soft Taco", cal: 200, prot: 10, fat: 8, carb: 20},
+    {name: "Veggie Burger", cal: 350, prot: 15, fat: 12, carb: 45},
+    {name: "Whopper", cal: 660, prot: 28, fat: 40, carb: 49},
+    {name: "Whopper Jr.", cal: 310, prot: 13, fat: 16, carb: 30}
+  ],
+  vegetables: [
+    {name: "Artichoke", viet: "Atiso", cal: 47, prot: 3.3, fat: 0.2, carb: 11},
+    {name: "Arugula", viet: "Rau Arugula", cal: 25, prot: 2.6, fat: 0.7, carb: 3.7},
+    {name: "Asparagus", viet: "Măng Tây", cal: 20, prot: 2.2, fat: 0.1, carb: 4},
+    {name: "Bell Peppers (red)", viet: "Ớt Chuông Đỏ", cal: 31, prot: 1, fat: 0.3, carb: 6},
+    {name: "Bok Choy", viet: "Cải Thìa", cal: 13, prot: 1.5, fat: 0.2, carb: 2.2},
+    {name: "Broccoli", viet: "Bông Cải Xanh", cal: 34, prot: 2.8, fat: 0.4, carb: 7},
+    {name: "Brussels Sprouts", viet: "Cải Brussels", cal: 43, prot: 3.4, fat: 0.3, carb: 9},
+    {name: "Cabbage (green)", viet: "Bắp Cải", cal: 25, prot: 1.3, fat: 0.1, carb: 6},
+    {name: "Carrots", viet: "Cà Rốt", cal: 41, prot: 0.9, fat: 0.2, carb: 10},
+    {name: "Cauliflower", viet: "Súp Lơ Trắng", cal: 25, prot: 2, fat: 0.3, carb: 5},
+    {name: "Celery", viet: "Cần Tây", cal: 14, prot: 0.7, fat: 0.2, carb: 3},
+    {name: "Corn on the cob", viet: "Bắp Ngô", cal: 86, prot: 3.3, fat: 1.2, carb: 19},
+    {name: "Cucumber", viet: "Dưa Chuột", cal: 15, prot: 0.7, fat: 0.1, carb: 3.6},
+    {name: "Daikon Radish", viet: "Củ Cải Trắng", cal: 18, prot: 0.6, fat: 0.1, carb: 4.1},
+    {name: "Eggplant", viet: "Cà Tím", cal: 25, prot: 1, fat: 0.2, carb: 6},
+    {name: "Endive", viet: "Rau Endive", cal: 17, prot: 1.3, fat: 0.2, carb: 3.4},
+    {name: "Fennel", viet: "Thì Là", cal: 31, prot: 1.2, fat: 0.2, carb: 7},
+    {name: "Garlic", viet: "Tỏi", cal: 149, prot: 6.4, fat: 0.5, carb: 33},
+    {name: "Ginger", viet: "Gừng", cal: 80, prot: 1.8, fat: 0.8, carb: 18},
+    {name: "Green Beans", viet: "Đậu Cô Ve", cal: 31, prot: 1.8, fat: 0.1, carb: 7},
+    {name: "Jicama", viet: "Củ Sắn", cal: 38, prot: 0.7, fat: 0.1, carb: 9},
+    {name: "Kale", viet: "Cải Xoăn", cal: 49, prot: 4.3, fat: 0.9, carb: 9},
+    {name: "Kohlrabi", viet: "Su Hào", cal: 27, prot: 1.7, fat: 0.1, carb: 6},
+    {name: "Leeks", viet: "Tỏi Tây", cal: 61, prot: 1.5, fat: 0.3, carb: 14},
+    {name: "Lettuce (Romaine)", viet: "Xà Lách Romaine", cal: 17, prot: 1.2, fat: 0.3, carb: 3.3},
+    {name: "Mushrooms (white)", viet: "Nấm Trắng", cal: 22, prot: 3.1, fat: 0.3, carb: 3.3},
+    {name: "Okra", viet: "Đậu Bắp", cal: 33, prot: 2, fat: 0.2, carb: 7},
+    {name: "Onions", viet: "Hành Tây", cal: 40, prot: 1.1, fat: 0.1, carb: 9},
+    {name: "Parsnips", viet: "Củ Cải Vàng", cal: 75, prot: 1.2, fat: 0.3, carb: 18},
+    {name: "Potato (white)", viet: "Khoai Tây", cal: 77, prot: 2, fat: 0.1, carb: 17},
+    {name: "Pumpkin", viet: "Bí Đỏ", cal: 26, prot: 1, fat: 0.1, carb: 7},
+    {name: "Radishes", viet: "Củ Cải Đỏ", cal: 16, prot: 0.7, fat: 0.1, carb: 3.4},
+    {name: "Snow Peas", viet: "Đậu Hà Lan", cal: 42, prot: 2.8, fat: 0.2, carb: 7.6},
+    {name: "Spinach", viet: "Rau Bina", cal: 23, prot: 3, fat: 0.4, carb: 3.6},
+    {name: "Sweet Potato", viet: "Khoai Lang", cal: 86, prot: 1.6, fat: 0.1, carb: 20},
+    {name: "Swiss Chard", viet: "Cải Cầu Vồng", cal: 19, prot: 1.8, fat: 0.2, carb: 3.7},
+    {name: "Tomato", viet: "Cà Chua", cal: 18, prot: 0.9, fat: 0.2, carb: 3.9},
+    {name: "Turnips", viet: "Củ Cải Turnip", cal: 28, prot: 0.9, fat: 0.1, carb: 6},
+    {name: "Watercress", viet: "Cải Xoong", cal: 11, prot: 2.3, fat: 0.1, carb: 1.3},
+    {name: "Zucchini", viet: "Bí Ngòi", cal: 17, prot: 1.2, fat: 0.3, carb: 3.1}
+  ],
+  fruits: [
+    {name: "Apple (with skin)", viet: "Táo", cal: 52, prot: 0.3, fat: 0.2, carb: 14},
+    {name: "Apricot", viet: "Mơ", cal: 48, prot: 1.4, fat: 0.4, carb: 11},
+    {name: "Avocado", viet: "Bơ", cal: 160, prot: 2, fat: 15, carb: 9},
+    {name: "Banana", viet: "Chuối", cal: 89, prot: 1.1, fat: 0.3, carb: 23},
+    {name: "Blackberries", viet: "Mâm Xôi Đen", cal: 43, prot: 1.4, fat: 0.5, carb: 10},
+    {name: "Blueberries", viet: "Việt Quất", cal: 57, prot: 0.7, fat: 0.3, carb: 14},
+    {name: "Cantaloupe", viet: "Dưa Lưới", cal: 34, prot: 0.8, fat: 0.2, carb: 8},
+    {name: "Cherries (sweet)", viet: "Anh Đào", cal: 63, prot: 1.1, fat: 0.2, carb: 16},
+    {name: "Coconut (fresh meat)", viet: "Dừa", cal: 354, prot: 3.3, fat: 33, carb: 15},
+    {name: "Cranberries (raw)", viet: "Nam Việt Quất", cal: 46, prot: 0.5, fat: 0.1, carb: 12},
+    {name: "Dates (Medjool)", viet: "Chà Là", cal: 277, prot: 2, fat: 0.2, carb: 75},
+    {name: "Dragon Fruit", viet: "Thanh Long", cal: 60, prot: 1.2, fat: 0.4, carb: 13},
+    {name: "Durian", viet: "Sầu Riêng", cal: 147, prot: 1.5, fat: 5.3, carb: 27},
+    {name: "Fig (fresh)", viet: "Quả Vả", cal: 74, prot: 0.8, fat: 0.3, carb: 19},
+    {name: "Goji Berries (dried)", viet: "Kỷ Tử", cal: 349, prot: 14, fat: 0.4, carb: 77},
+    {name: "Grapefruit", viet: "Bưởi", cal: 42, prot: 0.8, fat: 0.1, carb: 11},
+    {name: "Grapes (red/green)", viet: "Nho", cal: 69, prot: 0.7, fat: 0.2, carb: 18},
+    {name: "Guava", viet: "Ổi", cal: 68, prot: 2.6, fat: 1, carb: 14},
+    {name: "Honeydew", viet: "Dưa Mật", cal: 36, prot: 0.5, fat: 0.1, carb: 9},
+    {name: "Jackfruit", viet: "Mít", cal: 95, prot: 1.7, fat: 0.6, carb: 23},
+    {name: "Kiwi", viet: "Kiwi", cal: 61, prot: 1.1, fat: 0.5, carb: 15},
+    {name: "Lemon", viet: "Chanh Vàng", cal: 29, prot: 1.1, fat: 0.3, carb: 9},
+    {name: "Lime", viet: "Chanh Xanh", cal: 30, prot: 0.7, fat: 0.2, carb: 11},
+    {name: "Lychee", viet: "Vải Thiều", cal: 66, prot: 0.8, fat: 0.4, carb: 17},
+    {name: "Mango", viet: "Xoài", cal: 60, prot: 0.8, fat: 0.4, carb: 15},
+    {name: "Nectarine", viet: "Xuân Đào", cal: 44, prot: 1.1, fat: 0.3, carb: 11},
+    {name: "Orange", viet: "Cam", cal: 47, prot: 0.9, fat: 0.1, carb: 12},
+    {name: "Papaya", viet: "Đu Đủ", cal: 43, prot: 0.5, fat: 0.3, carb: 11},
+    {name: "Passion Fruit", viet: "Chanh Dây", cal: 97, prot: 2.2, fat: 0.7, carb: 23},
+    {name: "Peach", viet: "Đào", cal: 39, prot: 0.9, fat: 0.3, carb: 10},
+    {name: "Pear", viet: "Lê", cal: 57, prot: 0.4, fat: 0.1, carb: 15},
+    {name: "Persimmon", viet: "Quả Hồng", cal: 127, prot: 0.8, fat: 0.4, carb: 34},
+    {name: "Pineapple", viet: "Dứa", cal: 50, prot: 0.5, fat: 0.1, carb: 13},
+    {name: "Plantain (raw)", viet: "Chuối Sứ", cal: 122, prot: 1.3, fat: 0.4, carb: 32},
+    {name: "Plum", viet: "Mận", cal: 46, prot: 0.7, fat: 0.3, carb: 11},
+    {name: "Pomegranate", viet: "Lựu", cal: 83, prot: 1.7, fat: 1.2, carb: 19},
+    {name: "Rambutan", viet: "Chôm Chôm", cal: 68, prot: 0.9, fat: 0.2, carb: 16},
+    {name: "Raspberries", viet: "Mâm Xôi", cal: 52, prot: 1.2, fat: 0.7, carb: 12},
+    {name: "Strawberries", viet: "Dâu Tây", cal: 32, prot: 0.7, fat: 0.3, carb: 7.7},
+    {name: "Tangerine", viet: "Quýt", cal: 53, prot: 0.8, fat: 0.3, carb: 13},
+    {name: "Watermelon", viet: "Dưa Hấu", cal: 30, prot: 0.6, fat: 0.2, carb: 8}
+  ],
+  drinks: [
+    {name: "Almond Milk (unsweetened)", viet: "Sữa Hạnh Nhân", cal: 30, prot: 1, fat: 2.5, carb: 1},
+    {name: "Apple Juice", viet: "Nước Táo", cal: 114, prot: 0.2, fat: 0.3, carb: 28},
+    {name: "Black Coffee", viet: "Cà Phê Đen", cal: 2, prot: 0.3, fat: 0, carb: 0},
+    {name: "Cappuccino (whole milk)", viet: "Cappuccino", cal: 80, prot: 4, fat: 4, carb: 6},
+    {name: "Chai Tea Latte", viet: "Trà Chai Latte", cal: 200, prot: 7, fat: 6, carb: 30},
+    {name: "Club Soda", viet: "Nước Soda", cal: 0, prot: 0, fat: 0, carb: 0},
+    {name: "Coca-Cola (Classic)", viet: "Coca-Cola", cal: 100, prot: 0, fat: 0, carb: 27},
+    {name: "Coconut Water", viet: "Nước Dừa", cal: 19, prot: 0.7, fat: 0.2, carb: 4},
+    {name: "Cranberry Juice", viet: "Nước Nam Việt Quất", cal: 116, prot: 0, fat: 0, carb: 31},
+    {name: "Diet Cola", viet: "Cola Ăn Kiêng", cal: 0, prot: 0, fat: 0, carb: 0},
+    {name: "Energy Drink (Red Bull)", viet: "Nước Tăng Lực", cal: 110, prot: 0, fat: 0, carb: 28},
+    {name: "Espresso (1 shot)", viet: "Espresso", cal: 3, prot: 0, fat: 0, carb: 0},
+    {name: "Flax Milk", viet: "Sữa Hạt Lanh", cal: 25, prot: 0, fat: 2.5, carb: 1},
+    {name: "Ginger Ale", viet: "Nước Gừng", cal: 90, prot: 0, fat: 0, carb: 23},
+    {name: "Grape Juice", viet: "Nước Nho", cal: 152, prot: 0.5, fat: 0, carb: 38},
+    {name: "Green Tea (brewed)", viet: "Trà Xanh", cal: 0, prot: 0, fat: 0, carb: 0},
+    {name: "Hemp Milk", viet: "Sữa Hạt Gai", cal: 70, prot: 3, fat: 6, carb: 1},
+    {name: "Horchata", viet: "Nước Horchata", cal: 180, prot: 3, fat: 3, carb: 35},
+    {name: "Hot Chocolate (with milk)", viet: "Sôcôla Nóng", cal: 190, prot: 8, fat: 6, carb: 26},
+    {name: "Iced Tea (sweetened)", viet: "Trà Đá Ngọt", cal: 90, prot: 0, fat: 0, carb: 23},
+    {name: "Iced Tea (unsweetened)", viet: "Trà Đá Không Đường", cal: 2, prot: 0, fat: 0, carb: 0},
+    {name: "Lemonade", viet: "Nước Chanh", cal: 99, prot: 0, fat: 0, carb: 26},
+    {name: "Matcha Latte", viet: "Matcha Latte", cal: 150, prot: 6, fat: 5, carb: 18},
+    {name: "Milkshake (vanilla)", viet: "Sữa Lắc Vani", cal: 250, prot: 6, fat: 8, carb: 40},
+    {name: "Oat Milk (unsweetened)", viet: "Sữa Yến Mạch", cal: 120, prot: 3, fat: 5, carb: 16},
+    {name: "Orange Juice", viet: "Nước Cam", cal: 112, prot: 1.7, fat: 0.5, carb: 26},
+    {name: "Pineapple Juice", viet: "Nước Dứa", cal: 132, prot: 0.5, fat: 0, carb: 32},
+    {name: "Prune Juice", viet: "Nước Mận Khô", cal: 182, prot: 1, fat: 0, carb: 45},
+    {name: "Protein Shake (whey)", viet: "Sữa Protein", cal: 120, prot: 25, fat: 2, carb: 3},
+    {name: "Rice Milk", viet: "Sữa Gạo", cal: 120, prot: 1, fat: 2, carb: 23},
+    {name: "Root Beer", viet: "Bia Gốc", cal: 110, prot: 0, fat: 0, carb: 28},
+    {name: "Smoothie (fruit)", viet: "Sinh Tố Trái Cây", cal: 120, prot: 2, fat: 0.5, carb: 30},
+    {name: "Soy Milk (unsweetened)", viet: "Sữa Đậu Nành", cal: 80, prot: 7, fat: 4, carb: 4},
+    {name: "Sparkling Water (plain)", viet: "Nước Có Ga", cal: 0, prot: 0, fat: 0, carb: 0},
+    {name: "Sports Drink (Gatorade)", viet: "Nước Thể Thao", cal: 80, prot: 0, fat: 0, carb: 21},
+    {name: "Tomato Juice", viet: "Nước Cà Chua", cal: 41, prot: 1, fat: 0, carb: 10},
+    {name: "Vegetable Juice (V8)", viet: "Nước Rau Củ", cal: 50, prot: 1, fat: 0, carb: 11},
+    {name: "Water", viet: "Nước Lọc", cal: 0, prot: 0, fat: 0, carb: 0},
+    {name: "Whole Milk", viet: "Sữa Tươi", cal: 61, prot: 3.2, fat: 3.3, carb: 4.8}
+  ],
+  alcohol: [
+    {name: "Absinthe (1.5oz)", viet: "Rượu Absinthe", cal: 120, prot: 0, fat: 0, carb: 0},
+    {name: "Baijiu (1.5oz)", viet: "Rượu Bạch Tửu", cal: 120, prot: 0, fat: 0, carb: 0},
+    {name: "Beer (IPA, 12oz)", viet: "Bia IPA", cal: 200, prot: 2, fat: 0, carb: 18},
+    {name: "Beer (light, 12oz)", viet: "Bia Nhẹ", cal: 103, prot: 0.9, fat: 0, carb: 6},
+    {name: "Beer (non-alcoholic, 12oz)", viet: "Bia Không Cồn", cal: 70, prot: 0.5, fat: 0, carb: 14},
+    {name: "Beer (regular, 12oz)", viet: "Bia Thường", cal: 153, prot: 1.6, fat: 0, carb: 13},
+    {name: "Beer (stout, 12oz)", viet: "Bia Stout", cal: 210, prot: 2, fat: 0, carb: 20},
+    {name: "Beer (wheat, 12oz)", viet: "Bia Lúa Mì", cal: 170, prot: 2, fat: 0, carb: 14},
+    {name: "Bloody Mary (8oz)", viet: "Bloody Mary", cal: 120, prot: 2, fat: 0, carb: 10},
+    {name: "Brandy (80 proof, 1.5oz)", viet: "Rượu Brandy", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Champagne (5oz)", viet: "Sâm Banh", cal: 120, prot: 0.1, fat: 0, carb: 4},
+    {name: "Cognac (80 proof, 1.5oz)", viet: "Rượu Cognac", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Cosmopolitan (4oz)", viet: "Cosmopolitan", cal: 200, prot: 0, fat: 0, carb: 20},
+    {name: "Daiquiri (6oz)", viet: "Daiquiri", cal: 250, prot: 0, fat: 0, carb: 30},
+    {name: "Dessert Wine (Port, 3oz)", viet: "Rượu Vang Tráng Miệng", cal: 165, prot: 0, fat: 0, carb: 14},
+    {name: "Eggnog (with rum, 8oz)", viet: "Eggnog", cal: 340, prot: 10, fat: 10, carb: 30},
+    {name: "Gin (80 proof, 1.5oz)", viet: "Rượu Gin", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Gin & Tonic (8oz)", viet: "Gin & Tonic", cal: 200, prot: 0, fat: 0, carb: 20},
+    {name: "Irish Coffee (8oz)", viet: "Cà Phê Irish", cal: 210, prot: 1, fat: 8, carb: 15},
+    {name: "Jägermeister (1.5oz)", viet: "Rượu Jägermeister", cal: 110, prot: 0, fat: 0, carb: 11},
+    {name: "Long Island Iced Tea", viet: "Trà Đá Long Island", cal: 280, prot: 0, fat: 0, carb: 25},
+    {name: "Mai Tai (8oz)", viet: "Mai Tai", cal: 350, prot: 0, fat: 0, carb: 40},
+    {name: "Manhattan (3oz)", viet: "Manhattan", cal: 165, prot: 0, fat: 0, carb: 5},
+    {name: "Margarita (8oz)", viet: "Margarita", cal: 280, prot: 0, fat: 0, carb: 36},
+    {name: "Martini (gin, 3oz)", viet: "Martini", cal: 180, prot: 0, fat: 0, carb: 0.5},
+    {name: "Mimosa (6oz)", viet: "Mimosa", cal: 150, prot: 1, fat: 0, carb: 15},
+    {name: "Mojito (8oz)", viet: "Mojito", cal: 215, prot: 0, fat: 0, carb: 25},
+    {name: "Old Fashioned (4oz)", viet: "Old Fashioned", cal: 180, prot: 0, fat: 0, carb: 8},
+    {name: "Pina Colada (8oz)", viet: "Pina Colada", cal: 425, prot: 2, fat: 10, carb: 60},
+    {name: "Red Wine (5oz)", viet: "Rượu Vang Đỏ", cal: 125, prot: 0.1, fat: 0, carb: 4},
+    {name: "Rosé Wine (5oz)", viet: "Rượu Vang Hồng", cal: 120, prot: 0.1, fat: 0, carb: 4},
+    {name: "Rum (80 proof, 1.5oz)", viet: "Rượu Rum", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Rum & Coke (8oz)", viet: "Rum & Coke", cal: 185, prot: 0, fat: 0, carb: 20},
+    {name: "Sake (6oz)", viet: "Rượu Sake", cal: 180, prot: 0.5, fat: 0, carb: 10},
+    {name: "Sangria (8oz)", viet: "Sangria", cal: 180, prot: 1, fat: 0, carb: 20},
+    {name: "Soju (1.5oz)", viet: "Rượu Soju", cal: 45, prot: 0, fat: 0, carb: 1},
+    {name: "Tequila (80 proof, 1.5oz)", viet: "Rượu Tequila", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Vermouth (dry, 3oz)", viet: "Rượu Vermouth Khô", cal: 105, prot: 0, fat: 0, carb: 5},
+    {name: "Vodka (80 proof, 1.5oz)", viet: "Rượu Vodka", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Vodka Cranberry (8oz)", viet: "Vodka Cranberry", cal: 225, prot: 0, fat: 0, carb: 30},
+    {name: "Vodka Soda (8oz)", viet: "Vodka Soda", cal: 100, prot: 0, fat: 0, carb: 0},
+    {name: "Whiskey (80 proof, 1.5oz)", viet: "Rượu Whiskey", cal: 97, prot: 0, fat: 0, carb: 0},
+    {name: "Whiskey Sour (4oz)", viet: "Whiskey Sour", cal: 160, prot: 0, fat: 0, carb: 15},
+    {name: "White Wine (5oz)", viet: "Rượu Vang Trắng", cal: 121, prot: 0.1, fat: 0, carb: 4}
+  ],
+  meats: [
+    {name: "Bacon (pork, pan-fried)", viet: "Thịt Xông Khói", cal: 540, prot: 37, fat: 42, carb: 1.7},
+    {name: "Beef Brisket", viet: "Ức Bò", cal: 220, prot: 25, fat: 13, carb: 0},
+    {name: "Beef Liver", viet: "Gan Bò", cal: 175, prot: 26, fat: 5, carb: 5},
+    {name: "Beef Ribs", viet: "Sườn Bò", cal: 300, prot: 22, fat: 23, carb: 0},
+    {name: "Beef Steak (filet mignon)", viet: "Thăn Bò", cal: 220, prot: 27, fat: 12, carb: 0},
+    {name: "Beef Steak (flank)", viet: "Sườn Bò Flank", cal: 200, prot: 28, fat: 9, carb: 0},
+    {name: "Beef Steak (ribeye)", viet: "Ribeye", cal: 250, prot: 25, fat: 16, carb: 0},
+    {name: "Beef Steak (sirloin)", viet: "Sườn Bò Sirloin", cal: 205, prot: 30, fat: 9, carb: 0},
+    {name: "Beef Steak (T-bone)", viet: "T-bone", cal: 240, prot: 25, fat: 15, carb: 0},
+    {name: "Chicken Breast (skinless)", viet: "Ức Gà", cal: 165, prot: 31, fat: 3.6, carb: 0},
+    {name: "Chicken Drumstick (skinless)", viet: "Đùi Gà", cal: 172, prot: 28, fat: 6, carb: 0},
+    {name: "Chicken Liver", viet: "Gan Gà", cal: 167, prot: 24, fat: 6.5, carb: 1},
+    {name: "Chicken Thigh (skinless)", viet: "Đùi Gà Trên", cal: 209, prot: 26, fat: 11, carb: 0},
+    {name: "Chicken Wing (skinless)", viet: "Cánh Gà", cal: 203, prot: 30, fat: 8, carb: 0},
+    {name: "Duck (skinless)", viet: "Vịt", cal: 200, prot: 25, fat: 11, carb: 0},
+    {name: "Duck (with skin)", viet: "Vịt Có Da", cal: 340, prot: 19, fat: 28, carb: 0},
+    {name: "Goose", viet: "Ngỗng", cal: 250, prot: 25, fat: 16, carb: 0},
+    {name: "Ground Beef (70% lean)", viet: "Thịt Bò Xay 70%", cal: 280, prot: 20, fat: 22, carb: 0},
+    {name: "Ground Beef (80% lean)", viet: "Thịt Bò Xay 80%", cal: 250, prot: 21, fat: 18, carb: 0},
+    {name: "Ground Beef (85% lean)", viet: "Thịt Bò Xay 85%", cal: 240, prot: 21, fat: 17, carb: 0},
+    {name: "Ground Beef (90% lean)", viet: "Thịt Bò Xay 90%", cal: 210, prot: 22, fat: 13, carb: 0},
+    {name: "Ground Beef (95% lean)", viet: "Thịt Bò Xay 95%", cal: 170, prot: 23, fat: 8, carb: 0},
+    {name: "Ground Bison", viet: "Thịt Bò Rừng Xay", cal: 190, prot: 23, fat: 10, carb: 0},
+    {name: "Ground Chicken", viet: "Thịt Gà Xay", cal: 190, prot: 22, fat: 11, carb: 0},
+    {name: "Ground Elk", viet: "Thịt Nai Xay", cal: 180, prot: 24, fat: 8, carb: 0},
+    {name: "Ground Lamb", viet: "Thịt Cừu Xay", cal: 260, prot: 22, fat: 19, carb: 0},
+    {name: "Ground Pork (lean)", viet: "Thịt Heo Xay Nạc", cal: 220, prot: 23, fat: 14, carb: 0},
+    {name: "Ground Pork (regular)", viet: "Thịt Heo Xay Thường", cal: 270, prot: 22, fat: 20, carb: 0},
+    {name: "Ground Turkey (85% lean)", viet: "Thịt Gà Tây Xay 85%", cal: 220, prot: 20, fat: 15, carb: 0},
+    {name: "Ground Turkey (93% lean)", viet: "Thịt Gà Tây Xay 93%", cal: 170, prot: 22, fat: 9, carb: 0},
+    {name: "Ground Turkey (99% lean)", viet: "Thịt Gà Tây Xay 99%", cal: 150, prot: 24, fat: 5, carb: 0},
+    {name: "Ground Veal", viet: "Thịt Bê Xay", cal: 220, prot: 23, fat: 14, carb: 0},
+    {name: "Lamb Chop", viet: "Sườn Cừu", cal: 250, prot: 22, fat: 18, carb: 0},
+    {name: "Lamb Leg", viet: "Đùi Cừu", cal: 200, prot: 25, fat: 11, carb: 0},
+    {name: "Lamb Shoulder", viet: "Vai Cừu", cal: 280, prot: 20, fat: 22, carb: 0},
+    {name: "Pork Belly", viet: "Ba Chỉ Heo", cal: 500, prot: 10, fat: 50, carb: 0},
+    {name: "Pork Chop (loin, lean)", viet: "Sườn Heo Nạc", cal: 211, prot: 29, fat: 10, carb: 0},
+    {name: "Pork Shoulder (Boston butt)", viet: "Vai Heo", cal: 250, prot: 22, fat: 18, carb: 0},
+    {name: "Pork Tenderloin", viet: "Thăn Heo", cal: 143, prot: 26, fat: 3.5, carb: 0},
+    {name: "Salmon (Atlantic, cooked)", viet: "Cá Hồi", cal: 206, prot: 22, fat: 12, carb: 0},
+    {name: "Shrimp (cooked)", viet: "Tôm", cal: 99, prot: 24, fat: 0.3, carb: 0.2},
+    {name: "Tuna (canned in water)", viet: "Cá Ngừ Đóng Hộp", cal: 116, prot: 26, fat: 1, carb: 0},
+    {name: "Turkey Breast (skinless)", viet: "Ức Gà Tây", cal: 135, prot: 30, fat: 1, carb: 0},
+    {name: "Turkey Thigh (skinless)", viet: "Đùi Gà Tây", cal: 160, prot: 25, fat: 6, carb: 0},
+    {name: "Veal Chop", viet: "Sườn Bê", cal: 180, prot: 28, fat: 7, carb: 0},
+    {name: "Venison", viet: "Thịt Nai", cal: 160, prot: 30, fat: 3, carb: 0}
+  ],
+  grains: [
+    {name: "Bagel (plain)", viet: "Bánh Bagel", cal: 275, prot: 11, fat: 1.5, carb: 54},
+    {name: "Baguette", viet: "Bánh Mì Baguette", cal: 270, prot: 10, fat: 1.5, carb: 52},
+    {name: "Brown Rice (cooked)", viet: "Gạo Lứt", cal: 123, prot: 2.7, fat: 1, carb: 26},
+    {name: "Bulgur Wheat (cooked)", viet: "Lúa Mì Bulgur", cal: 83, prot: 3, fat: 0.2, carb: 19},
+    {name: "Ciabatta", viet: "Bánh Ciabatta", cal: 270, prot: 9, fat: 3, carb: 50},
+    {name: "Couscous (cooked)", viet: "Couscous", cal: 112, prot: 4, fat: 0.2, carb: 23},
+    {name: "Croissant", viet: "Bánh Sừng Bò", cal: 406, prot: 8, fat: 21, carb: 46},
+    {name: "English Muffin", viet: "Bánh Mì Anh", cal: 235, prot: 8, fat: 2, carb: 46},
+    {name: "Farro (cooked)", viet: "Lúa Mì Farro", cal: 120, prot: 4, fat: 0.5, carb: 26},
+    {name: "Focaccia", viet: "Bánh Focaccia", cal: 320, prot: 9, fat: 14, carb: 40},
+    {name: "Grits (cooked)", viet: "Bột Ngô", cal: 71, prot: 1.5, fat: 0.5, carb: 15},
+    {name: "Multigrain Bread", viet: "Bánh Mì Ngũ Cốc", cal: 260, prot: 10, fat: 5, carb: 45},
+    {name: "Naan", viet: "Bánh Naan", cal: 310, prot: 10, fat: 8, carb: 50},
+    {name: "Oats (rolled, dry)", viet: "Yến Mạch", cal: 379, prot: 13, fat: 6.5, carb: 68},
+    {name: "Pita Bread", viet: "Bánh Pita", cal: 275, prot: 9, fat: 1.2, carb: 56},
+    {name: "Polenta (cooked)", viet: "Bột Ngô Polenta", cal: 70, prot: 1.5, fat: 0.5, carb: 15},
+    {name: "Pumpernickel Bread", viet: "Bánh Mì Đen", cal: 250, prot: 9, fat: 3, carb: 48},
+    {name: "Quinoa (cooked)", viet: "Diêm Mạch", cal: 120, prot: 4.4, fat: 1.9, carb: 21},
+    {name: "Rice Noodles (cooked)", viet: "Bún Gạo", cal: 110, prot: 1, fat: 0.2, carb: 25},
+    {name: "Rye Bread", viet: "Bánh Mì Lúa Mạch Đen", cal: 259, prot: 9, fat: 3, carb: 48},
+    {name: "Soba Noodles (cooked)", viet: "Mì Soba", cal: 99, prot: 5, fat: 0.1, carb: 21},
+    {name: "Sourdough Bread", viet: "Bánh Mì Sourdough", cal: 270, prot: 10, fat: 2, carb: 52},
+    {name: "Spaghetti (cooked)", viet: "Mì Spaghetti", cal: 158, prot: 6, fat: 0.9, carb: 31},
+    {name: "Tortilla (corn, 6-inch)", viet: "Bánh Tortilla Ngô", cal: 60, prot: 1.5, fat: 1, carb: 12},
+    {name: "Tortilla (flour, 10-inch)", viet: "Bánh Tortilla Bột", cal: 160, prot: 4, fat: 4, carb: 27},
+    {name: "Udon Noodles (cooked)", viet: "Mì Udon", cal: 130, prot: 4, fat: 0.5, carb: 25},
+    {name: "White Bread", viet: "Bánh Mì Trắng", cal: 265, prot: 9, fat: 3.2, carb: 49},
+    {name: "White Rice (cooked)", viet: "Gạo Trắng", cal: 130, prot: 2.7, fat: 0.3, carb: 28},
+    {name: "Whole Wheat Bread", viet: "Bánh Mì Nguyên Cám", cal: 265, prot: 13, fat: 4, carb: 44},
+    {name: "Whole Wheat Pasta (cooked)", viet: "Mì Nguyên Cám", cal: 148, prot: 6, fat: 1, carb: 30},
+    {name: "Wild Rice (cooked)", viet: "Gạo Dại", cal: 101, prot: 4, fat: 0.3, carb: 21}
+  ],
+  dairy: [
+    {name: "American Cheese (processed)", viet: "Phô Mai Mỹ", cal: 330, prot: 18, fat: 25, carb: 8},
+    {name: "Blue Cheese", viet: "Phô Mai Xanh", cal: 353, prot: 21, fat: 29, carb: 2},
+    {name: "Brie Cheese", viet: "Phô Mai Brie", cal: 334, prot: 21, fat: 28, carb: 0.5},
+    {name: "Butter (salted)", viet: "Bơ", cal: 717, prot: 0.9, fat: 81, carb: 0.1},
+    {name: "Camembert Cheese", viet: "Phô Mai Camembert", cal: 300, prot: 20, fat: 24, carb: 0.5},
+    {name: "Cheddar Cheese", viet: "Phô Mai Cheddar", cal: 404, prot: 23, fat: 33, carb: 1.3},
+    {name: "Cottage Cheese (2% fat)", viet: "Phô Mai Cottage", cal: 84, prot: 11, fat: 2.3, carb: 4},
+    {name: "Cream Cheese (full fat)", viet: "Phô Mai Kem", cal: 342, prot: 6, fat: 34, carb: 4},
+    {name: "Crème Fraîche", viet: "Kem Chua Pháp", cal: 350, prot: 2, fat: 37, carb: 3},
+    {name: "Egg (whole, large)", viet: "Trứng Gà", cal: 72, prot: 6.3, fat: 5, carb: 0.4},
+    {name: "Egg White", viet: "Lòng Trắng Trứng", cal: 52, prot: 11, fat: 0.2, carb: 0.7},
+    {name: "Egg Yolk", viet: "Lòng Đỏ Trứng", cal: 322, prot: 16, fat: 27, carb: 3.6},
+    {name: "Evaporated Milk", viet: "Sữa Đặc Không Đường", cal: 134, prot: 7, fat: 8, carb: 10},
+    {name: "Feta Cheese", viet: "Phô Mai Feta", cal: 264, prot: 14, fat: 21, carb: 4},
+    {name: "Ghee", viet: "Bơ Sữa Trâu", cal: 900, prot: 0, fat: 100, carb: 0},
+    {name: "Goat Cheese (chevre)", viet: "Phô Mai Dê", cal: 360, prot: 22, fat: 30, carb: 4},
+    {name: "Goat Milk", viet: "Sữa Dê", cal: 69, prot: 3.6, fat: 4, carb: 4.5},
+    {name: "Greek Yogurt (0% fat)", viet: "Sữa Chua Hy Lạp", cal: 59, prot: 10, fat: 0.4, carb: 3.6},
+    {name: "Greek Yogurt (full fat)", viet: "Sữa Chua Hy Lạp Béo", cal: 97, prot: 9, fat: 5, carb: 4},
+    {name: "Half & Half (10.5% fat)", viet: "Sữa Half & Half", cal: 130, prot: 3, fat: 12, carb: 4},
+    {name: "Heavy Cream (36% fat)", viet: "Kem Béo", cal: 345, prot: 2, fat: 37, carb: 3},
+    {name: "Kefir", viet: "Sữa Kefir", cal: 61, prot: 3.8, fat: 3.5, carb: 4.5},
+    {name: "Light Cream (20% fat)", viet: "Kem Nhẹ", cal: 195, prot: 3, fat: 18, carb: 4},
+    {name: "Low Fat Milk (1%)", viet: "Sữa Ít Béo 1%", cal: 42, prot: 3.4, fat: 1, carb: 5},
+    {name: "Mascarpone Cheese", viet: "Phô Mai Mascarpone", cal: 430, prot: 4, fat: 45, carb: 0},
+    {name: "Mozzarella Cheese (whole milk)", viet: "Phô Mai Mozzarella", cal: 280, prot: 22, fat: 21, carb: 2},
+    {name: "Mozzarella Cheese (part-skim)", viet: "Phô Mai Mozzarella Ít Béo", cal: 280, prot: 24, fat: 17, carb: 2.5},
+    {name: "Neufchâtel Cheese", viet: "Phô Mai Neufchâtel", cal: 253, prot: 9, fat: 22, carb: 4},
+    {name: "Parmesan Cheese", viet: "Phô Mai Parmesan", cal: 420, prot: 28, fat: 28, carb: 14},
+    {name: "Pecorino Romano", viet: "Phô Mai Pecorino", cal: 387, prot: 26, fat: 29, carb: 3.6},
+    {name: "Provolone Cheese", viet: "Phô Mai Provolone", cal: 351, prot: 26, fat: 27, carb: 2},
+    {name: "Reduced Fat Milk (2%)", viet: "Sữa Giảm Béo 2%", cal: 50, prot: 3.3, fat: 2, carb: 5},
+    {name: "Ricotta Cheese (whole milk)", viet: "Phô Mai Ricotta", cal: 174, prot: 11, fat: 13, carb: 3},
+    {name: "Skim Milk (0%)", viet: "Sữa Không Béo", cal: 34, prot: 3.4, fat: 0.1, carb: 5},
+    {name: "Skyr", viet: "Sữa Skyr", cal: 65, prot: 11, fat: 0.2, carb: 4},
+    {name: "Sour Cream (full fat)", viet: "Kem Chua", cal: 200, prot: 2.5, fat: 19, carb: 4},
+    {name: "String Cheese", viet: "Phô Mai Sợi", cal: 280, prot: 17, fat: 22, carb: 2},
+    {name: "Sweetened Condensed Milk", viet: "Sữa Đặc Có Đường", cal: 321, prot: 8, fat: 9, carb: 54},
+    {name: "Swiss Cheese", viet: "Phô Mai Thụy Sĩ", cal: 380, prot: 27, fat: 28, carb: 5},
+    {name: "Velveeta Cheese", viet: "Phô Mai Velveeta", cal: 303, prot: 16, fat: 22, carb: 10},
+    {name: "Whipped Cream (canned)", viet: "Kem Đánh Bông", cal: 250, prot: 3, fat: 22, carb: 12},
+    {name: "Whole Milk (3.25%)", viet: "Sữa Nguyên Kem", cal: 61, prot: 3.2, fat: 3.3, carb: 4.8},
+    {name: "Yogurt (full fat)", viet: "Sữa Chua", cal: 61, prot: 3.5, fat: 3.3, carb: 4.7}
+  ],
+  spices: [
+    {name: "Agave Nectar", viet: "Mật Agave", cal: 310, prot: 0.5, fat: 0.1, carb: 76},
+    {name: "Black Pepper", viet: "Tiêu Đen", cal: 251, prot: 10, fat: 3.3, carb: 64},
+    {name: "Cayenne Pepper", viet: "Ớt Cayenne", cal: 318, prot: 12, fat: 17, carb: 57},
+    {name: "Chili Powder", viet: "Bột Ớt", cal: 282, prot: 14, fat: 13, carb: 50},
+    {name: "Cinnamon (ground)", viet: "Bột Quế", cal: 247, prot: 4, fat: 1.2, carb: 81},
+    {name: "Cocoa Powder (unsweetened)", viet: "Bột Ca Cao", cal: 228, prot: 20, fat: 14, carb: 58},
+    {name: "Cumin", viet: "Thì Là Ai Cập", cal: 375, prot: 18, fat: 22, carb: 44},
+    {name: "Garlic Powder", viet: "Bột Tỏi", cal: 331, prot: 17, fat: 0.7, carb: 73},
+    {name: "Honey", viet: "Mật Ong", cal: 304, prot: 0.3, fat: 0, carb: 82},
+    {name: "Maple Syrup", viet: "Si rô Phong", cal: 260, prot: 0, fat: 0.1, carb: 67},
+    {name: "MSG", viet: "Bột Ngọt", cal: 0, prot: 13, fat: 0, carb: 0},
+    {name: "Mustard Seeds", viet: "Hạt Mù Tạt", cal: 508, prot: 26, fat: 36, carb: 28},
+    {name: "Nutmeg (ground)", viet: "Bột Nhục Đậu Khấu", cal: 525, prot: 6, fat: 36, carb: 49},
+    {name: "Nutritional Yeast", viet: "Men Dinh Dưỡng", cal: 325, prot: 50, fat: 0, carb: 36},
+    {name: "Onion Powder", viet: "Bột Hành", cal: 341, prot: 10, fat: 1, carb: 79},
+    {name: "Oregano (dried)", viet: "Lá Oregano Khô", cal: 265, prot: 9, fat: 4.3, carb: 69},
+    {name: "Paprika", viet: "Ớt Bột", cal: 282, prot: 14, fat: 13, carb: 54},
+    {name: "Parsley (dried)", viet: "Mùi Tây Khô", cal: 292, prot: 23, fat: 4.4, carb: 50},
+    {name: "Rosemary (dried)", viet: "Hương Thảo Khô", cal: 331, prot: 5, fat: 15, carb: 64},
+    {name: "Sage (dried)", viet: "Xô Thơm Khô", cal: 315, prot: 11, fat: 13, carb: 61},
+    {name: "Sesame Seeds", viet: "Hạt Vừng", cal: 573, prot: 18, fat: 50, carb: 23},
+    {name: "Stevia Powder", viet: "Bột Stevia", cal: 0, prot: 0, fat: 0, carb: 0},
+    {name: "Thyme (dried)", viet: "Cỏ Xạ Hương Khô", cal: 276, prot: 9, fat: 7, carb: 63},
+    {name: "Turmeric (ground)", viet: "Bột Nghệ", cal: 312, prot: 10, fat: 3.3, carb: 65},
+    {name: "Vanilla Extract", viet: "Chiết Xuất Vanilla", cal: 288, prot: 0.1, fat: 0.1, carb: 13},
+    {name: "White Granulated Sugar", viet: "Đường Trắng", cal: 387, prot: 0, fat: 0, carb: 100},
+    {name: "Xylitol", viet: "Xylitol", cal: 240, prot: 0, fat: 0, carb: 100}
+  ],
+  condiments: [
+    {name: "Alfredo Sauce", viet: "Sốt Alfredo", cal: 300, prot: 5, fat: 30, carb: 5},
+    {name: "BBQ Sauce", viet: "Sốt BBQ", cal: 150, prot: 1, fat: 0, carb: 37},
+    {name: "Balsamic Vinaigrette", viet: "Dầu Giấm Balsamic", cal: 350, prot: 0, fat: 34, carb: 12},
+    {name: "Blue Cheese Dressing", viet: "Sốt Blue Cheese", cal: 450, prot: 2, fat: 47, carb: 5},
+    {name: "Caesar Dressing", viet: "Sốt Caesar", cal: 470, prot: 2, fat: 50, carb: 4},
+    {name: "Chimichurri", viet: "Sốt Chimichurri", cal: 250, prot: 2, fat: 23, carb: 8},
+    {name: "Cocktail Sauce", viet: "Sốt Cocktail", cal: 140, prot: 2, fat: 0.5, carb: 30},
+    {name: "Dijon Mustard", viet: "Mù Tạt Dijon", cal: 120, prot: 7, fat: 8, carb: 6},
+    {name: "Enchilada Sauce", viet: "Sốt Enchilada", cal: 60, prot: 2, fat: 2, carb: 10},
+    {name: "Fish Sauce", viet: "Nước Mắm", cal: 35, prot: 5, fat: 0, carb: 3.5},
+    {name: "French Dressing", viet: "Sốt Pháp", cal: 400, prot: 0, fat: 35, carb: 20},
+    {name: "Gochujang", viet: "Tương Ớt Hàn Quốc", cal: 180, prot: 4, fat: 1, carb: 36},
+    {name: "Guacamole", viet: "Sốt Bơ", cal: 160, prot: 2, fat: 15, carb: 9},
+    {name: "Harissa", viet: "Sốt Harissa", cal: 100, prot: 2, fat: 4, carb: 15},
+    {name: "Hoisin Sauce", viet: "Tương Hoa", cal: 220, prot: 3, fat: 3, carb: 45},
+    {name: "Honey Mustard Dressing", viet: "Sốt Mật Ong Mù Tạt", cal: 380, prot: 1, fat: 28, carb: 30},
+    {name: "Hummus", viet: "Sốt Hummus", cal: 166, prot: 8, fat: 10, carb: 14},
+    {name: "Italian Dressing", viet: "Sốt Ý", cal: 350, prot: 0, fat: 36, carb: 8},
+    {name: "Ketchup", viet: "Tương Cà", cal: 111, prot: 1.3, fat: 0.2, carb: 27},
+    {name: "Light Mayonnaise", viet: "Sốt Mayonnaise Nhẹ", cal: 350, prot: 1, fat: 35, carb: 8},
+    {name: "Marinara Sauce", viet: "Sốt Marinara", cal: 70, prot: 2, fat: 2, carb: 10},
+    {name: "Mayonnaise", viet: "Sốt Mayonnaise", cal: 680, prot: 1, fat: 75, carb: 0.6},
+    {name: "Miso Paste", viet: "Tương Miso", cal: 199, prot: 12, fat: 6, carb: 25},
+    {name: "Mustard (yellow)", viet: "Mù Tạt Vàng", cal: 66, prot: 4, fat: 3.7, carb: 6},
+    {name: "Oyster Sauce", viet: "Dầu Hào", cal: 120, prot: 3, fat: 0.5, carb: 25},
+    {name: "Pesto Sauce", viet: "Sốt Pesto", cal: 450, prot: 6, fat: 43, carb: 10},
+    {name: "Pico de Gallo", viet: "Sốt Pico de Gallo", cal: 30, prot: 1, fat: 0, carb: 7},
+    {name: "Pizza Sauce", viet: "Sốt Pizza", cal: 80, prot: 2, fat: 2, carb: 12},
+    {name: "Ranch Dressing", viet: "Sốt Ranch", cal: 430, prot: 1.5, fat: 44, carb: 7},
+    {name: "Remoulade", viet: "Sốt Remoulade", cal: 450, prot: 2, fat: 45, carb: 8},
+    {name: "Salsa", viet: "Sốt Salsa", cal: 36, prot: 2, fat: 0.2, carb: 7},
+    {name: "Sour Cream", viet: "Kem Chua", cal: 200, prot: 2.5, fat: 19, carb: 4},
+    {name: "Soy Sauce", viet: "Nước Tương", cal: 53, prot: 8, fat: 0, carb: 5},
+    {name: "Sriracha", viet: "Tương Sriracha", cal: 90, prot: 2, fat: 0.8, carb: 18},
+    {name: "Sweet Chili Sauce", viet: "Tương Ớt Ngọt", cal: 220, prot: 0.5, fat: 0, carb: 55},
+    {name: "Tahini", viet: "Sốt Tahini", cal: 595, prot: 17, fat: 50, carb: 21},
+    {name: "Tartar Sauce", viet: "Sốt Tartar", cal: 400, prot: 1, fat: 38, carb: 15},
+    {name: "Teriyaki Sauce", viet: "Sốt Teriyaki", cal: 160, prot: 4, fat: 2, carb: 30},
+    {name: "Thousand Island Dressing", viet: "Sốt Thousand Island", cal: 380, prot: 1, fat: 35, carb: 15},
+    {name: "Tzatziki", viet: "Sốt Tzatziki", cal: 90, prot: 4, fat: 6, carb: 6},
+    {name: "Vinegar (apple cider)", viet: "Giấm Táo", cal: 21, prot: 0, fat: 0, carb: 1},
+    {name: "Vinegar (balsamic)", viet: "Giấm Balsamic", cal: 88, prot: 0.5, fat: 0, carb: 17},
+    {name: "Whole Grain Mustard", viet: "Mù Tạt Nguyên Hạt", cal: 130, prot: 6, fat: 8, carb: 8},
+    {name: "Worcestershire Sauce", viet: "Sốt Worcestershire", cal: 78, prot: 0, fat: 0, carb: 19}
+  ],
+  sweets: [
+    {name: "Apple Pie", viet: "Bánh Táo", cal: 265, prot: 2, fat: 12, carb: 40},
+    {name: "Blueberry Muffin", viet: "Bánh Muffin Việt Quất", cal: 375, prot: 5, fat: 18, carb: 50},
+    {name: "Brownie", viet: "Bánh Brownie", cal: 460, prot: 5, fat: 25, carb: 60},
+    {name: "Cannoli", viet: "Bánh Cannoli", cal: 390, prot: 8, fat: 22, carb: 40},
+    {name: "Caramel", viet: "Kẹo Caramel", cal: 382, prot: 2, fat: 8, carb: 77},
+    {name: "Cheesecake", viet: "Bánh Phô Mai", cal: 350, prot: 5, fat: 23, carb: 30},
+    {name: "Chocolate Cake (with frosting)", viet: "Bánh Sôcôla", cal: 450, prot: 4, fat: 22, carb: 60},
+    {name: "Chocolate Chip Cookie", viet: "Bánh Quy Sôcôla", cal: 480, prot: 5, fat: 24, carb: 65},
+    {name: "Chocolate Ice Cream", viet: "Kem Sôcôla", cal: 216, prot: 3.8, fat: 11, carb: 28},
+    {name: "Cinnamon Roll (with icing)", viet: "Bánh Quế Quế", cal: 420, prot: 6, fat: 20, carb: 55},
+    {name: "Cookies & Cream Ice Cream", viet: "Kem Cookies & Cream", cal: 230, prot: 4, fat: 12, carb: 30},
+    {name: "Cotton Candy", viet: "Kẹo Bông", cal: 385, prot: 0, fat: 0, carb: 100},
+    {name: "Creme Brulee", viet: "Bánh Creme Brulee", cal: 300, prot: 4, fat: 20, carb: 25},
+    {name: "Croissant (plain)", viet: "Bánh Sừng Bò", cal: 406, prot: 8, fat: 21, carb: 46},
+    {name: "Danish Pastry", viet: "Bánh Danish", cal: 380, prot: 6, fat: 20, carb: 45},
+    {name: "Dark Chocolate (70%)", viet: "Sôcôla Đen", cal: 600, prot: 8, fat: 43, carb: 45},
+    {name: "Doughnut (glazed)", viet: "Bánh Donut", cal: 380, prot: 4, fat: 22, carb: 44},
+    {name: "Eclair", viet: "Bánh Eclair", cal: 320, prot: 6, fat: 18, carb: 35},
+    {name: "Flan", viet: "Bánh Flan", cal: 145, prot: 5, fat: 3, carb: 25},
+    {name: "Frozen Yogurt", viet: "Sữa Chua Đông Lạnh", cal: 160, prot: 3, fat: 4, carb: 30},
+    {name: "Fudge", viet: "Kẹo Fudge", cal: 410, prot: 2, fat: 13, carb: 75},
+    {name: "Gelato", viet: "Kem Gelato", cal: 200, prot: 3, fat: 10, carb: 25},
+    {name: "Gummy Bears", viet: "Kẹo Gấu Dẻo", cal: 340, prot: 7, fat: 0.2, carb: 77},
+    {name: "Hard Candy", viet: "Kẹo Cứng", cal: 390, prot: 0, fat: 0, carb: 98},
+    {name: "Jelly Beans", viet: "Kẹo Đậu", cal: 375, prot: 0, fat: 0, carb: 93},
+    {name: "Key Lime Pie", viet: "Bánh Key Lime", cal: 280, prot: 3, fat: 15, carb: 35},
+    {name: "Licorice", viet: "Kẹo Cam Thảo", cal: 350, prot: 0, fat: 0, carb: 85},
+    {name: "Macaron", viet: "Bánh Macaron", cal: 460, prot: 8, fat: 22, carb: 60},
+    {name: "Marshmallows", viet: "Kẹo Dẻo", cal: 318, prot: 1.8, fat: 0, carb: 81},
+    {name: "Milk Chocolate Bar", viet: "Thanh Sôcôla Sữa", cal: 535, prot: 7, fat: 30, carb: 59},
+    {name: "Mint Chocolate Chip Ice Cream", viet: "Kem Bạc Hà Sôcôla", cal: 220, prot: 3, fat: 12, carb: 26},
+    {name: "Oatmeal Raisin Cookie", viet: "Bánh Quy Yến Mạch", cal: 450, prot: 6, fat: 18, carb: 68},
+    {name: "Pecan Pie", viet: "Bánh Hồ Đào", cal: 410, prot: 5, fat: 20, carb: 55},
+    {name: "Pudding (chocolate)", viet: "Bánh Pudding", cal: 150, prot: 3, fat: 4, carb: 26},
+    {name: "Pumpkin Pie", viet: "Bánh Bí Đỏ", cal: 240, prot: 4, fat: 12, carb: 30},
+    {name: "Sherbet", viet: "Kem Sherbet", cal: 140, prot: 1, fat: 2, carb: 30},
+    {name: "Sorbet", viet: "Kem Trái Cây", cal: 130, prot: 0, fat: 0, carb: 33},
+    {name: "Strawberry Ice Cream", viet: "Kem Dâu", cal: 210, prot: 3, fat: 11, carb: 25},
+    {name: "Sugar Cookie", viet: "Bánh Quy Đường", cal: 470, prot: 5, fat: 20, carb: 70},
+    {name: "Tiramisu", viet: "Bánh Tiramisu", cal: 300, prot: 6, fat: 18, carb: 30},
+    {name: "Toffee", viet: "Kẹo Toffee", cal: 560, prot: 1, fat: 35, carb: 64},
+    {name: "Vanilla Cake (with frosting)", viet: "Bánh Vani", cal: 430, prot: 3, fat: 18, carb: 65},
+    {name: "Vanilla Ice Cream", viet: "Kem Vani", cal: 207, prot: 3.5, fat: 11, carb: 24},
+    {name: "White Chocolate", viet: "Sôcôla Trắng", cal: 539, prot: 6, fat: 32, carb: 59}
+  ]
+};
+
+// ==================== ENGINE CORE ====================
+let activeLossSpeed = 'med';
+
+function runAnalytics() {
+  // Current Stats
+  const w = parseFloat(document.getElementById('curWeight').value) || 0;
+  const h = parseFloat(document.getElementById('curHeight').value) || 0;
+  const bf = parseFloat(document.getElementById('curBF').value) || 0;
+  const vf = parseFloat(document.getElementById('curVF').value) || 0;
+  const dob = document.getElementById('dob').value;
+  const sex = document.getElementById('sex').value;
+  const act = parseFloat(document.getElementById('curActivity').value);
+  
+  // Get age from direct input or calculate from DOB
+  let age = parseFloat(document.getElementById('curAge').value) || 0;
+  if (dob && age === 0) {
+    age = Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 60 * 60 * 1000));
+  }
+
+  // Target Stats
+  const gw = parseFloat(document.getElementById('goalWeight').value) || 0;
+  const gbf = parseFloat(document.getElementById('goalBF').value) || 0;
+  const gvf = parseFloat(document.getElementById('goalVF').value) || 0;
+  const gbmr = parseFloat(document.getElementById('goalBMR').value) || 0;
+  const gDate = document.getElementById('goalDate').value;
+  
+  // BMI & BMR Calc (Mifflin-St Jeor Equation)
+  const bmi = (w > 0 && h > 0) ? (w / ((h/100)**2)).toFixed(1) : 0;
+  const goalBmi = (gw > 0 && h > 0) ? (gw / ((h/100)**2)).toFixed(1) : 0;
+  
+  let bmr = 0;
+  if (w > 0 && h > 0 && age > 0) {
+    if (sex === 'male') {
+      bmr = (10 * w) + (6.25 * h) - (5 * age) + 5;
+    } else if (sex === 'female') {
+      bmr = (10 * w) + (6.25 * h) - (5 * age) - 161;
+    }
+  }
+
+  const tdee = bmr > 0 ? Math.round(bmr * act) : 0;
+  
+  // Fix NaN display
+  document.getElementById('resBMR').innerText = bmr > 0 ? Math.round(bmr) : 0;
+  document.getElementById('resBMI').innerText = bmi || 0;
+  document.getElementById('resTDEE').innerText = tdee || 0;
+  document.getElementById('resGoalBMI').innerText = goalBmi || 0;
+
+  // Gap Calculations
+  if(gw > 0 && w > 0) document.getElementById('gapWeight').innerText = (gw - w).toFixed(1) + " kg";
+  if(gbf > 0 && bf > 0) document.getElementById('gapBF').innerText = (gbf - bf).toFixed(1) + "%";
+  if(gvf > 0 && vf > 0) document.getElementById('gapVF').innerText = (gvf - vf).toFixed(1);
+  if(gbmr > 0 && bmr > 0) document.getElementById('gapBMR').innerText = Math.round(gbmr - bmr) + " kcal";
+  if(gDate) {
+    const d = Math.ceil((new Date(gDate) - new Date()) / 86400000);
+    document.getElementById('gapDays').innerText = d > 0 ? d : "--";
+  }
+
+  generateAnalysisReport(bmr, tdee, bmi, bf, vf, w, gw, sex);
+  updateMacroPlanner();
+}
+
+function generateAnalysisReport(bmr, tdee, bmi, bf, vf, weight, goalWeight, sex) {
+  const content = document.getElementById('reportContent');
+  const calorieRecs = document.getElementById('calorieRecommendations');
+  
+  if (bmr === 0 || tdee === 0) {
+    content.innerHTML = "<p>Input current profile data to generate your health analysis...</p>";
+    calorieRecs.style.display = 'none';
+    return;
+  }
+
+  let html = `<div class="analysis-box">
+    <strong>BMR Profile:</strong> Your estimated resting energy is <strong>${Math.round(bmr)} kcal</strong>. 
+    This is your "engine size" - calories burned at complete rest.
+  </div>`;
+  
+  html += `<div class="analysis-box">
+    <strong>TDEE (Total Daily Energy Expenditure):</strong> With your activity level, you burn approximately <strong>${tdee} kcal</strong> per day.
+  </div>`;
+
+  if (bmi > 0) {
+    let status, color, advice;
+    if (bmi < 18.5) {
+      status = "Underweight"; color = "var(--warn)"; advice = "Consider increasing calorie intake with nutrient-dense foods.";
+    } else if (bmi < 25) {
+      status = "Healthy"; color = "var(--good)"; advice = "Maintain your current healthy weight range.";
+    } else if (bmi < 30) {
+      status = "Overweight"; color = "var(--warn)"; advice = "Focus on gradual weight loss through calorie deficit.";
+    } else {
+      status = "Obese"; color = "var(--danger)"; advice = "Consult healthcare provider for sustainable weight loss plan.";
+    }
+    
+    html += `<div class="analysis-box ${bmi >= 25 ? 'warning' : 'good'}">
+      <strong>BMI Analysis:</strong> At <strong>${bmi}</strong>, you are in the <span style="color:${color}; font-weight:700;">${status}</span> range. ${advice}
+    </div>`;
+  }
+
+  if (vf > 0) {
+    if (vf >= 13) {
+      html += `<div class="analysis-box danger">
+        <strong>⚠️ High Visceral Fat Alert:</strong> Your level of <strong>${vf}</strong> is in the High Risk zone. 
+        Visceral fat surrounds organs and increases risk of heart disease, diabetes, and metabolic syndrome. 
+        <strong>Priority Actions:</strong> Reduce sugar, alcohol, and processed foods. Increase fiber and omega-3 intake.
+      </div>`;
+    } else if (vf >= 9) {
+      html += `<div class="analysis-box warning">
+        <strong>Moderate Visceral Fat:</strong> Your level of <strong>${vf}</strong> is borderline high. 
+        Consider reducing refined carbs and increasing physical activity.
+      </div>`;
+    } else {
+      html += `<div class="analysis-box good">
+        <strong>Healthy Visceral Fat:</strong> Your level of <strong>${vf}</strong> is within the healthy organ-fat range.
+      </div>`;
+    }
+  }
+
+  if (bf > 0) {
+    let bfStatus = "Healthy";
+    let bfColor = "var(--good)";
+    if (sex === 'male') {
+      if (bf > 25) { bfStatus = "Obese"; bfColor = "var(--danger)"; }
+      else if (bf > 20) { bfStatus = "Overfat"; bfColor = "var(--warn)"; }
+      else if (bf < 10) { bfStatus = "Essential Fat"; bfColor = "var(--warn)"; }
+    } else {
+      if (bf > 32) { bfStatus = "Obese"; bfColor = "var(--danger)"; }
+      else if (bf > 28) { bfStatus = "Overfat"; bfColor = "var(--warn)"; }
+      else if (bf < 18) { bfStatus = "Essential Fat"; bfColor = "var(--warn)"; }
+    }
+    html += `<div class="analysis-box ${bfStatus.includes('Healthy') ? 'good' : 'warning'}">
+      <strong>Body Fat Analysis:</strong> At <strong>${bf}%</strong>, you are in the <span style="color:${bfColor}; font-weight:700;">${bfStatus}</span> range.
+    </div>`;
+  }
+
+  // Calculate calorie recommendations for weight loss
+  const mildDeficit = Math.max(tdee - 250, bmr * 1.2); // 0.25kg/week loss
+  const fastDeficit = Math.max(tdee - 500, bmr * 1.1); // 0.5kg/week loss
+  
+  document.getElementById('calMaintain').innerText = tdee;
+  document.getElementById('calMild').innerText = mildDeficit;
+  document.getElementById('calFast').innerText = fastDeficit;
+  
+  calorieRecs.style.display = 'block';
+  content.innerHTML = html;
+
+  // Add weight loss timeline if goal weight is set
+  if (goalWeight > 0 && weight > 0) {
+    const weightToLose = weight - goalWeight;
+    if (weightToLose > 0) {
+      const weeksMild = Math.round(weightToLose / 0.25);
+      const weeksFast = Math.round(weightToLose / 0.5);
+      
+      html += `<div class="analysis-box">
+        <strong>Weight Loss Timeline:</strong> To lose <strong>${weightToLose.toFixed(1)} kg</strong>:
+        <ul style="margin-top:8px; padding-left:20px;">
+          <li><strong>Mild pace (0.25 kg/week):</strong> ${weeksMild} weeks at ${mildDeficit} kcal/day</li>
+          <li><strong>Fast pace (0.5 kg/week):</strong> ${weeksFast} weeks at ${fastDeficit} kcal/day</li>
+        </ul>
+      </div>`;
+    }
+  }
+
+  content.innerHTML = html;
+}
+
+function setSpeed(speed) {
+  activeLossSpeed = speed;
+  document.querySelectorAll('.speed-opt').forEach(el => el.classList.remove('active'));
+  document.getElementById('speed' + speed.charAt(0).toUpperCase() + speed.slice(1)).classList.add('active');
+  updateMacroPlanner();
+}
+
+function updateMacroPlanner() {
+  const cals = parseFloat(document.getElementById('targetCals').value) || 0;
+  let p, c, f;
+
+  // Macro Splits based on nutrient specialist recommendations
+  if (activeLossSpeed === 'fast') {
+    p = 0.60; c = 0.30; f = 0.10; // Extreme fat loss
+  } else if (activeLossSpeed === 'med') {
+    p = 0.40; c = 0.30; f = 0.30; // Standard weight loss
+  } else {
+    p = 0.25; c = 0.45; f = 0.30; // Maintenance
+  }
+
+  // Fix NaN calculations
+  const pG = cals > 0 ? Math.round((cals * p) / 4) : 0;
+  const cG = cals > 0 ? Math.round((cals * c) / 4) : 0;
+  const fG = cals > 0 ? Math.round((cals * f) / 9) : 0;
+
+  document.getElementById('planP').innerText = pG + "g";
+  document.getElementById('planC').innerText = cG + "g";
+  document.getElementById('planF').innerText = fG + "g";
+  document.getElementById('pctP').innerText = (p*100).toFixed(0) + "%";
+  document.getElementById('pctC').innerText = (c*100).toFixed(0) + "%";
+  document.getElementById('pctF').innerText = (f*100).toFixed(0) + "%";
+}
+
+function filterFoods() {
+  const query = document.getElementById('foodSearch').value.toLowerCase();
+  const catFilter = document.getElementById('cat').value;
+  const select = document.getElementById('foodItem');
+  select.innerHTML = "";
+  
+  let list = [];
+  if(catFilter === 'all') Object.keys(db).forEach(k => list = list.concat(db[k]));
+  else list = db[catFilter] || [];
+
+  list.sort((a,b) => a.name.localeCompare(b.name)).forEach(item => {
+    if(item.name.toLowerCase().includes(query) || (item.viet && item.viet.toLowerCase().includes(query))) {
+      let opt = document.createElement('option');
+      opt.value = JSON.stringify(item);
+      const vietName = item.viet ? `<span class="viet-name">${item.viet}</span>` : '';
+      opt.innerHTML = `<span class="food-name">${item.name}</span> ${vietName}`;
+      select.appendChild(opt);
+    }
+  });
+}
+
+let journal = [];
+function addItem() {
+  const raw = document.getElementById('foodItem').value;
+  const amt = parseFloat(document.getElementById('foodAmt').value) || 0;
+  const method = document.getElementById('method').value;
+  if(!raw || amt <= 0) return;
+
+  const f = JSON.parse(raw);
+  const factor = amt / 100;
+  const mults = { 'raw':1, 'steamed':1, 'grilled':1.05, 'roasted':1.1, 'fried':1.4, 'deep':1.7 };
+  
+  // Fix NaN calculation
+  const calFactor = mults[method] || 1;
+  const fatFactor = (method === 'fried' || method === 'deep') ? 1.6 : 1;
+  
+  const calories = (f.cal || 0) * factor * calFactor;
+  const protein = (f.prot || 0) * factor;
+  const carbs = (f.carb || 0) * factor;
+  const fat = (f.fat || 0) * factor * fatFactor;
+  
+  journal.push({
+    id: Date.now(), 
+    name: f.name, 
+    viet: f.viet, 
+    amt, 
+    prep: method,
+    cal: calories,
+    p: protein, 
+    c: carbs, 
+    f: fat
+  });
+  renderJournal();
+}
+
+function renderJournal() {
+  const div = document.getElementById('journalTable');
+  let tc = 0, tp = 0, tcb = 0, tf = 0;
+  
+  let html = `<table class="journal-table">
+    <tr>
+      <th>Entry</th>
+      <th>Qty</th>
+      <th>Prep</th>
+      <th>Cal</th>
+      <th>P</th>
+      <th>C</th>
+      <th>F</th>
+      <th></th>
+    </tr>`;
+  
+  journal.forEach(i => {
+    // Fix NaN accumulation
+    tc += (i.cal || 0);
+    tp += (i.p || 0);
+    tcb += (i.c || 0);
+    tf += (i.f || 0);
+    
+    const vietDisplay = i.viet ? `<br><small class="viet-name">${i.viet}</small>` : '';
+    html += `<tr>
+      <td>${i.name}${vietDisplay}</td>
+      <td>${i.amt}</td>
+      <td style="text-transform:capitalize">${i.prep}</td>
+      <td>${Math.round(i.cal || 0)}</td>
+      <td>${(i.p || 0).toFixed(1)}g</td>
+      <td>${(i.c || 0).toFixed(1)}g</td>
+      <td>${(i.f || 0).toFixed(1)}g</td>
+      <td><button onclick="remove(${i.id})" style="color:red; border:none; background:none; cursor:pointer; font-weight:700;">&times;</button></td>
+    </tr>`;
+  });
+  
+  div.innerHTML = journal.length ? html + "</table>" : "<p style='padding:30px; text-align:center; color:#999;'>Journal empty.</p>";
+  
+  // Fix NaN display
+  document.getElementById('totCal').innerText = Math.round(tc || 0);
+  document.getElementById('totP').innerText = Math.round(tp || 0) + "g";
+  document.getElementById('totC').innerText = Math.round(tcb || 0) + "g";
+  document.getElementById('totF').innerText = Math.round(tf || 0) + "g";
+}
+
+function remove(id) { 
+  journal = journal.filter(i => i.id !== id); 
+  renderJournal(); 
+}
+
+// Event listeners for auto-calculation
+document.querySelectorAll('input, select').forEach(e => {
+  e.addEventListener('input', runAnalytics);
+  e.addEventListener('change', runAnalytics);
+});
+
+document.querySelectorAll('.m-btn').forEach(b => {
+  b.addEventListener('click', function() {
+    document.querySelectorAll('.m-btn').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('method').value = this.dataset.m;
+  });
+});
+
+// Auto-calculate age from DOB
+document.getElementById('dob').addEventListener('change', function() {
+  if (this.value) {
+    const age = Math.floor((new Date() - new Date(this.value)) / (365.25 * 24 * 60 * 60 * 1000));
+    document.getElementById('curAge').value = age;
+    runAnalytics();
+  }
+});
+
+filterFoods();
+runAnalytics();
+updateMacroPlanner();
+</script>
+</body>
+</html>
