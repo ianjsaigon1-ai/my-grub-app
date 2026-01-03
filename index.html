@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -312,6 +312,7 @@
             <option value="all">All Items (500+)</option>
             <option value="vietnamese">🇻🇳 Vietnamese Cuisine (50+)</option>
             <option value="fastfood">🍔 Fast Foods (50+)</option>
+            <option value="seeds_nuts">🥜 Seeds & Nuts (50+)</option>
             <option value="vegetables">🥦 Vegetables (50+)</option>
             <option value="fruits">🍎 Fruits (50+)</option>
             <option value="drinks">🥤 Drinks & Juices (50+)</option>
@@ -353,7 +354,58 @@
 <script>
 // ==================== THE MASTER DATABASE (500+ ITEMS) ====================
 const db = {
-  vietnamese: [
+   seeds_nuts: [
+    {name: "Almonds (Raw)", cal: 579, prot: 21, fat: 50, carb: 22},
+    {name: "Almonds (Roasted, Salted)", cal: 598, prot: 21, fat: 53, carb: 21},
+    {name: "Almonds (Blanched)", cal: 590, prot: 21, fat: 53, carb: 19},
+    {name: "Almond Butter", cal: 614, prot: 21, fat: 56, carb: 19},
+    {name: "Almond Flour", cal: 571, prot: 21, fat: 50, carb: 21},
+    {name: "Brazil Nuts", cal: 659, prot: 14, fat: 67, carb: 12},
+    {name: "Cashews (Raw)", cal: 553, prot: 18, fat: 44, carb: 30},
+    {name: "Cashews (Roasted)", cal: 574, prot: 15, fat: 46, carb: 33},
+    {name: "Cashew Butter", cal: 587, prot: 18, fat: 49, carb: 28},
+    {name: "Chestnuts (Roasted)", cal: 245, prot: 3, fat: 2, carb: 53},
+    {name: "Chia Seeds", cal: 486, prot: 17, fat: 31, carb: 42},
+    {name: "Coconut (Dried, Shredded)", cal: 660, prot: 7, fat: 65, carb: 24},
+    {name: "Flax Seeds (Whole)", cal: 534, prot: 18, fat: 42, carb: 29},
+    {name: "Flax Seeds (Ground/Meal)", cal: 534, prot: 18, fat: 42, carb: 29},
+    {name: "Hazelnuts (Raw)", cal: 628, prot: 15, fat: 61, carb: 17},
+    {name: "Hazelnuts (Roasted)", cal: 646, prot: 15, fat: 62, carb: 18},
+    {name: "Hemp Hearts (Shelled)", cal: 553, prot: 32, fat: 49, carb: 9},
+    {name: "Hickory Nuts", cal: 657, prot: 13, fat: 64, carb: 18},
+    {name: "Lotus Seeds (Dried)", viet: "Hạt Sen", cal: 332, prot: 15, fat: 2, carb: 64},
+    {name: "Lotus Seeds (Fresh)", viet: "Hạt Sen Tươi", cal: 89, prot: 4, fat: 0.5, carb: 17},
+    {name: "Macadamia Nuts (Raw)", cal: 718, prot: 8, fat: 76, carb: 14},
+    {name: "Macadamia Nuts (Roasted)", cal: 718, prot: 8, fat: 76, carb: 13},
+    {name: "Peanuts (Raw)", cal: 567, prot: 26, fat: 49, carb: 16},
+    {name: "Peanuts (Roasted)", cal: 585, prot: 24, fat: 50, carb: 22},
+    {name: "Peanuts (Boiled)", cal: 318, prot: 14, fat: 22, carb: 21},
+    {name: "Peanut Butter (Smooth)", cal: 588, prot: 25, fat: 50, carb: 20},
+    {name: "Peanut Butter (Crunchy)", cal: 589, prot: 24, fat: 50, carb: 22},
+    {name: "Pecans (Raw)", cal: 691, prot: 9, fat: 72, carb: 14},
+    {name: "Pecans (Roasted)", cal: 710, prot: 9, fat: 74, carb: 12},
+    {name: "Pine Nuts", cal: 673, prot: 14, fat: 68, carb: 13},
+    {name: "Pistachios (Raw)", cal: 562, prot: 20, fat: 45, carb: 28},
+    {name: "Pistachios (Roasted)", cal: 569, prot: 21, fat: 46, carb: 27},
+    {name: "Poppy Seeds", cal: 525, prot: 18, fat: 42, carb: 28},
+    {name: "Pumpkin Seeds (Pepitas)", cal: 559, prot: 30, fat: 49, carb: 11},
+    {name: "Pumpkin Seeds (In Shell, Roasted)", cal: 446, prot: 19, fat: 19, carb: 54},
+    {name: "Safflower Seeds", cal: 517, prot: 16, fat: 38, carb: 34},
+    {name: "Sesame Seeds (White)", cal: 573, prot: 18, fat: 50, carb: 23},
+    {name: "Sesame Seeds (Black)", cal: 573, prot: 18, fat: 50, carb: 23},
+    {name: "Sesame Paste (Tahini)", cal: 595, prot: 17, fat: 54, carb: 21},
+    {name: "Soy Nuts (Roasted)", cal: 451, prot: 40, fat: 24, carb: 31},
+    {name: "Squash Seeds (Roasted)", cal: 446, prot: 19, fat: 19, carb: 54},
+    {name: "Sunflower Seeds (Kernels)", cal: 584, prot: 21, fat: 51, carb: 20},
+    {name: "Sunflower Seeds (In Shell, Toasted)", cal: 269, prot: 12, fat: 24, carb: 11},
+    {name: "Sunflower Butter", cal: 617, prot: 18, fat: 56, carb: 22},
+    {name: "Tiger Nuts", cal: 400, prot: 7, fat: 25, carb: 62},
+    {name: "Walnuts (English)", cal: 654, prot: 15, fat: 65, carb: 14},
+    {name: "Walnuts (Black)", cal: 618, prot: 24, fat: 59, carb: 10},
+    {name: "Walnut Butter", cal: 660, prot: 14, fat: 66, carb: 13},
+    {name: "Watermelon Seeds (Dried)", viet: "Hạt Dưa", cal: 557, prot: 28, fat: 47, carb: 15},
+    {name: "Mixed Nuts (Unsalted)", cal: 607, prot: 20, fat: 54, carb: 21}
+  ],vietnamese: [
     {name: "Banh Beo (Steamed Rice Cakes)", viet: "Bánh Bèo", cal: 150, prot: 3, fat: 2, carb: 30},
     {name: "Banh Bot Loc (Shrimp & Pork Dumpling)", viet: "Bánh Bột Lọc", cal: 200, prot: 7, fat: 6, carb: 30},
     {name: "Banh Cuon (Steamed Rice Rolls)", viet: "Bánh Cuốn", cal: 180, prot: 6, fat: 4, carb: 30},
