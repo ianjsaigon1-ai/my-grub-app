@@ -131,7 +131,7 @@ button{ padding:10px 18px; border:none; border-radius:6px; font-family:'Cinzel',
     alt="Health Intelligence Tracker Logo"
     style="height: 80px; width: auto; max-width: 280px; object-fit: contain;"
   >
-  Health Intelligence Tracker <small>v.17</small>
+  Health Intelligence Tracker <small>v.18</small>
 </h1>
 
   <!-- PROFILE -->
@@ -1565,19 +1565,9 @@ function saveNewFood() {
   const name = document.getElementById('newFoodName').value.trim();
   let category = document.getElementById('newCategory').value.trim().toLowerCase();
 
-  if (!name) {
-    alert("Please enter a food name!");
+  if (!name || !category) {
+    alert("Please enter both Name and Category!");
     return;
-  }
-
-  if (!category) {
-    alert("Please enter a category!");
-    return;
-  }
-
-  // Create category if it doesn't exist
-  if (!foodsDB[category]) {
-    foodsDB[category] = [];
   }
 
   const newFood = {
@@ -1590,44 +1580,42 @@ function saveNewFood() {
     fiber: parseFloat(document.getElementById('newFiber').value) || 0
   };
 
-  // Add to database
+  // 1. Add to the active session database
+  if (!foodsDB[category]) foodsDB[category] = [];
   foodsDB[category].push(newFood);
 
-  // Save entire foodsDB to localStorage for persistence
-  localStorage.setItem('customFoodsDB', JSON.stringify(foodsDB));
+  // 2. Save ONLY the custom items to localStorage
+  let customOnly = JSON.parse(localStorage.getItem('customFoodsDB_Only')) || {};
+  if (!customOnly[category]) customOnly[category] = [];
+  customOnly[category].push(newFood);
+  localStorage.setItem('customFoodsDB_Only', JSON.stringify(customOnly));
 
-  alert(`Food "${name}" successfully added to category "${category}"!`);
+  alert(`Food "${name}" saved!`);
 
-  // Refresh the food selection dropdown if current category matches
-  const currentCat = document.getElementById('foodCategory').value;
-  if (currentCat === category || currentCat === 'all') {
-    updateFoodList();
-  }
-
-  // Clear form
+  // Clear form and refresh list
   document.getElementById('newFoodName').value = '';
-  document.getElementById('newCategory').value = '';
-  ['newCal','newProt','newCarb','newFat','newSugar','newFiber'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-
-  // Update category suggestions
-  populateCategorySuggestions();
+  ['newCal','newProt','newCarb','newFat','newSugar','newFiber'].forEach(id => document.getElementById(id).value = '');
+  updateFoodList();
 }
 
 // Load custom foods on startup and merge with built-in
 function loadCustomFoods() {
-  const saved = localStorage.getItem('customFoodsDB');
-  if (saved) {
-    const customDB = JSON.parse(saved);
-    Object.keys(customDB).forEach(cat => {
-      if (!foodsDB[cat]) {
-        foodsDB[cat] = [];
+  const saved = localStorage.getItem('customFoodsDB_Only');
+  if (!saved) return;
+  
+  const customDB = JSON.parse(saved);
+  
+  Object.keys(customDB).forEach(cat => {
+    if (!foodsDB[cat]) foodsDB[cat] = [];
+    
+    customDB[cat].forEach(newFood => {
+      // Check if food already exists in the list to prevent duplicates
+      const exists = foodsDB[cat].some(existing => existing.name === newFood.name);
+      if (!exists) {
+        foodsDB[cat].push(newFood);
       }
-      // Add foods (simple append — could be improved with duplicate check later)
-      foodsDB[cat].push(...customDB[cat]);
     });
-  }
+  });
 }
 
 // Initialize on page load
