@@ -559,7 +559,6 @@ function analyzeBioNutrition() {
   const targetCal = parseFloat(document.getElementById('targetCalories').value) || 2000;
   const targetPro = parseFloat(document.getElementById('proteinTarget').textContent) || 1;
   const targetCar = parseFloat(document.getElementById('carbsTarget').textContent) || 1;
-  const targetFat = parseFloat(document.getElementById('fatsTarget').textContent) || 1;
 
   let naturalSugar = 0, addedSugar = 0;   
   let micro = { 
@@ -576,6 +575,7 @@ function analyzeBioNutrition() {
     const nameLower = (e.name || "").toLowerCase();
     let cat = (e.cat || "").toLowerCase();
 
+    // Mapping detection
     if (cat === 'all' || cat === '' || cat === 'manual entry') {
         for (let dbCat in foodsDB) {
             if (foodsDB[dbCat].some(f => f.name === e.name || (f.name + " (" + f.viet + ")") === e.name)) {
@@ -588,39 +588,56 @@ function analyzeBioNutrition() {
     if (['fruits', 'vegetables', 'dairy'].includes(cat) || isNaturalDrink) naturalSugar += (e.sugar || 0);
     else addedSugar += (e.sugar || 0);
 
-    // --- CALIBRATED INGREDIENT SENSING ---
-    if (nameLower.includes('chia')) {
-        micro.omega3 += (1.2 * weight); micro.magnesium += (75 * weight); micro.calcium += (60 * weight);
-        micro.iron += (0.8 * weight); micro.zinc += (0.6 * weight);
+    // --- RE-CALIBRATED CLINICAL INGREDIENT SENSING (v.121) ---
+    
+    // FISH & SEAFOOD (Fixing Vit D, B6, B12, Omega-3)
+    if (cat === 'fish' || nameLower.includes('salmon') || nameLower.includes('fish') || nameLower.includes('tuna')) {
+        micro.omega3 += (1.8 * weight); micro.b12 += (2.2 * weight); micro.vitD += (4.5 * weight);
+        micro.potassium += (380 * weight); micro.b6 += (0.6 * weight); micro.zinc += (1.2 * weight);
+        micro.iron += (0.9 * weight); micro.magnesium += (30 * weight);
     } 
-    else if (nameLower.includes('moringa')) {
-        micro.vitE += (15 * weight); micro.vitA += (750 * weight); micro.iron += (8 * weight);
-        micro.calcium += (150 * weight); micro.vitK += (120 * weight); micro.vitaminC += (45 * weight);
-    }
-    else if (nameLower.includes('oat')) {
-        micro.magnesium += (35 * weight); micro.iron += (1.1 * weight); micro.zinc += (0.8 * weight);
-        micro.potassium += (90 * weight);
-    }
-    else if (nameLower.includes('almond')) {
-        micro.vitE += (4.5 * weight); micro.magnesium += (45 * weight); micro.potassium += (120 * weight);
-    }
-    else if (cat === 'vegetables' || cat === 'fruits' || nameLower.includes('curry')) {
-        micro.magnesium += (20 * weight); micro.potassium += (250 * weight); micro.vitaminC += (30 * weight);
-        micro.vitA += (120 * weight); micro.vitK += (40 * weight); micro.folate += (30 * weight);
+    // SUPER SEEDS (Chia/Flax)
+    else if (nameLower.includes('chia') || nameLower.includes('flax') || nameLower.includes('seed')) {
+        micro.omega3 += (2.2 * weight); micro.magnesium += (90 * weight); micro.calcium += (65 * weight);
+        micro.iron += (1.4 * weight); micro.fiber += (4 * weight); micro.potassium += (160 * weight);
     } 
-    else if (cat === 'meats' || cat === 'fish') {
-        micro.zinc += (1.8 * weight); micro.iron += (1.2 * weight); micro.b12 += (1.4 * weight);
-        micro.vitD += (0.8 * weight); if(cat === 'fish') micro.omega3 += (0.6 * weight);
+    // SUPERFOOD LEAVES (Moringa/Spirulina)
+    else if (nameLower.includes('moringa') || nameLower.includes('spirulina')) {
+        micro.vitE += (12 * weight); micro.vitA += (750 * weight); micro.iron += (9 * weight);
+        micro.vitK += (140 * weight); micro.vitaminC += (50 * weight); micro.folate += (120 * weight);
+        micro.b6 += (0.3 * weight); micro.calcium += (180 * weight);
+    }
+    // OATS & WHOLE GRAINS
+    else if (nameLower.includes('oat') || nameLower.includes('grain') || cat === 'grains') {
+        micro.magnesium += (40 * weight); micro.iron += (1.4 * weight); micro.zinc += (0.9 * weight);
+        micro.potassium += (110 * weight); micro.b6 += (0.15 * weight); micro.folate += (40 * weight);
+    }
+    // ALMONDS & NUTS
+    else if (nameLower.includes('almond') || nameLower.includes('nut')) {
+        micro.vitE += (5.5 * weight); micro.magnesium += (55 * weight); micro.potassium += (140 * weight);
+        micro.zinc += (0.7 * weight); micro.calcium += (50 * weight); micro.folate += (25 * weight);
+    }
+    // FRUITS & VEGGIES
+    else if (cat === 'vegetables' || cat === 'fruits' || nameLower.includes('curry') || nameLower.includes('berry')) {
+        micro.vitaminC += (45 * weight); micro.potassium += (320 * weight); micro.vitA += (180 * weight);
+        micro.vitK += (60 * weight); micro.folate += (65 * weight); micro.b6 += (0.2 * weight);
+        micro.magnesium += (15 * weight);
     } 
-    else if (cat === 'dairy' || nameLower.includes('milk') || nameLower.includes('yogurt') || nameLower.includes('cappuccino')) {
-        micro.calcium += (120 * weight); micro.b12 += (0.5 * weight); micro.vitD += (1.1 * weight);
-        micro.potassium += (110 * weight);
+    // DAIRY & EGGS
+    else if (cat === 'dairy' || nameLower.includes('milk') || nameLower.includes('yogurt') || nameLower.includes('egg')) {
+        micro.calcium += (125 * weight); micro.b12 += (0.6 * weight); micro.vitD += (1.4 * weight);
+        micro.potassium += (140 * weight); micro.zinc += (0.4 * weight); micro.vitA += (60 * weight);
+        micro.folate += (15 * weight); micro.b6 += (0.05 * weight);
+    }
+    // TRACE FOR OTHERS
+    else {
+        micro.potassium += (40 * weight); micro.magnesium += (5 * weight);
     }
 
-    // Amino Acid Mapping based on protein source quality
-    let leuFactor = 0.08, lysFactor = 0.07, metFactor = 0.025, tryFactor = 0.012;
+    // AMINO ACID MAPPING (Refined for accuracy)
+    let leuFactor = 0.075, lysFactor = 0.065, metFactor = 0.022, tryFactor = 0.011;
     if (cat === 'meats' || cat === 'fish' || cat === 'dairy') {
-        leuFactor = 0.11; lysFactor = 0.09; metFactor = 0.035; tryFactor = 0.015;
+        leuFactor = 0.095; lysFactor = 0.085; metFactor = 0.032; tryFactor = 0.014;
     }
     micro.leucine += (e.p * leuFactor);
     micro.lysine += (e.p * lysFactor);
@@ -628,9 +645,9 @@ function analyzeBioNutrition() {
     micro.tryptophan += (e.p * tryFactor);
 
     return acc;
-  }, { cal:0, p:0, c:0, f:0, sugar:0, fiber:0, sodium:0 });
+  }, { cal:0, p:0, c:0, f:0, sugar:0, fiber:0, sodium:0, alcoholCals: 0 });
 
-  // UI Achievement percentages
+  // UI PERCENTAGES
   const calGoalPct = Math.round((totals.cal / targetCal) * 100);
   const proGoalPct = Math.round((totals.p / targetPro) * 100);
   const sodiumPct  = Math.round((totals.sodium / 2300) * 100);
@@ -669,9 +686,9 @@ function analyzeBioNutrition() {
 
       <div style="margin-top:10px; padding:10px; background:#f0f4f8; border-radius:8px; font-size:0.82em; line-height:1.6;">
         <strong style="color:#2c3e50; display:block; margin-bottom:3px;">🧬 Amino Acid Quality Snapshot (Intake / Goal)</strong>
-        <span><b>Leucine (mTOR):</b> ${micro.leucine.toFixed(1)} / 3.0g (${Math.round(micro.leucine/3*100)}%)</span><br>
-        <span><b>Lysine:</b> ${micro.lysine.toFixed(1)} / 3.0g (${Math.round(micro.lysine/3*100)}%)</span><br>
-        <span><b>Methionine+Cyst:</b> ${micro.methionine.toFixed(1)} / 1.5g (${Math.round(micro.methionine/1.5*100)}%)</span><br>
+        <span><b>Leucine:</b> ${micro.leucine.toFixed(1)} / 3.0g (${Math.round(micro.leucine/3*100)}%)</span> | 
+        <span><b>Lysine:</b> ${micro.lysine.toFixed(1)} / 3.0g (${Math.round(micro.lysine/3*100)}%)</span> |
+        <span><b>Methionine+Cyst:</b> ${micro.methionine.toFixed(1)} / 1.5g (${Math.round(micro.methionine/1.5*100)}%)</span> |
         <span><b>Tryptophan:</b> ${micro.tryptophan.toFixed(1)} / 0.7g (${Math.round(micro.tryptophan/0.7*100)}%)</span>
       </div>
     </div>
