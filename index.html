@@ -221,7 +221,7 @@ button{ padding:10px 18px; border:none; border-radius:6px; font-family:'Cinzel',
     alt="Health Intelligence Tracker Logo"
     style="height: 80px; width: auto; max-width: 280px; object-fit: contain;"
   >
-  Health Intelligence Tracker <small>v.120</small>
+  Health Intelligence Tracker <small>v.122</small>
 </h1>
 
   <!-- PROFILE -->
@@ -556,26 +556,23 @@ function analyzeBioNutrition() {
     return;
   }
 
-  // 1. Get Live Targets from Dashboard
   const targetCal = parseFloat(document.getElementById('targetCalories').value) || 2000;
   const targetPro = parseFloat(document.getElementById('proteinTarget').textContent) || 1;
   const targetCar = parseFloat(document.getElementById('carbsTarget').textContent) || 1;
   const targetFat = parseFloat(document.getElementById('fatsTarget').textContent) || 1;
-  const targetSug = 50; 
-  const targetFib = 30; 
 
   let naturalSugar = 0, addedSugar = 0;   
   let micro = { 
     magnesium: 0, potassium: 0, calcium: 0, iron: 0, zinc: 0, b12: 0, vitaminC: 0, omega3: 0,
     vitA: 0, vitD: 0, vitE: 0, vitK: 0, folate: 0, b6: 0,
-    leucine: 0, lysine: 0, methionine: 0 
+    leucine: 0, lysine: 0, methionine: 0, tryptophan: 0
   };
   
   const totals = todayEntries.reduce((acc, e) => {
     acc.cal += e.cal; acc.p += e.p; acc.c += e.c; acc.f += e.f;
     acc.sugar += (e.sugar || 0); acc.fiber += (e.fiber || 0); acc.sodium += (e.sodium || 0);
 
-    const weight = e.cal / 100;
+    const weight = e.cal / 100; 
     const nameLower = (e.name || "").toLowerCase();
     let cat = (e.cat || "").toLowerCase();
 
@@ -587,99 +584,71 @@ function analyzeBioNutrition() {
         }
     }
 
-    if (cat === 'alcohol') { acc.alcoholCals = (acc.alcoholCals || 0) + e.cal; }
-
-    // Natural vs Added Split
-    const isNaturalDrink = nameLower.includes('smoothie') || nameLower.includes('juice');
+    const isNaturalDrink = nameLower.includes('smoothie') || nameLower.includes('juice') || nameLower.includes('mulberry');
     if (['fruits', 'vegetables', 'dairy'].includes(cat) || isNaturalDrink) naturalSugar += (e.sugar || 0);
     else addedSugar += (e.sugar || 0);
 
-    // KEYWORD INTELLIGENCE
-    const isDairyItem = cat === 'dairy' || nameLower.includes('milk') || nameLower.includes('cappuccino') || nameLower.includes('latte') || nameLower.includes('yogurt');
-    const isVeggieItem = cat === 'vegetables' || nameLower.includes('curry') || nameLower.includes('salad') || nameLower.includes('veg');
-    const isGrainItem = cat === 'grains' || nameLower.includes('baguette') || nameLower.includes('bread') || nameLower.includes('rice');
-
-    if (isVeggieItem || cat === 'fruits') {
-        micro.magnesium += (45 * weight); micro.potassium += (350 * weight); micro.vitaminC += (40 * weight);
-        micro.vitA += (180 * weight); micro.vitK += (50 * weight); micro.folate += (45 * weight);
-        micro.iron += (0.8 * weight); 
-        // Aminos from plants
-        micro.leucine += (e.p * 0.06); 
-        micro.lysine += (e.p * 0.04);
-        micro.methionine += (e.p * 0.015);
-    } else if (cat === 'meats' || cat === 'fish') {
-        micro.zinc += (3.5 * weight); micro.iron += (2.0 * weight); micro.b12 += (1.8 * weight);
-        micro.b6 += (0.4 * weight); micro.vitD += (1.5 * weight);
-        // Aminos from animal
-        micro.leucine += (e.p * 0.11); 
-        micro.lysine += (e.p * 0.09);
-        micro.methionine += (e.p * 0.035);
-        if(cat === 'fish') { micro.omega3 += (0.8 * weight); micro.vitD += (4 * weight); }
-    } else if (isDairyItem) {
-        micro.calcium += (150 * weight); micro.b12 += (0.6 * weight); micro.vitD += (1.2 * weight);
-        micro.zinc += (0.5 * weight); micro.potassium += (120 * weight);
-        micro.leucine += (e.p * 0.10);
-        micro.lysine += (e.p * 0.08); 
-        micro.methionine += (e.p * 0.028);
-    } else if (isGrainItem) {
-        micro.iron += (1.2 * weight); micro.zinc += (0.8 * weight); micro.b6 += (0.2 * weight);
-        micro.magnesium += (25 * weight); micro.folate += (20 * weight);
-        micro.leucine += (e.p * 0.07);
-        micro.lysine += (e.p * 0.025);
-        micro.methionine += (e.p * 0.018);
-    } else if (isNaturalDrink) {
-        micro.vitaminC += (35 * weight); micro.potassium += (200 * weight); micro.vitA += (50 * weight);
-    } else {
-        micro.magnesium += (5 * weight); micro.potassium += (40 * weight);
+    // --- CALIBRATED INGREDIENT SENSING ---
+    if (nameLower.includes('chia')) {
+        micro.omega3 += (1.2 * weight); micro.magnesium += (75 * weight); micro.calcium += (60 * weight);
+        micro.iron += (0.8 * weight); micro.zinc += (0.6 * weight);
+    } 
+    else if (nameLower.includes('moringa')) {
+        micro.vitE += (15 * weight); micro.vitA += (750 * weight); micro.iron += (8 * weight);
+        micro.calcium += (150 * weight); micro.vitK += (120 * weight); micro.vitaminC += (45 * weight);
     }
-    return acc;
-  }, { cal:0, p:0, c:0, f:0, sugar:0, fiber:0, sodium:0, alcoholCals: 0 });
+    else if (nameLower.includes('oat')) {
+        micro.magnesium += (35 * weight); micro.iron += (1.1 * weight); micro.zinc += (0.8 * weight);
+        micro.potassium += (90 * weight);
+    }
+    else if (nameLower.includes('almond')) {
+        micro.vitE += (4.5 * weight); micro.magnesium += (45 * weight); micro.potassium += (120 * weight);
+    }
+    else if (cat === 'vegetables' || cat === 'fruits' || nameLower.includes('curry')) {
+        micro.magnesium += (20 * weight); micro.potassium += (250 * weight); micro.vitaminC += (30 * weight);
+        micro.vitA += (120 * weight); micro.vitK += (40 * weight); micro.folate += (30 * weight);
+    } 
+    else if (cat === 'meats' || cat === 'fish') {
+        micro.zinc += (1.8 * weight); micro.iron += (1.2 * weight); micro.b12 += (1.4 * weight);
+        micro.vitD += (0.8 * weight); if(cat === 'fish') micro.omega3 += (0.6 * weight);
+    } 
+    else if (cat === 'dairy' || nameLower.includes('milk') || nameLower.includes('yogurt') || nameLower.includes('cappuccino')) {
+        micro.calcium += (120 * weight); micro.b12 += (0.5 * weight); micro.vitD += (1.1 * weight);
+        micro.potassium += (110 * weight);
+    }
 
-  // Percentage Calculations
+    // Amino Acid Mapping based on protein source quality
+    let leuFactor = 0.08, lysFactor = 0.07, metFactor = 0.025, tryFactor = 0.012;
+    if (cat === 'meats' || cat === 'fish' || cat === 'dairy') {
+        leuFactor = 0.11; lysFactor = 0.09; metFactor = 0.035; tryFactor = 0.015;
+    }
+    micro.leucine += (e.p * leuFactor);
+    micro.lysine += (e.p * lysFactor);
+    micro.methionine += (e.p * metFactor);
+    micro.tryptophan += (e.p * tryFactor);
+
+    return acc;
+  }, { cal:0, p:0, c:0, f:0, sugar:0, fiber:0, sodium:0 });
+
+  // UI Achievement percentages
   const calGoalPct = Math.round((totals.cal / targetCal) * 100);
   const proGoalPct = Math.round((totals.p / targetPro) * 100);
-  const carGoalPct = Math.round((totals.c / targetCar) * 100);
-  const fatGoalPct = Math.round((totals.f / targetFat) * 100);
-  const sugGoalPct = Math.round((totals.sugar / targetSug) * 100);
-  const fibGoalPct = Math.round((totals.fiber / targetFib) * 100);
   const sodiumPct  = Math.round((totals.sodium / 2300) * 100);
 
-  // Metabolic Insight Engine
-  let insightHeader = "🟢 METABOLIC STATUS: OPTIMAL", insightColor = "#2d5a27";
-  let insightBody = "Nutrient density is excellent. Amino acid profile supports muscle preservation.";
-
-  if (addedSugar > 25) { insightHeader = "🟡 STATUS: GLYCEMIC LOAD"; insightBody = "High refined sugar detected."; insightColor = "var(--amber-ui)"; } 
-  if (totals.alcoholCals > (targetCal * 0.1)) { insightHeader = "⚠️ STATUS: HEPATIC PRIORITY"; insightBody = "Alcohol detected; liver is pausing fat oxidation."; insightColor = "var(--amber-ui)"; }
-  if (totals.sodium > 2300) { insightHeader = "🔴 STATUS: SYSTEMIC STRESS"; insightBody = "Excess sodium; risk of water retention."; insightColor = "var(--red-ui)"; }
-
-  const ts = totals.sugar || 1;
   const analysisHTML = `
     <div style="margin-bottom: 15px;">
-      <h4 style="color: var(--stone); border-bottom: 1px solid var(--sand); padding-bottom: 5px; font-family:'Cinzel';">🧠 AI Full Spectrum Analysis</h4>
+      <h4 style="color: var(--stone); border-bottom: 1px solid var(--sand); padding-bottom: 5px; font-family:'Cinzel';">🧠 AI Clinical Metabolic Analysis</h4>
       
       <div style="line-height:1.8; margin-bottom:15px;">
         <div class="nutrient-metric"><strong>Calories:</strong> ${Math.round(totals.cal)} / ${Math.round(targetCal)} kcal (${calGoalPct}%)</div>
         <div class="nutrient-metric"><strong>Protein:</strong> ${Math.round(totals.p)}g / ${Math.round(targetPro)}g (${proGoalPct}%)</div>
-        <div class="nutrient-metric" style="color:${carGoalPct > 100 ? 'var(--red-ui)' : 'inherit'}"><strong>Carbs:</strong> ${Math.round(totals.c)}g / ${Math.round(targetCar)}g (${carGoalPct}%)</div>
-        <div class="nutrient-metric" style="color:${fatGoalPct > 100 ? 'var(--red-ui)' : 'inherit'}"><strong>Fats:</strong> ${Math.round(totals.f)}g / ${Math.round(targetFat)}g (${fatGoalPct}%)</div>
-        <div class="nutrient-metric" style="color:${sugGoalPct > 100 ? 'var(--red-ui)' : 'inherit'}"><strong>Total Sugar:</strong> ${Math.round(totals.sugar)}g / ${targetSug}g (${sugGoalPct}%)</div>
-        <div class="nutrient-metric"><strong>Fiber:</strong> ${Math.round(totals.fiber)}g / ${targetFib}g (${fibGoalPct}%)</div>
-        <div class="nutrient-metric" style="color:${sodiumPct > 100 ? 'var(--red-ui)' : 'inherit'}"><strong>Sodium:</strong> ${Math.round(totals.sodium)}mg / 2300mg (${sodiumPct}%)</div>
-      </div>
-      
-      <div style="margin:10px 0; padding:8px; background:#f9f9f9; border-radius:6px; border:1px solid #eee;">
-        <strong style="font-size:0.75em; text-transform:uppercase; color:var(--clay);">Sugar Split (Natural vs Added)</strong>
-        <div style="display:flex; height:10px; border-radius:5px; overflow:hidden; margin:5px 0; background:#eee;">
-          <div style="width:${(naturalSugar/ts)*100}%; background:var(--moss);"></div>
-          <div style="width:${(addedSugar/ts)*100}%; background:var(--red-ui);"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:0.75em;">
-          <span>🌿 Natural: ${Math.round(naturalSugar)}g</span><span>💀 Added: ${Math.round(addedSugar)}g</span>
-        </div>
+        <div class="nutrient-metric" style="color:${(totals.c/targetCar)*100 > 110 ? 'red' : 'inherit'}"><strong>Carbs:</strong> ${Math.round(totals.c)}g / ${Math.round(targetCar)}g</div>
+        <div class="nutrient-metric"><strong>Fiber:</strong> ${Math.round(totals.fiber)}g / 30g (${Math.round(totals.fiber/30*100)}%)</div>
+        <div class="nutrient-metric" style="color:${sodiumPct > 100 ? 'red' : 'inherit'}"><strong>Sodium:</strong> ${Math.round(totals.sodium)}mg / 2300mg (${sodiumPct}%)</div>
       </div>
 
-      <div style="margin-top:10px; padding:10px; background:var(--parchment); border:1px solid var(--sand); border-radius:8px; font-size:0.80em; line-height:1.6;">
-        <strong style="color:var(--stone); display:block; margin-bottom:5px; border-bottom:1px solid var(--sand);">Clinical Micronutrient Estimate (Intake / RDA)</strong>
+      <div style="margin-top:10px; padding:10px; background:var(--parchment); border:1px solid var(--sand); border-radius:8px; font-size:0.82em; line-height:1.6;">
+        <strong style="color:var(--stone); display:block; margin-bottom:5px; border-bottom:1px solid var(--sand);">📊 Clinical Micronutrient Estimate (Intake / RDA)</strong>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;">
           <span><b>Magnesium:</b> ${Math.round(micro.magnesium)} / 420mg (${Math.round(micro.magnesium/420*100)}%)</span>
           <span><b>Potassium:</b> ${Math.round(micro.potassium)} / 3400mg (${Math.round(micro.potassium/3400*100)}%)</span>
@@ -691,23 +660,19 @@ function analyzeBioNutrition() {
           <span><b>Omega-3:</b> ${micro.omega3.toFixed(1)} / 1.6g (${Math.round(micro.omega3/1.6*100)}%)</span>
           <span><b>Vit A:</b> ${Math.round(micro.vitA)} / 900mcg (${Math.round(micro.vitA/900*100)}%)</span>
           <span><b>Vit D:</b> ${micro.vitD.toFixed(1)} / 20mcg (${Math.round(micro.vitD/20*100)}%)</span>
-          <span><b>Vit E:</b> ${Math.round(micro.vitE)} / 15mg (${Math.round(micro.vitE/15*100)}%)</span>
+          <span><b>Vit E:</b> ${micro.vitE.toFixed(1)} / 15mg (${Math.round(micro.vitE/15*100)}%)</span>
           <span><b>Vit K:</b> ${Math.round(micro.vitK)} / 120mcg (${Math.round(micro.vitK/120*100)}%)</span>
           <span><b>Vit B6:</b> ${micro.b6.toFixed(1)} / 1.7mg (${Math.round(micro.b6/1.7*100)}%)</span>
           <span><b>Folate:</b> ${Math.round(micro.folate)} / 400mcg (${Math.round(micro.folate/400*100)}%)</span>
         </div>
       </div>
 
-      <div style="margin-top:10px; padding:10px; background:#f0f4f8; border-radius:8px; font-size:0.82em;">
-        <strong style="color:#2c3e50; display:block; margin-bottom:3px;">Muscle Recovery (Essential Aminos)</strong>
-        <span><b>Leucine (mTOR):</b> ${micro.leucine.toFixed(1)} / 3.0g (${Math.round(micro.leucine/3*100)}%)</span> | 
-        <span><b>Lysine:</b> ${micro.lysine.toFixed(1)} / 3.0g (${Math.round(micro.lysine/3*100)}%)</span> |
-        <span><b>Methionine:</b> ${micro.methionine.toFixed(1)} / 1.0g (${Math.round(micro.methionine/1*100)}%)</span>
-      </div>
-
-      <div style="margin-top:12px; padding:12px; background:white; border-left:5px solid ${insightColor}; border-radius:4px; box-shadow: 2px 2px 5px rgba(0,0,0,0.05);">
-        <strong style="color:${insightColor}; display:block; font-size:0.9em; font-family:'Cinzel';">${insightHeader}</strong>
-        <p style="font-size:0.85em; color:#444; margin-top:4px;">${insightBody}</p>
+      <div style="margin-top:10px; padding:10px; background:#f0f4f8; border-radius:8px; font-size:0.82em; line-height:1.6;">
+        <strong style="color:#2c3e50; display:block; margin-bottom:3px;">🧬 Amino Acid Quality Snapshot (Intake / Goal)</strong>
+        <span><b>Leucine (mTOR):</b> ${micro.leucine.toFixed(1)} / 3.0g (${Math.round(micro.leucine/3*100)}%)</span><br>
+        <span><b>Lysine:</b> ${micro.lysine.toFixed(1)} / 3.0g (${Math.round(micro.lysine/3*100)}%)</span><br>
+        <span><b>Methionine+Cyst:</b> ${micro.methionine.toFixed(1)} / 1.5g (${Math.round(micro.methionine/1.5*100)}%)</span><br>
+        <span><b>Tryptophan:</b> ${micro.tryptophan.toFixed(1)} / 0.7g (${Math.round(micro.tryptophan/0.7*100)}%)</span>
       </div>
     </div>
   `;
