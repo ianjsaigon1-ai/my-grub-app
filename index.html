@@ -1765,26 +1765,31 @@ function updateNutritionFromPortion() {
 }
 
 function estimateSodium(foodName, category, foodObj) {
-  // 1. If the food ALREADY has sodium defined in the database, use that first!
-  if (foodObj && foodObj.sodium !== undefined) return foodObj.sodium;
+  if (foodObj && foodObj.sodium !== undefined && foodObj.sodium > 0) return foodObj.sodium;
 
   const name = foodName.toLowerCase();
   const cat = (category || "").toLowerCase();
 
-  // 2. High Sodium "Red Flag" Keywords (per 100g)
-  if (name.includes('sauce') || name.includes('mắm') || name.includes('soy') || name.includes('ketchup')) return 1100;
-  if (name.includes('bacon') || name.includes('sausage') || name.includes('salami') || name.includes('pepperoni')) return 950;
-  if (name.includes('salted') || name.includes('pickled') || name.includes('anchovy')) return 800;
-  if (name.includes('cheese') || name.includes('bread') || name.includes('pizza') || name.includes('burger')) return 550;
+  // 1. LIQUIDS / RAW FRUIT (Almost Zero Sodium)
+  if (name.includes('coffee') || name.includes('tea') || name.includes('smoothie') || 
+      name.includes('beer') || name.includes('wine') || cat === 'fruits') {
+      return 5; // Trace amounts only
+  }
 
-  // 3. Category-based estimation if keywords didn't hit
-  if (cat.includes('vietnamese') || cat.includes('fastfood')) return 600;
-  if (cat.includes('meats') || cat.includes('fish')) return 90; // Fresh meat is naturally low in sodium
-  if (cat.includes('dairy')) return 150;
-  if (cat.includes('vegetables') || cat.includes('fruits')) return 10;
-  if (cat.includes('seeds_nuts') && !name.includes('roasted')) return 5;
+  // 2. VERY HIGH (Sauces / Processed)
+  if (name.includes('sauce') || name.includes('mắm') || name.includes('soy') || name.includes('ketchup') || name.includes('instant')) return 1100;
+  if (name.includes('bacon') || name.includes('sausage') || name.includes('salami')) return 950;
+  
+  // 3. MODERATE-HIGH (Bread / Curry / Fast Food)
+  if (name.includes('bread') || name.includes('baguette') || name.includes('pizza') || name.includes('burger')) return 480;
+  if (name.includes('curry') || cat === 'fastfood' || cat === 'vietnamese') return 450;
 
-  return 50; // Default for grains/others
+  // 4. NATURAL LOWS
+  if (cat === 'vegetables') return 15;
+  if (cat === 'meats' || cat === 'fish') return 70;
+  if (cat === 'dairy' || name.includes('milk')) return 45;
+
+  return 20; // Lowered default from 50 to 20 to prevent "ghost" salt accumulation
 }
 
 function addFoodToDB() {
