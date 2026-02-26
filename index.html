@@ -1,0 +1,2243 @@
+﻿﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Health Intelligence Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stone:#5a4a3a; --clay:#8b7355; --sand:#d4c4b0; --moss:#6b7f5c;
+  --earth:#3d3025; --cream:#f5f0e8; --parchment:#faf7f2;
+  --shadow:0 6px 18px rgba(58,44,30,0.12); --red:#8b4513;
+  --green-ui:#2d5a27; --amber-ui:#b08d1a; --red-ui:#8b0000;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:linear-gradient(135deg, #e8dcc8 0%, #c9b8a0 100%);
+  font-family:'Crimson Text',serif; color:var(--earth);
+  min-height:100vh; padding:15px; font-size:0.88em;
+}
+.container{max-width:1300px;margin:0 auto}
+
+h1{ font-family:'Cinzel',serif; text-align:center; font-size:1.8em; color:var(--stone); margin-bottom:2px; }
+.subtitle{ text-align:center; color:var(--clay); font-size:0.9em; margin-bottom:15px; font-style:italic; }
+
+.card{
+  background:var(--parchment); border-radius:12px; padding:15px;
+  margin-bottom:15px; box-shadow:var(--shadow); border:2px solid var(--sand);
+  position:relative;
+}
+.card::before{
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  background:linear-gradient(90deg, var(--stone), var(--clay), var(--moss));
+  border-radius:12px 12px 0 0;
+}
+
+h2{ font-family:'Cinzel',serif; color:var(--stone); margin-bottom:10px; font-size:1.2em; border-bottom:1px solid var(--sand); padding-bottom:4px; cursor: help; }
+h3{ font-family:'Cinzel',serif; color:var(--stone); margin-bottom:6px; font-size:1em; cursor: help; }
+
+.grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+.grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+
+.field{margin-bottom:6px}
+.field label{ display:block; font-weight:600; color:var(--stone); margin-bottom:2px; font-size:0.75em; text-transform:uppercase; letter-spacing:1px; }
+.field input, .field select{ width:100%; padding:8px; border:1.5px solid var(--sand); border-radius:6px; background:var(--cream); font-family:'Crimson Text',serif; font-size:0.95em; }
+
+/* AI ANALYSIS STYLES */
+.ai-grid { 
+  display: grid; 
+  grid-template-columns: repeat(6, 1fr); 
+  gap: 10px; 
+}
+.ai-item { padding: 10px; border-radius: 8px; border-left: 5px solid #ccc; background: white; transition: 0.2s; }
+.ai-item h4 { font-family: 'Cinzel', serif; font-size: 0.85em; margin-bottom: 2px; }
+.ai-item .range-hint { font-size: 0.7em; font-weight: bold; color: var(--clay); display: block; margin-bottom: 3px; text-transform: uppercase; border-bottom: 1px dotted var(--sand); }
+.ai-item p { font-size: 0.82em; line-height: 1.3; font-weight: 500; }
+
+.status-green { border-left-color: var(--green-ui) !important; background: #f0fdf4; color: var(--green-ui); }
+.status-amber { border-left-color: var(--amber-ui) !important; background: #fffbeb; color: #92400e; }
+.status-red { border-left-color: var(--red-ui) !important; background: #fef2f2; color: var(--red-ui); }
+
+.stat-box{ background:var(--cream); padding:8px; border-radius:8px; border:1.5px solid var(--sand); text-align:center; }
+.stat-box .value{ font-size:1.4em; font-weight:700; color:var(--stone); font-family:'Cinzel',serif; }
+.stat-box .label{ font-size:0.65em; color:var(--clay); text-transform:uppercase; }
+
+.progress-bg { background: var(--sand); height: 12px; border-radius: 8px; overflow: hidden; margin-top:5px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--clay), var(--moss)); width: 0%; transition: 0.8s; }
+
+.plan-box{ background:var(--cream); padding:10px; border-radius:8px; border:2px solid var(--sand); text-align:center; cursor:pointer; }
+.plan-box.active{ background:var(--moss); color:var(--cream); border-color:var(--moss); }
+.macro-card{ background:linear-gradient(135deg, var(--moss), #7a9068); color:var(--cream); padding:12px; border-radius:10px; text-align:center; }
+
+table{width:100%; border-collapse:collapse; margin-top:10px; font-size:0.85em}
+th,td{padding:10px; text-align:left; border-bottom:1px solid var(--sand)}
+th{background:var(--stone); color:var(--cream); font-family:'Cinzel',serif;}
+
+button{ padding:10px 18px; border:none; border-radius:6px; font-family:'Cinzel',serif; font-weight:700; cursor:pointer; text-transform:uppercase; font-size:0.85em; }
+.btn-primary{background:var(--stone);color:var(--cream)}
+.btn-danger{background:var(--red);color:var(--cream)}
+
+@media(max-width:768px){ .grid-2, .grid-3, .grid-4{grid-template-columns:1fr} }
+@media (max-width: 1200px) {
+  .ai-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 800px) {
+  .ai-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .ai-grid { grid-template-columns: 1fr; }
+}
+
+/* Modified to stack Daily above Weekly */
+.target-split { 
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Ensure the fields inside don't have extra bottom margin */
+.target-split .field { 
+  margin-bottom: 0; 
+}
+
+.progress-block {
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.progress-block .label { 
+  font-size: 0.8em; 
+  color: var(--clay); 
+  margin-bottom: 4px; 
+}
+
+.progress-block .value { 
+  font-size: 1.1em; 
+  font-weight: bold; 
+  color: var(--stone); 
+}
+
+/* ✅ BAR THICKNESS FIX */
+.progress-block .progress-bg { 
+  background: var(--sand); 
+  height: 12px;
+  border-radius: 6px; 
+  margin: 6px 0; 
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-block .progress-fill { 
+  display: block;
+  height: 100%;
+  min-width: 2px;              /* prevents invisible 0-width bars */
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--clay), var(--moss));
+  transition: width 0.6s ease;
+}
+/* Make weekly bars same thickness as daily */
+.weekly-bar {
+  height: 12px !important;
+  border-radius: 6px;
+}
+.nutrition-grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 8px; 
+  margin: 12px 0; 
+}
+
+.entries-scroll { 
+  max-height: 220px; 
+  overflow-y: auto; 
+  border: 1px solid var(--sand); 
+  border-radius: 6px; 
+  padding: 8px; 
+  background: var(--cream); 
+}
+@media(max-width:768px) { .grid-2, .grid-3, .grid-4, .nutrition-grid, .target-split { grid-template-columns: 1fr; } }
+/* Space above Recent Entries */
+.entries-header { margin-top: 25px !important; display: block; }
+
+/* Print Logic */
+@media print {
+  .no-print, button, .print-selector-box { display: none !important; }
+  body { background: white !important; padding: 0; }
+  .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; margin-bottom: 10px; }
+  .entries-scroll { max-height: none !important; overflow: visible !important; }
+}
+.print-selector-box { 
+  display: inline-block; padding: 10px; background: var(--cream); 
+  border: 1px dashed var(--clay); border-radius: 8px; margin-bottom: 10px;
+}
+.print-selector-box label { margin: 0 8px; font-weight: 600; cursor: pointer; font-size: 0.85em; }
+
+/* Bio-Nutrition Analysis Styles */
+#bioAnalysisContent {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  background: linear-gradient(135deg, #f8f5f0 0%, #f1ece3 100%);
+  border-radius: 8px;
+  border: 1px solid var(--sand);
+  font-size: 0.9em;
+  line-height: 1.5;
+  color: #333;
+}
+
+#bioAnalysisContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+#bioAnalysisContent::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+#bioAnalysisContent::-webkit-scrollbar-thumb {
+  background: var(--clay);
+  border-radius: 3px;
+}
+
+.nutrient-metric {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--sand);
+}
+</style>
+</head>
+<body>
+
+<h1 style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+  <img 
+    src="data:image/png;base64,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"
+    alt="Health Intelligence Tracker Logo"
+    style="height: 80px; width: auto; max-width: 280px; object-fit: contain;"
+  >
+  Health Intelligence Tracker <small>v.122</small>
+</h1>
+
+  <!-- PROFILE -->
+  <div class="card" id="print-profile">
+    <h2 title="Essential user data used for precise Age and BMR calculations. (Hover for help)">👤 User Profile</h2>
+    <div class="grid-4">
+      <div class="field"><label>Name</label><input type="text" id="name"></div>
+      <div class="field"><label>Gender</label><select id="gender"><option value="male">Male</option><option value="female">Female</option></select></div>
+      <div class="field"><label>Date of Birth</label><input type="date" id="dob"></div>
+      <div class="field"><label>Activity</label>
+        <select id="activity">
+          <option value="1.2">Sedentary</option>
+          <option value="1.375">Light Exercise</option>
+          <option value="1.55">Moderate Exercise</option>
+          <option value="1.725">Heavy Exercise</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- READINGS & GOALS -->
+  <div class="grid-2" id="print-readings">
+    <!-- Current Readings Card -->
+    <div class="card">
+      <h2 title="Current physiological measurements. BMI and BMR update live.">📊 Current Readings</h2>
+      <div class="grid-2">
+        <div class="field"><label>Reading Date</label><input type="date" id="readingDate"></div>
+        <div class="field"><label>Height (cm)</label><input type="number" id="height" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Weight (kg)</label><input type="number" id="weight" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Age (Calc)</label><input type="text" id="age" disabled></div>
+        <div class="stat-box" title="BMI: Target 18.5-24.9."><div class="label">BMI</div><div class="value" id="curBMI">0.0</div></div>
+        <div class="stat-box" title="BMR: Basal Metabolic Rate."><div class="label">BMR</div><div class="value" id="curBMR">0</div></div>
+        <div class="field"><label>Body Fat %</label><input type="number" id="bodyFat" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Visceral Fat</label><input type="number" id="visceralFat" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Muscle %</label><input type="number" id="muscle" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>T-Score</label><input type="number" id="tScore" step="0.01" oninput="runCalculations()"></div>
+        <div class="field"><label>Z-Score</label><input type="number" id="zScore" step="0.01" oninput="runCalculations()"></div>
+      </div>
+    </div>
+
+    <!-- Goal Settings Card -->
+    <div class="card">
+      <h2 title="Define your health targets.">🎯 Goal Settings</h2>
+      <div class="grid-2">
+        <div class="field"><label>Target Date</label><input type="date" id="targetDate"></div>
+        <div class="field"><label>Target Weight</label><input type="number" id="targetWeight" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Target BMI</label><input type="number" id="targetBMI" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Target Fat %</label><input type="number" id="targetBodyFat" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Target Visceral</label><input type="number" id="targetVisceralFat" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Target Muscle %</label><input type="number" id="targetMuscle" step="0.1" oninput="runCalculations()"></div>
+        <div class="field"><label>Target T-Score</label><input type="number" id="targetTScore" step="0.01" oninput="runCalculations()"></div>
+        <div class="field"><label>Target Z-Score</label><input type="number" id="targetZScore" step="0.01" oninput="runCalculations()"></div>
+      </div>
+
+      <!-- STANDALONE GAP ANALYSIS BOX -->
+      <div style="margin-top:15px; padding:12px; background:var(--parchment); border:1px solid var(--sand); border-radius:8px; font-size:0.85em; line-height:1.6; clear:both;">
+        <strong style="display:block; border-bottom:1px solid var(--sand); margin-bottom:8px; font-family:'Cinzel'; color:var(--stone); text-align:center;">🏁 Goal Progress Analysis</strong>
+        <div id="goalGapDisplay">
+          <p style="text-align:center; font-style:italic; color:var(--clay);">Enter weight and goals to calculate gap...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI ASSESSMENT -->
+  <div class="card" id="print-ai">
+    <h2 title="Live clinical interpretation using WHO, ACE, ISCD, WHO Asian thresholds and current medical consensus.">🧠 AI Health Assessment (Clinical Interpretation)</h2>
+    <div class="ai-grid">
+      <div class="ai-item" id="aiBMI">
+        <h4>BMI (WHO)</h4>
+        <span class="range-hint">Normal: 18.5–24.9 | Overweight: 25–29.9 | Obese: ≥30</span>
+        <p>Awaiting data...</p>
+      </div>
+      <div class="ai-item" id="aiBodyFat">
+        <h4>Body Fat Percentage</h4>
+        <span class="range-hint">Men optimal: 8–19% | Women optimal: 21–32% (age adjusted)</span>
+        <p>Awaiting data...</p>
+      </div>
+      <div class="ai-item" id="aiVisceral">
+        <h4>Visceral Fat Level</h4>
+        <span class="range-hint">Healthy: 1–9 | Elevated: 10–14 | High Risk: ≥15 (predictor of metabolic syndrome)</span>
+        <p>Awaiting data...</p>
+      </div>
+      <div class="ai-item" id="aiMuscle">
+        <h4>Skeletal Muscle Mass %</h4>
+        <span class="range-hint">Men: 40–50% | Women: 30–40% | <33% increases sarcopenia risk</span>
+        <p>Awaiting data...</p>
+      </div>
+      <div class="ai-item" id="aiBoneT">
+        <h4>Bone Density – T-Score (ISCD/WHO)</h4>
+        <span class="range-hint">Normal: > –1.0 | Osteopenia: –1.0 to –2.5 | Osteoporosis: ≤ –2.5</span>
+        <p>Awaiting data...</p>
+      </div>
+      <div class="ai-item" id="aiBoneZ">
+        <h4>Bone Density – Z-Score</h4>
+        <span class="range-hint">Normal: > –2.0 | Below –2.0 → possible secondary cause (needs investigation)</span>
+        <p>Awaiting data...</p>
+      </div>
+    </div>
+    <div id="aiSummary" style="margin-top:12px; padding:14px; background:white; border-radius:8px; font-weight:500; border:1px dashed var(--clay); line-height:1.45; color:#444;">
+        Awaiting sufficient medical data for comprehensive clinical summary...
+    </div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div class="card" id="print-nutrition">
+  <h2>🍎 Nutrition & Macros</h2>
+  
+  <!-- Outer grid: Left side (Plans) | Right side (Calories) -->
+  <div class="grid-2">
+    
+    <!-- LEFT SIDE: Plan selection -->
+    <div class="grid-2">
+      <div class="plan-box active" id="aggressivePlan" onclick="selectPlan('aggressive')">
+        <h3>🔥 Aggressive</h3>
+        <p>50% P / 30% C / 20% F</p>
+      </div>
+      <div class="plan-box" id="slowPlan" onclick="selectPlan('slow')">
+        <h3>🌱 Steady</h3>
+        <p>40% P / 40% C / 20% F</p>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: Calorie Inputs -->
+    <div class="target-split">
+      <div class="field">
+        <label>Daily Target Calories</label>
+        <input type="number" id="targetCalories" placeholder="2000" oninput="updateTargets()">
+      </div>
+      <div class="field">
+        <label>Weekly Target (7×Daily)</label>
+        <input type="text" id="weeklyTargetDisplay" disabled style="background: #e9e4db; color: #777;">
+      </div>
+    </div>
+
+  </div> <!-- End side-by-side grid -->
+
+  <!-- Macro Results below -->
+  <div class="grid-3" style="margin-top:15px;">
+    <div class="macro-card"><div class="value" id="proteinTarget">0</div><div class="label">Protein (g)</div></div>
+    <div class="macro-card" style="background:var(--clay)"><div class="value" id="carbsTarget">0</div><div class="label">Carbs (g)</div></div>
+    <div class="macro-card" style="background:var(--stone)"><div class="value" id="fatsTarget">0</div><div class="label">Fats (g)</div></div>
+  </div>
+</div>
+
+
+<!-- ROW 5: DAILY ENTRY & WEEKLY REPORT -->
+  <div class="grid-2">
+    <!-- DAILY ENTRY -->
+    <div class="card" id="print-report">
+      <h2>✍️ Daily Entry</h2>
+      <div class="field"><label>Entry Date</label><input type="date" id="entryDate"></div>
+      <div class="field">
+        <label>Category</label>
+        <select id="foodCategory" onchange="updateFoodList()">
+          <option value="all">All Categories</option>
+          <option value="vietnamese">🇻🇳 Vietnamese</option>
+          <option value="fastfood">🍔 Fast Foods</option>
+          <option value="seeds_nuts">🥜 Seeds & Nuts</option>
+          <option value="vegetables">🥦 Vegetables</option>
+          <option value="fruits">🍎 Fruits</option>
+          <option value="drinks">🥤 Drinks</option>
+          <option value="alcohol">🥃 Alcoholic</option>
+          <option value="meats">🍖 Meats</option>
+          <option value="fish">🐟 Fish</option>
+          <option value="grains">🌾 Grains</option>
+          <option value="dairy">🧀 Dairy</option>
+          <option value="spices">🍯 Spices/Sugars</option>
+          <option value="condiments">🧂 Condiments</option>
+          <option value="sweets">🍰 Sweets</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Food Item</label>
+        <input type="text" id="foodSearch" placeholder="Search or select food..." oninput="filterFoods()">
+        <select id="foodSelect" size="6" onchange="populateNutrition()" style="width:100%; height:120px; margin-top:4px;">
+          <option value="">-- Select or search --</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:10px; align-items:flex-end;">
+        <div class="field" style="flex:1;"><label>Portion</label>
+          <select id="portionUnit" onchange="updateNutritionFromPortion()">
+  <option value="100g">100g/ml</option>
+  <option value="can">Can (330ml)</option> <!-- Add this -->
+  <option value="shot">Shot (44ml)</option> <!-- Add this -->
+  <option value="tsp">tsp (~5g)</option>
+  <option value="tbsp">tbsp (~15g)</option>
+  <option value="cup">cup (~240g)</option>
+</select>
+        </div>
+        <div class="field" style="flex:1;"><label>Qty</label><input type="number" id="portionQty" value="1" step="0.1" onchange="updateNutritionFromPortion()"></div>
+      </div>
+      <div class="nutrition-grid">
+        <div class="field"><label>Cal</label><input type="number" id="calories"></div>
+        <div class="field"><label>Prot</label><input type="number" id="protein"></div>
+        <div class="field"><label>Carb</label><input type="number" id="carbs"></div>
+        <div class="field"><label>Fat</label><input type="number" id="fats"></div>
+        <div class="field"><label>Sugar</label><input type="number" id="sugar"></div>
+        <div class="field"><label>Fiber</label><input type="number" id="fiber"></div>
+	<div class="field"><label>Sodium (mg)</label><input type="number" id="dailySodium"></div>
+      </div>
+      <div style="margin-top:12px; text-align:center;">
+        <button class="btn-primary" style="width:100%;" onclick="addEntry()">Add Entry</button>
+      </div>
+    </div>
+
+    <!-- WEEKLY REPORT -->
+    <div class="card">
+      <h2>📊 Weekly Report</h2>
+      <div class="grid-3">
+        <!-- 6 Blocks Restored -->
+        <div class="progress-block"><div class="label">Calories</div><div class="value" id="dailyCalValue">0</div><div class="progress-bg"><div class="progress-fill" id="dailyCalFill"></div></div><div class="value" id="weeklyCalValue" style="font-size:0.7em;">Wk: 0</div><div class="progress-bg weekly-bar"><div class="progress-fill" id="weeklyCalFill"></div></div></div>
+        <div class="progress-block"><div class="label">Protein</div><div class="value" id="dailyProValue">0</div><div class="progress-bg"><div class="progress-fill" id="dailyProFill"></div></div><div class="value" id="weeklyProValue" style="font-size:0.7em;">Wk: 0</div><div class="progress-bg weekly-bar"><div class="progress-fill" id="weeklyProFill"></div></div></div>
+        <div class="progress-block"><div class="label">Fats</div><div class="value" id="dailyFatValue">0</div><div class="progress-bg"><div class="progress-fill" id="dailyFatFill"></div></div><div class="value" id="weeklyFatValue" style="font-size:0.7em;">Wk: 0</div><div class="progress-bg weekly-bar"><div class="progress-fill" id="weeklyFatFill"></div></div></div>
+        <div class="progress-block"><div class="label">Carbs</div><div class="value" id="dailyCarbValue">0</div><div class="progress-bg"><div class="progress-fill" id="dailyCarbFill"></div></div><div class="value" id="weeklyCarbValue" style="font-size:0.7em;">Wk: 0</div><div class="progress-bg weekly-bar"><div class="progress-fill" id="weeklyCarbFill"></div></div></div>
+        <div class="progress-block"><div class="label">Sugar</div><div class="value" id="dailySugarValue">0</div><div class="progress-bg"><div class="progress-fill" id="dailySugarFill"></div></div><div class="value" id="weeklySugarValue" style="font-size:0.7em;">Wk: 0</div><div class="progress-bg weekly-bar"><div class="progress-fill" id="weeklySugarFill"></div></div></div>
+        <div class="progress-block"><div class="label">Fiber</div><div class="value" id="dailyFiberValue">0</div><div class="progress-bg"><div class="progress-fill" id="dailyFiberFill"></div></div><div class="value" id="weeklyFiberValue" style="font-size:0.7em;">Wk: 0</div><div class="progress-bg weekly-bar"><div class="progress-fill" id="weeklyFiberFill"></div></div></div>
+      </div>
+
+      <h3 class="entries-header" style="margin-top:15px;">Recent Entries</h3>
+      <div class="entries-scroll">
+        <table id="entriesTable">
+  <thead>
+    <tr>
+      <th style="text-align:left; width:80px;">Date</th>
+      <th style="text-align:left;">Food Item</th>
+      <th style="text-align:center;">Cal</th>
+      <th style="text-align:center;">Pro</th>
+      <th style="text-align:center;">Car</th>
+      <th style="text-align:center;">Fat</th>
+      <th style="text-align:center;">Sug</th>
+      <th style="text-align:center;">Fib</th>
+      <th style="width:20px;"></th> <!-- For the X button -->
+    </tr>
+  </thead>
+  <tbody id="entriesBody"></tbody>
+</table>
+      </div>
+      <div style="margin-top:12px; text-align:center;">
+        <button class="btn-danger" style="font-size:0.7em;" onclick="deleteAllEntries()">Delete All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 6: ADD FOOD & BIO-NUTRITION (Side by Side) -->
+  <div class="grid-2">
+    <!-- ADD FOOD TO DATABASE (Left) -->
+    <div class="card">
+      <h2>➕ Add to Database</h2>
+      <div class="field"><label>Food Name</label><input type="text" id="newFoodName" placeholder="Name"></div>
+      <div class="field"><label>Category</label><input type="text" id="newCategory" list="categorySuggestions"><datalist id="categorySuggestions"></datalist></div>
+      <div class="nutrition-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="field"><label>Calories</label><input type="number" id="newCal"></div>
+        <div class="field"><label>Protein</label><input type="number" id="newProt"></div>
+        <div class="field"><label>Carbs</label><input type="number" id="newCarb"></div>
+        <div class="field"><label>Fats</label><input type="number" id="newFat"></div>
+        <div class="field"><label>Sugar</label><input type="number" id="newSugar"></div>
+        <div class="field"><label>Fiber</label><input type="number" id="newFiber"></div>
+	<div class="field">
+  	<label>Sodium (mg)</label>
+  	<input type="number" id="sodium" readonly>
+</div>
+      </div>
+	
+      <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="saveNewFood()">💾 Save Food</button>
+    </div>
+
+
+    <!-- BIO-NUTRITION ANALYSIS (Right) -->
+    <div class="card" id="bio-nutrition-container">
+      <h2>🔬 Bio-Nutrition Analysis</h2>
+      <div id="bioAnalysisContent" style="font-size: 0.9em; line-height: 1.4; color: #555;">
+        <p style="text-align: center; margin-top: 40px; font-style: italic;">
+          Analyzing nutrient density and biological impact...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 7: FOOTER CONTROLS -->
+  <div style="text-align:center; margin-top:20px; padding-bottom:40px;" class="no-print">
+    <div class="print-selector-box">
+      <span style="font-family:'Cinzel'; display:block; margin-bottom:5px;">Include in PDF:</span>
+      <label><input type="checkbox" id="chk-p" checked> Profile</label>
+      <label><input type="checkbox" id="chk-r" checked> Readings</label>
+      <label><input type="checkbox" id="chk-a" checked> AI</label>
+      <label><input type="checkbox" id="chk-n" checked> Nutrition</label>
+      <label><input type="checkbox" id="chk-h" checked> History</label>
+    </div>
+    <br><br>
+    <button class="btn-primary" onclick="saveData()">💾 Save All Data</button>
+    <button class="btn-primary" style="background:var(--moss);" onclick="printToPDF()">🖨️ Print to PDF</button>
+    <button class="btn-danger" onclick="fullReset()">🗑️ Full Reset</button>
+  </div>
+
+</div> <!-- Close .container -->
+
+<script> 
+let entries = JSON.parse(localStorage.getItem('hit_v10_entries')) || [];
+let currentPlan = 'aggressive';
+let lockedAge = null;
+
+const inputIds = [
+  'name', 'gender', 'dob', 'activity', 'readingDate', 'height', 'weight', 'bodyFat', 'visceralFat', 'muscle', 'tScore', 'zScore',
+  'targetDate', 'targetWeight', 'targetBMI', 'targetBodyFat', 'targetVisceralFat', 'targetMuscle', 'targetTScore', 'targetZScore',
+  'targetCalories'
+];
+
+const MICRO_DAILY_TARGETS = {
+  vitA: 900,
+  vitC: 90,
+  vitD: 20,
+  vitE: 15,
+  vitK: 120,
+  b6: 1.7,
+  b12: 2.4,
+  folate: 400,
+  calcium: 1000,
+  iron: 18,
+  magnesium: 420,
+  potassium: 3400,
+  zinc: 11
+};
+
+// Bio-Nutrition Analysis Functions
+function analyzeBioNutrition() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayEntries = entries.filter(e => e.date === today);
+  
+  if (todayEntries.length === 0) {
+    document.getElementById('bioAnalysisContent').innerHTML = `<p style="text-align: center; padding: 20px; color: var(--clay);">Add food entries to see metabolic analysis</p>`;
+    return;
+  }
+
+  const targetCal = parseFloat(document.getElementById('targetCalories').value) || 2000;
+  const targetPro = parseFloat(document.getElementById('proteinTarget').textContent) || 1;
+  const targetCar = parseFloat(document.getElementById('carbsTarget').textContent) || 1;
+
+  let naturalSugar = 0, addedSugar = 0;   
+  let micro = { 
+    magnesium: 0, potassium: 0, calcium: 0, iron: 0, zinc: 0, b12: 0, vitaminC: 0, omega3: 0,
+    vitA: 0, vitD: 0, vitE: 0, vitK: 0, folate: 0, b6: 0,
+    leucine: 0, lysine: 0, methionine: 0, tryptophan: 0
+  };
+  
+  const totals = todayEntries.reduce((acc, e) => {
+    acc.cal += e.cal; acc.p += e.p; acc.c += e.c; acc.f += e.f;
+    acc.sugar += (e.sugar || 0); acc.fiber += (e.fiber || 0); acc.sodium += (e.sodium || 0);
+
+    const weight = e.cal / 100; 
+    const nameLower = (e.name || "").toLowerCase();
+    let cat = (e.cat || "").toLowerCase();
+
+    // Mapping detection
+    if (cat === 'all' || cat === '' || cat === 'manual entry') {
+        for (let dbCat in foodsDB) {
+            if (foodsDB[dbCat].some(f => f.name === e.name || (f.name + " (" + f.viet + ")") === e.name)) {
+                cat = dbCat; break;
+            }
+        }
+    }
+
+    const isNaturalDrink = nameLower.includes('smoothie') || nameLower.includes('juice') || nameLower.includes('mulberry');
+    if (['fruits', 'vegetables', 'dairy'].includes(cat) || isNaturalDrink) naturalSugar += (e.sugar || 0);
+    else addedSugar += (e.sugar || 0);
+
+    // --- RE-CALIBRATED CLINICAL INGREDIENT SENSING (v.121) ---
+    
+    // FISH & SEAFOOD (Fixing Vit D, B6, B12, Omega-3)
+    if (cat === 'fish' || nameLower.includes('salmon') || nameLower.includes('fish') || nameLower.includes('tuna')) {
+        micro.omega3 += (1.8 * weight); micro.b12 += (2.2 * weight); micro.vitD += (4.5 * weight);
+        micro.potassium += (380 * weight); micro.b6 += (0.6 * weight); micro.zinc += (1.2 * weight);
+        micro.iron += (0.9 * weight); micro.magnesium += (30 * weight);
+    } 
+    // SUPER SEEDS (Chia/Flax)
+    else if (nameLower.includes('chia') || nameLower.includes('flax') || nameLower.includes('seed')) {
+        micro.omega3 += (2.2 * weight); micro.magnesium += (90 * weight); micro.calcium += (65 * weight);
+        micro.iron += (1.4 * weight); micro.fiber += (4 * weight); micro.potassium += (160 * weight);
+    } 
+    // SUPERFOOD LEAVES (Moringa/Spirulina)
+    else if (nameLower.includes('moringa') || nameLower.includes('spirulina')) {
+        micro.vitE += (12 * weight); micro.vitA += (750 * weight); micro.iron += (9 * weight);
+        micro.vitK += (140 * weight); micro.vitaminC += (50 * weight); micro.folate += (120 * weight);
+        micro.b6 += (0.3 * weight); micro.calcium += (180 * weight);
+    }
+    // OATS & WHOLE GRAINS
+    else if (nameLower.includes('oat') || nameLower.includes('grain') || cat === 'grains') {
+        micro.magnesium += (40 * weight); micro.iron += (1.4 * weight); micro.zinc += (0.9 * weight);
+        micro.potassium += (110 * weight); micro.b6 += (0.15 * weight); micro.folate += (40 * weight);
+    }
+    // ALMONDS & NUTS
+    else if (nameLower.includes('almond') || nameLower.includes('nut')) {
+        micro.vitE += (5.5 * weight); micro.magnesium += (55 * weight); micro.potassium += (140 * weight);
+        micro.zinc += (0.7 * weight); micro.calcium += (50 * weight); micro.folate += (25 * weight);
+    }
+    // FRUITS & VEGGIES
+    else if (cat === 'vegetables' || cat === 'fruits' || nameLower.includes('curry') || nameLower.includes('berry')) {
+        micro.vitaminC += (45 * weight); micro.potassium += (320 * weight); micro.vitA += (180 * weight);
+        micro.vitK += (60 * weight); micro.folate += (65 * weight); micro.b6 += (0.2 * weight);
+        micro.magnesium += (15 * weight);
+    } 
+    // DAIRY & EGGS
+    else if (cat === 'dairy' || nameLower.includes('milk') || nameLower.includes('yogurt') || nameLower.includes('egg')) {
+        micro.calcium += (125 * weight); micro.b12 += (0.6 * weight); micro.vitD += (1.4 * weight);
+        micro.potassium += (140 * weight); micro.zinc += (0.4 * weight); micro.vitA += (60 * weight);
+        micro.folate += (15 * weight); micro.b6 += (0.05 * weight);
+    }
+    // TRACE FOR OTHERS
+    else {
+        micro.potassium += (40 * weight); micro.magnesium += (5 * weight);
+    }
+
+    // AMINO ACID MAPPING (Refined for accuracy)
+    let leuFactor = 0.075, lysFactor = 0.065, metFactor = 0.022, tryFactor = 0.011;
+    if (cat === 'meats' || cat === 'fish' || cat === 'dairy') {
+        leuFactor = 0.095; lysFactor = 0.085; metFactor = 0.032; tryFactor = 0.014;
+    }
+    micro.leucine += (e.p * leuFactor);
+    micro.lysine += (e.p * lysFactor);
+    micro.methionine += (e.p * metFactor);
+    micro.tryptophan += (e.p * tryFactor);
+
+    return acc;
+  }, { cal:0, p:0, c:0, f:0, sugar:0, fiber:0, sodium:0, alcoholCals: 0 });
+
+  // UI PERCENTAGES
+  const calGoalPct = Math.round((totals.cal / targetCal) * 100);
+  const proGoalPct = Math.round((totals.p / targetPro) * 100);
+  const sodiumPct  = Math.round((totals.sodium / 2300) * 100);
+
+  const analysisHTML = `
+    <div style="margin-bottom: 15px;">
+      <h4 style="color: var(--stone); border-bottom: 1px solid var(--sand); padding-bottom: 5px; font-family:'Cinzel';">🧠 AI Clinical Metabolic Analysis</h4>
+      
+      <div style="line-height:1.8; margin-bottom:15px;">
+        <div class="nutrient-metric"><strong>Calories:</strong> ${Math.round(totals.cal)} / ${Math.round(targetCal)} kcal (${calGoalPct}%)</div>
+        <div class="nutrient-metric"><strong>Protein:</strong> ${Math.round(totals.p)}g / ${Math.round(targetPro)}g (${proGoalPct}%)</div>
+        <div class="nutrient-metric" style="color:${(totals.c/targetCar)*100 > 110 ? 'red' : 'inherit'}"><strong>Carbs:</strong> ${Math.round(totals.c)}g / ${Math.round(targetCar)}g</div>
+        <div class="nutrient-metric"><strong>Fiber:</strong> ${Math.round(totals.fiber)}g / 30g (${Math.round(totals.fiber/30*100)}%)</div>
+        <div class="nutrient-metric" style="color:${sodiumPct > 100 ? 'red' : 'inherit'}"><strong>Sodium:</strong> ${Math.round(totals.sodium)}mg / 2300mg (${sodiumPct}%)</div>
+      </div>
+
+      <div style="margin-top:10px; padding:10px; background:var(--parchment); border:1px solid var(--sand); border-radius:8px; font-size:0.82em; line-height:1.6;">
+        <strong style="color:var(--stone); display:block; margin-bottom:5px; border-bottom:1px solid var(--sand);">📊 Clinical Micronutrient Estimate (Intake / RDA)</strong>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;">
+          <span><b>Magnesium:</b> ${Math.round(micro.magnesium)} / 420mg (${Math.round(micro.magnesium/420*100)}%)</span>
+          <span><b>Potassium:</b> ${Math.round(micro.potassium)} / 3400mg (${Math.round(micro.potassium/3400*100)}%)</span>
+          <span><b>Calcium:</b> ${Math.round(micro.calcium)} / 1000mg (${Math.round(micro.calcium/1000*100)}%)</span>
+          <span><b>Iron:</b> ${micro.iron.toFixed(1)} / 18mg (${Math.round(micro.iron/18*100)}%)</span>
+          <span><b>Zinc:</b> ${micro.zinc.toFixed(1)} / 11mg (${Math.round(micro.zinc/11*100)}%)</span>
+          <span><b>Vit B12:</b> ${micro.b12.toFixed(1)} / 2.4mcg (${Math.round(micro.b12/2.4*100)}%)</span>
+          <span><b>Vit C:</b> ${Math.round(micro.vitaminC)} / 90mg (${Math.round(micro.vitaminC/90*100)}%)</span>
+          <span><b>Omega-3:</b> ${micro.omega3.toFixed(1)} / 1.6g (${Math.round(micro.omega3/1.6*100)}%)</span>
+          <span><b>Vit A:</b> ${Math.round(micro.vitA)} / 900mcg (${Math.round(micro.vitA/900*100)}%)</span>
+          <span><b>Vit D:</b> ${micro.vitD.toFixed(1)} / 20mcg (${Math.round(micro.vitD/20*100)}%)</span>
+          <span><b>Vit E:</b> ${micro.vitE.toFixed(1)} / 15mg (${Math.round(micro.vitE/15*100)}%)</span>
+          <span><b>Vit K:</b> ${Math.round(micro.vitK)} / 120mcg (${Math.round(micro.vitK/120*100)}%)</span>
+          <span><b>Vit B6:</b> ${micro.b6.toFixed(1)} / 1.7mg (${Math.round(micro.b6/1.7*100)}%)</span>
+          <span><b>Folate:</b> ${Math.round(micro.folate)} / 400mcg (${Math.round(micro.folate/400*100)}%)</span>
+        </div>
+      </div>
+
+      <div style="margin-top:10px; padding:10px; background:#f0f4f8; border-radius:8px; font-size:0.82em; line-height:1.6;">
+        <strong style="color:#2c3e50; display:block; margin-bottom:3px;">🧬 Amino Acid Quality Snapshot (Intake / Goal)</strong>
+        <span><b>Leucine:</b> ${micro.leucine.toFixed(1)} / 3.0g (${Math.round(micro.leucine/3*100)}%)</span> | 
+        <span><b>Lysine:</b> ${micro.lysine.toFixed(1)} / 3.0g (${Math.round(micro.lysine/3*100)}%)</span> |
+        <span><b>Methionine+Cyst:</b> ${micro.methionine.toFixed(1)} / 1.5g (${Math.round(micro.methionine/1.5*100)}%)</span> |
+        <span><b>Tryptophan:</b> ${micro.tryptophan.toFixed(1)} / 0.7g (${Math.round(micro.tryptophan/0.7*100)}%)</span>
+      </div>
+    </div>
+  `;
+  document.getElementById('bioAnalysisContent').innerHTML = analysisHTML;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+
+  // 🔹 Load saved profile + nutrition history
+  loadData();
+
+  // 🔹 Load custom food database
+  loadCustomFoods();
+
+  // 🔹 Populate dropdown helpers
+  populateCategorySuggestions();
+  updateFoodCategoryDropdown();
+  updateFoodList();
+
+  // 🔹 Recalculate all live metrics
+  calculateAndLockAge();
+  updateDailyWeeklyProgress();
+  updateEntriesTable();
+  analyzeBioNutrition();
+  updateTargets();
+});
+
+function calculateAndLockAge() {
+  const dob = document.getElementById('dob').value;
+  const ageField = document.getElementById('age');
+  if(!dob){ lockedAge=null; ageField.value=''; return; }
+
+  const [y,m,d] = dob.split('-').map(Number);
+  const today = new Date();
+
+  if(new Date(dob) > today){
+    lockedAge=null; ageField.value=''; return;
+  }
+
+  let age = today.getFullYear() - y;
+  if(today.getMonth()+1 < m || (today.getMonth()+1===m && today.getDate()<d)) age--;
+
+  if(age < 1 || age > 120){
+    lockedAge=null; ageField.value=''; return;
+  }
+
+  lockedAge = age;
+  ageField.value = age;
+  runCalculations(); 
+}
+
+function runCalculations() {
+  const d = {};
+  inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const val = el.value;
+    d[id] = (id.includes('Date') || id === 'name' || id === 'gender') ? val : parseFloat(val) || 0;
+  });
+
+  d.age = lockedAge;
+
+  // BMI & BMR logic
+  if(d.weight && d.height) {
+    const bmi = (d.weight / ((d.height/100)**2)).toFixed(1);
+    document.getElementById('curBMI').textContent = bmi;
+    d.bmi = parseFloat(bmi);
+
+    if(d.age) {
+      const bmr = (d.gender === 'male') 
+        ? (10 * d.weight) + (6.25 * d.height) - (5 * d.age) + 5 
+        : (10 * d.weight) + (6.25 * d.height) - (5 * d.age) - 161;
+      document.getElementById('curBMR').textContent = Math.round(bmr);
+    }
+  }
+
+  updateAI(d);
+  calculateMacros();
+  updateTargets();
+  
+  // TRIGGER THE GAP ANALYSIS
+  updateGoalGapAnalysis(); 
+}
+
+function updateGoalGapAnalysis() {
+  const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+
+  // Get current and targets
+  const cur = { w: getVal('weight'), f: getVal('bodyFat'), v: getVal('visceralFat'), m: getVal('muscle'), t: getVal('tScore') };
+  const tar = { w: getVal('targetWeight'), f: getVal('targetBodyFat'), v: getVal('targetVisceralFat'), m: getVal('targetMuscle'), t: getVal('targetTScore') };
+
+  const display = document.getElementById('goalGapDisplay');
+  if (!display || cur.w === 0 || tar.w === 0) return;
+
+  // Math
+  const wGap = (cur.w - tar.w).toFixed(1);
+  const wPct = Math.min(Math.round((tar.w / cur.w) * 100), 100);
+  const fGap = (cur.f - tar.f).toFixed(1);
+  const fPct = Math.min(Math.round((tar.f / cur.f) * 100), 100);
+  
+  // Colors: Green if target reached (gap <= 0), Red if still to go
+  const color = (gap) => gap <= 0 ? 'var(--green-ui)' : 'var(--red-ui)';
+  // Muscle color is reversed: Target is HIGHER than current
+  const mGap = (tar.m - cur.m).toFixed(1);
+  const mColor = mGap <= 0 ? 'var(--green-ui)' : 'var(--red-ui)';
+
+  display.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+      <div>
+        <b style="color:${color(wGap)}">Weight:</b> ${wGap > 0 ? wGap + 'kg to lose' : '✅ Reached'}<br>
+        <div class="progress-bg" style="height:8px; margin:4px 0;"><div class="progress-fill" style="width:${wPct}%; background:${color(wGap)}"></div></div>
+        
+        <b style="color:${color(fGap)}">Body Fat:</b> ${fGap > 0 ? fGap + '% to lose' : '✅ Reached'}<br>
+        <div class="progress-bg" style="height:8px; margin:4px 0;"><div class="progress-fill" style="width:${fPct}%; background:${color(fGap)}"></div></div>
+      </div>
+      <div>
+        <b>Visceral Gap:</b> <span style="color:${color(cur.v - tar.v)}">${cur.v > tar.v ? (cur.v - tar.v).toFixed(1) + ' levels' : '✅'}</span><br>
+        <b>Muscle Gap:</b> <span style="color:${mColor}">${mGap > 0 ? mGap + '% to gain' : '✅'}</span><br>
+        <b>Bone T-Score Gap:</b> <span style="color:${tar.t > cur.t ? 'var(--red-ui)' : 'var(--green-ui)'}">${tar.t > cur.t ? (tar.t - cur.t).toFixed(2) : '✅'}</span><br>
+        <div style="margin-top:5px; padding-top:5px; border-top:1px dotted var(--sand); font-weight:bold; font-size:0.9em; text-align:center;">
+          ${wGap > 0 ? '🚀 ' + wGap + 'kg remaining' : '🎉 Maintaining Goal'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateAI(d) {
+  // 1. Metric Status Logic
+  
+  // BMI
+  const bmiBox = document.getElementById('aiBMI');
+  let bmiStat = 'green';
+  if(d.bmi) {
+    let m = 'Normal weight range. Low metabolic risk.';
+    if(d.bmi >= 30) { bmiStat = 'red'; m = 'Obesity (≥30). High metabolic burden.'; }
+    else if(d.bmi >= 25) { bmiStat = 'amber'; m = 'Overweight (25–29.9). Pre-clinical risk.'; }
+    bmiBox.className = 'ai-item status-' + bmiStat;
+    bmiBox.querySelector('p').textContent = m;
+  }
+
+  // Body Fat
+  const bfBox = document.getElementById('aiBodyFat');
+  let bfStat = 'green';
+  if(d.bodyFat) {
+    const isMale = d.gender === 'male';
+    let m = 'Optimal fat percentage.';
+    if(isMale && d.bodyFat > 25 || !isMale && d.bodyFat > 32) { bfStat = 'red'; m = 'Adipose excess. Risk of systemic inflammation.'; }
+    else if(isMale && d.bodyFat > 19 || !isMale && d.bodyFat > 24) { bfStat = 'amber'; m = 'Above optimal range.'; }
+    bfBox.className = 'ai-item status-' + bfStat;
+    bfBox.querySelector('p').textContent = m;
+  }
+
+  // Visceral Fat
+  const vfBox = document.getElementById('aiVisceral');
+  let vfStat = 'green';
+  if(d.visceralFat) {
+    let m = 'Healthy visceral levels.';
+    if(d.visceralFat >= 15) { vfStat = 'red'; m = 'High Risk. Significant organ fat accumulation.'; }
+    else if(d.visceralFat >= 10) { vfStat = 'amber'; m = 'Elevated. Metabolic dysfunction warning.'; }
+    vfBox.className = 'ai-item status-' + vfStat;
+    vfBox.querySelector('p').textContent = m;
+  }
+
+  // Muscle %
+  const musBox = document.getElementById('aiMuscle');
+  let musStat = 'green';
+  if(d.muscle) {
+    let m = 'Healthy muscle mass.';
+    if(d.muscle < 30) { musStat = 'red'; m = 'Sarcopenia risk. Critical low muscle preservation.'; }
+    else if(d.muscle < 35) { musStat = 'amber'; m = 'Below average. Strength training required.'; }
+    musBox.className = 'ai-item status-' + musStat;
+    musBox.querySelector('p').textContent = m;
+  }
+
+  // T-Score (Bone)
+  const tBox = document.getElementById('aiBoneT');
+  let tStat = 'green';
+  if(d.tScore) {
+    let m = 'Normal bone density vs young adult peak.';
+    if(d.tScore <= -2.5) { tStat = 'red'; m = 'Osteoporosis. High fracture risk.'; }
+    else if(d.tScore <= -1.0) { tStat = 'amber'; m = 'Osteopenia. Bone thinning present.'; }
+    tBox.className = 'ai-item status-' + tStat;
+    tBox.querySelector('p').textContent = m;
+  }
+
+  // Z-Score (Bone vs Peers)
+  const zBox = document.getElementById('aiBoneZ');
+  let zStat = 'green';
+  if(d.zScore) {
+    let m = 'Bone density is normal for your age group.';
+    if(d.zScore <= -2.0) { zStat = 'red'; m = 'Abnormal (≤ -2.0). Investigate secondary causes (Hormonal/Nutritional).'; }
+    else if(d.zScore <= -1.0) { zStat = 'amber'; m = 'Below peer average. Needs optimization.'; }
+    zBox.className = 'ai-item status-' + zStat;
+    zBox.querySelector('p').textContent = m;
+  }
+
+  // 2. Comprehensive Report Generation
+  const sum = document.getElementById('aiSummary');
+  if (!d.weight || !d.height) {
+    sum.innerHTML = "<em>Awaiting physiological data for clinical report...</em>";
+    return;
+  }
+
+  const stats = [bmiStat, bfStat, vfStat, musStat, tStat, zStat];
+  const overallColor = stats.includes('red') ? '#8b0000' : stats.includes('amber') ? '#b08d1a' : '#2d5a27';
+  const statusLabel = stats.includes('red') ? '🔴 High Risk Protocol' : stats.includes('amber') ? '🟡 Moderate Risk / Watchlist' : '🟢 Low Risk / Optimal';
+
+  sum.innerHTML = `
+    <div style="border-bottom: 2px solid ${overallColor}; padding-bottom: 8px; margin-bottom: 12px;">
+      <h3 style="color: ${overallColor}; margin:0;">Integrated Health Intelligence Report</h3>
+      <span style="font-size: 1.1em; font-weight: bold; color: ${overallColor};">${statusLabel}</span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <div>
+        <strong style="text-transform: uppercase; font-size: 0.85em; color: var(--stone);">Clinical Findings:</strong>
+        <ul style="list-style: none; padding-left: 0; margin-top: 5px; line-height: 1.5;">
+          <li><span style="color:${getColorCode(bmiStat)}">●</span> <strong>BMI:</strong> ${d.bmi} <small>(${bmiStat})</small></li>
+          <li><span style="color:${getColorCode(bfStat)}">●</span> <strong>Fat:</strong> ${d.bodyFat}% <small>(${bfStat})</small></li>
+          <li><span style="color:${getColorCode(vfStat)}">●</span> <strong>Visceral:</strong> Level ${d.visceralFat}</li>
+          <li><span style="color:${getColorCode(musStat)}">●</span> <strong>Muscle:</strong> ${d.muscle}%</li>
+          <li><span style="color:${getColorCode(tStat)}">●</span> <strong>T-Score:</strong> ${d.tScore}</li>
+          <li><span style="color:${getColorCode(zStat)}">●</span> <strong>Z-Score:</strong> ${d.zScore}</li>
+        </ul>
+      </div>
+      <div>
+        <strong style="text-transform: uppercase; font-size: 0.85em; color: var(--stone);">Pathophysiology Observations:</strong>
+        <p style="font-size: 0.9em; margin-top: 5px; line-height: 1.4;">
+          ${generateObservations(d, bmiStat, bfStat, vfStat, musStat, tStat, zStat)}
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top: 15px; padding: 12px; background: var(--cream); border-left: 4px solid var(--moss); border-radius: 4px;">
+      <strong style="color: var(--stone);">💊 Evidence-Based Remedies & Strategy:</strong>
+      <div style="font-size: 0.92em; margin-top: 5px; line-height: 1.5;">
+        ${generateRecs(bmiStat, bfStat, vfStat, musStat, tStat, zStat)}
+      </div>
+    </div>
+  `;
+}
+
+function getColorCode(stat) {
+  if (stat === 'red') return '#8b0000';
+  if (stat === 'amber') return '#b08d1a';
+  return '#2d5a27';
+}
+
+function generateObservations(d, bmi, bf, vf, mus, t, z) {
+  let obs = [];
+  if (vf === 'red') obs.push("<strong>Visceral Alert:</strong> High levels of 'deep fat' are actively releasing inflammatory cytokines (IL-6, TNF-alpha) into the portal vein, increasing risk of fatty liver (NAFLD) and insulin resistance.");
+  if (mus === 'red' || mus === 'amber') obs.push("<strong>Muscular Atrophy:</strong> Low muscle-to-fat ratio suggests 'Sarcopenic Obesity'. This lowers your basal metabolic rate and impairs glucose disposal.");
+  if (t === 'red' || t === 'amber') obs.push("<strong>Bone Matrix Loss:</strong> Low T-Score indicates a depletion of bone minerals. Your structural integrity is compromised vs. your younger self.");
+  if (z <= -2.0) obs.push("<strong>Secondary Bone Cause:</strong> Your bone loss is significantly worse than peers. This suggests it isn't just aging, but potentially a nutrient malabsorption or hormonal issue.");
+  if (bmi === 'green' && bf === 'red') obs.push("<strong>Skinny-Fat Profile:</strong> While weight is 'normal', your internal composition is metabolically high-risk due to high fat-mass percentage.");
+  
+  return obs.length > 0 ? obs.join("<br><br>") : "Physiological metrics are stable. Focus on preventative maintenance.";
+}
+
+function generateRecs(bmi, bf, vf, mus, t, z) {
+  let recs = [];
+  
+  // Bone Remedies
+  if (t === 'red' || t === 'amber' || z === 'red') {
+    recs.push("<strong>Bone Support:</strong> Increase <strong>Calcium Citrate</strong> (1000mg) and <strong>Vitamin D3 + K2 (MK7)</strong>. Vitamin K2 is critical to direct calcium into the bones and away from arteries. Add <strong>Magnesium Glycinate</strong> (400mg) to support the bone matrix.");
+  }
+  
+  // Metabolic Remedies
+  if (vf === 'red' || bf === 'red') {
+    recs.push("<strong>Metabolic Reset:</strong> Consider <strong>Omega-3 Fish Oil</strong> (2g+) to reduce inflammation. <strong>Berberine</strong> or <strong>Chromium Picolinate</strong> can help stabilize blood sugar. Increase soluble fiber (Psyllium husk) to pull fat from the system.");
+  }
+  
+  // Muscle Remedies
+  if (mus === 'red' || mus === 'amber') {
+    recs.push("<strong>Anabolic Support:</strong> Prioritize 1.6g of protein per kg. Supplement with <strong>Creatine Monohydrate</strong> (5g) and <strong>Leucine</strong>-rich amino acids to trigger muscle protein synthesis (MPS) via the mTOR pathway.");
+  }
+
+  if (recs.length === 0) {
+    recs.push("Continue standard supplementation: Multivitamin, Vitamin D (2000 IU), and Magnesium for general cellular health.");
+  }
+
+  return recs.map(r => `<div style="margin-bottom:8px;">${r}</div>`).join("");
+}
+
+function selectPlan(p) {
+  currentPlan = p;
+  document.getElementById('aggressivePlan').classList.remove('active');
+  document.getElementById('slowPlan').classList.remove('active');
+  document.getElementById(p + 'Plan').classList.add('active');
+  calculateMacros();
+}
+
+function calculateMacros() {
+  const cal = parseFloat(document.getElementById('targetCalories').value) || 0;
+  const r = currentPlan === 'aggressive' ? {p:0.5, c:0.3, f:0.2} : {p:0.4, c:0.4, f:0.2};
+  document.getElementById('proteinTarget').textContent = Math.round((cal * r.p)/4);
+  document.getElementById('carbsTarget').textContent = Math.round((cal * r.c)/4);
+  document.getElementById('fatsTarget').textContent = Math.round((cal * r.f)/9);
+}
+
+function saveData() {
+  const profile = {};
+  inputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) profile[id] = el.value;
+  });
+  
+  // Attach current entries to the profile
+  profile.entries = entries; 
+  
+  // Save everything to the primary storage key
+  localStorage.setItem('hit_v10_data', JSON.stringify(profile));
+  // Keep the standalone key in sync
+  localStorage.setItem('hit_v10_entries', JSON.stringify(entries));
+  
+  alert("Full Profile & Nutrition History Saved!");
+}
+
+function loadData() {
+  const saved = JSON.parse(localStorage.getItem('hit_v10_data'));
+
+  if (saved) {
+    Object.keys(saved).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = saved[id];
+    });
+
+    entries = saved.entries || [];
+  }
+
+  calculateAndLockAge(); 
+  updateDailyWeeklyProgress();
+  updateEntriesTable();
+  analyzeBioNutrition();
+
+  // Load saved food database
+  const storedFoods = JSON.parse(localStorage.getItem('foodsDB'));
+  if (storedFoods) Object.assign(foodsDB, storedFoods);
+
+  updateFoodCategoryDropdown();
+  updateFoodList();
+}
+
+
+function fullReset() { if(confirm("Wipe all data?")) { localStorage.clear(); location.reload(); } }
+
+let foodsDB = JSON.parse(localStorage.getItem('foodsDB')) || {
+  seeds_nuts: [
+    {name: "Almonds (Raw)", cal: 579, prot: 21, fat: 50, carb: 22, sugar: 4.4, fiber: 12.5},
+    {name: "Almonds (Roasted, Salted)", cal: 598, prot: 21, fat: 53, carb: 21, sugar: 4.8, fiber: 10.9},
+    {name: "Almonds (Blanched)", cal: 590, prot: 21, fat: 53, carb: 19, sugar: 4.7, fiber: 10.1},
+    {name: "Almond Butter", cal: 614, prot: 21, fat: 56, carb: 19, sugar: 4.7, fiber: 10.3},
+    {name: "Almond Flour", cal: 571, prot: 21, fat: 50, carb: 21, sugar: 4.2, fiber: 12.6},
+    {name: "Brazil Nuts", cal: 659, prot: 14, fat: 67, carb: 12, sugar: 2.3, fiber: 7.5},
+    {name: "Cashews (Raw)", cal: 553, prot: 18, fat: 44, carb: 30, sugar: 5.9, fiber: 3.3},
+    {name: "Cashews (Roasted)", cal: 574, prot: 15, fat: 46, carb: 33, sugar: 5.0, fiber: 3.0},
+    {name: "Cashew Butter", cal: 587, prot: 18, fat: 49, carb: 28, sugar: 5.2, fiber: 2.0},
+    {name: "Chestnuts (Roasted)", cal: 245, prot: 3, fat: 2, carb: 53, sugar: 10.6, fiber: 5.1},
+    {name: "Chia Seeds", cal: 486, prot: 17, fat: 31, carb: 42, sugar: 0.8, fiber: 34.4},
+    {name: "Coconut (Dried, Shredded)", cal: 660, prot: 7, fat: 65, carb: 24, sugar: 7.4, fiber: 16.3},
+    {name: "Flax Seeds (Whole)", cal: 534, prot: 18, fat: 42, carb: 29, sugar: 1.6, fiber: 27.3},
+    {name: "Flax Seeds (Ground/Meal)", cal: 534, prot: 18, fat: 42, carb: 29, sugar: 1.5, fiber: 27.0},
+    {name: "Hazelnuts (Raw)", cal: 628, prot: 15, fat: 61, carb: 17, sugar: 4.3, fiber: 9.7},
+    {name: "Hazelnuts (Roasted)", cal: 646, prot: 15, fat: 62, carb: 18, sugar: 4.5, fiber: 9.4},
+    {name: "Hemp Hearts (Shelled)", cal: 553, prot: 32, fat: 49, carb: 9, sugar: 1.5, fiber: 4.0},
+    {name: "Hickory Nuts", cal: 657, prot: 13, fat: 64, carb: 18, sugar: 2.1, fiber: 6.4},
+    {name: "Lotus Seeds (Dried)", viet: "Hạt Sen", cal: 332, prot: 15, fat: 2, carb: 64, sugar: 2.0, fiber: 5.8},
+    {name: "Lotus Seeds (Fresh)", viet: "Hạt Sen Tươi", cal: 89, prot: 4, fat: 0.5, carb: 17, sugar: 1.1, fiber: 2.4},
+    {name: "Macadamia Nuts (Raw)", cal: 718, prot: 8, fat: 76, carb: 14, sugar: 4.6, fiber: 8.6},
+    {name: "Macadamia Nuts (Roasted)", cal: 718, prot: 8, fat: 76, carb: 13, sugar: 4.1, fiber: 8.0},
+    {name: "Peanuts (Raw)", cal: 567, prot: 26, fat: 49, carb: 16, sugar: 4.7, fiber: 8.5},
+    {name: "Peanuts (Roasted)", cal: 585, prot: 24, fat: 50, carb: 22, sugar: 4.2, fiber: 8.0},
+    {name: "Peanuts (Boiled)", cal: 318, prot: 14, fat: 22, carb: 21, sugar: 2.5, fiber: 8.8},
+    {name: "Peanut Butter (Smooth)", cal: 588, prot: 25, fat: 50, carb: 20, sugar: 9.2, fiber: 6.0},
+    {name: "Peanut Butter (Crunchy)", cal: 589, prot: 24, fat: 50, carb: 22, sugar: 9.0, fiber: 6.1},
+    {name: "Pecans (Raw)", cal: 691, prot: 9, fat: 72, carb: 14, sugar: 4.0, fiber: 9.6},
+    {name: "Pecans (Roasted)", cal: 710, prot: 9, fat: 74, carb: 12, sugar: 4.2, fiber: 9.4},
+    {name: "Pine Nuts", cal: 673, prot: 14, fat: 68, carb: 13, sugar: 3.6, fiber: 3.7},
+    {name: "Pistachios (Raw)", cal: 562, prot: 20, fat: 45, carb: 28, sugar: 7.7, fiber: 10.6},
+    {name: "Pistachios (Roasted)", cal: 569, prot: 21, fat: 46, carb: 27, sugar: 7.6, fiber: 10.3},
+    {name: "Poppy Seeds", cal: 525, prot: 18, fat: 42, carb: 28, sugar: 3.0, fiber: 19.5},
+    {name: "Pumpkin Seeds (Pepitas)", cal: 559, prot: 30, fat: 49, carb: 11, sugar: 1.4, fiber: 6.0},
+    {name: "Pumpkin Seeds (In Shell, Roasted)", cal: 446, prot: 19, fat: 19, carb: 54, sugar: 1.0, fiber: 18.4},
+    {name: "Safflower Seeds", cal: 517, prot: 16, fat: 38, carb: 34, sugar: 2.1, fiber: 4.5},
+    {name: "Sesame Seeds (White)", cal: 573, prot: 18, fat: 50, carb: 23, sugar: 0.3, fiber: 11.8},
+    {name: "Sesame Seeds (Black)", cal: 573, prot: 18, fat: 50, carb: 23, sugar: 0.3, fiber: 11.8},
+    {name: "Sesame Paste (Tahini)", cal: 595, prot: 17, fat: 54, carb: 21, sugar: 0.5, fiber: 9.3},
+    {name: "Soy Nuts (Roasted)", cal: 451, prot: 40, fat: 24, carb: 31, sugar: 6.5, fiber: 8.1},
+    {name: "Squash Seeds (Roasted)", cal: 446, prot: 19, fat: 19, carb: 54, sugar: 1.0, fiber: 18.4},
+    {name: "Sunflower Seeds (Kernels)", cal: 584, prot: 21, fat: 51, carb: 20, sugar: 2.6, fiber: 8.6},
+    {name: "Sunflower Seeds (In Shell, Toasted)", cal: 269, prot: 12, fat: 24, carb: 11, sugar: 1.1, fiber: 5.0},
+    {name: "Sunflower Butter", cal: 617, prot: 18, fat: 56, carb: 22, sugar: 4.8, fiber: 6.0},
+    {name: "Tiger Nuts", cal: 400, prot: 7, fat: 25, carb: 62, sugar: 31.0, fiber: 33.0},
+    {name: "Walnuts (English)", cal: 654, prot: 15, fat: 65, carb: 14, sugar: 2.6, fiber: 6.7},
+    {name: "Walnuts (Black)", cal: 618, prot: 24, fat: 59, carb: 10, sugar: 1.1, fiber: 6.8},
+    {name: "Walnut Butter", cal: 660, prot: 14, fat: 66, carb: 13, sugar: 2.2, fiber: 6.2},
+    {name: "Watermelon Seeds (Dried)", viet: "Hạt Dưa", cal: 557, prot: 28, fat: 47, carb: 15, sugar: 0.8, fiber: 0},
+    {name: "Mixed Nuts (Unsalted)", cal: 607, prot: 20, fat: 54, carb: 21, sugar: 4.3, fiber: 8.2}
+  ],
+  vietnamese: [
+    {name: "Banh Beo (Steamed Rice Cakes)", viet: "Bánh Bèo", cal: 150, prot: 3, fat: 2, carb: 30, sugar: 1.5, fiber: 0.5},
+    {name: "Banh Bot Loc (Shrimp & Pork Dumpling)", viet: "Bánh Bột Lọc", cal: 200, prot: 7, fat: 6, carb: 30, sugar: 2.1, fiber: 0.2},
+    {name: "Banh Cuon (Steamed Rice Rolls)", viet: "Bánh Cuốn", cal: 180, prot: 6, fat: 4, carb: 30, sugar: 1.2, fiber: 0.4},
+    {name: "Banh Khot (Mini Pancakes)", viet: "Bánh Khọt", cal: 220, prot: 5, fat: 11, carb: 25, sugar: 2.5, fiber: 0.8},
+    {name: "Banh Mi (Sandwich, whole)", viet: "Bánh Mì", cal: 450, prot: 15, fat: 18, carb: 55, sugar: 6.2, fiber: 3.5},
+    {name: "Banh Xeo (Crispy Pancake)", viet: "Bánh Xèo", cal: 250, prot: 8, fat: 13, carb: 25, sugar: 3.0, fiber: 1.2},
+    {name: "Bo Bia (Spring Rolls w/ Jicama)", viet: "Bò Bía", cal: 120, prot: 3, fat: 3, carb: 20, sugar: 4.5, fiber: 2.8},
+    {name: "Bo Luc Lac (Shaking Beef)", viet: "Bò Lúc Lắc", cal: 220, prot: 25, fat: 10, carb: 8, sugar: 4.0, fiber: 0.5},
+    {name: "Bo Nuong La Lot (Beef in Betel Leaf)", viet: "Bò Nướng Lá Lốt", cal: 180, prot: 18, fat: 11, carb: 3, sugar: 1.5, fiber: 0.8},
+    {name: "Bo Tai Chanh (Beef Carpaccio)", viet: "Bò Tái Chanh", cal: 160, prot: 20, fat: 7, carb: 5, sugar: 2.5, fiber: 0.3},
+    {name: "Bun Bo Hue (Spicy Beef Soup)", viet: "Bún Bò Huế", cal: 380, prot: 18, fat: 14, carb: 45, sugar: 3.5, fiber: 1.5},
+    {name: "Bun Cha (Grilled Pork & Noodles)", viet: "Bún Chả", cal: 320, prot: 20, fat: 12, carb: 35, sugar: 8.5, fiber: 1.2},
+    {name: "Bun Dau Mam Tom", viet: "Bún Đậu Mắm Tôm", cal: 350, prot: 15, fat: 12, carb: 40, sugar: 2.8, fiber: 1.1},
+    {name: "Ca Kho To (Caramel Fish)", viet: "Cá Kho Tộ", cal: 180, prot: 20, fat: 8, carb: 10, sugar: 9.0, fiber: 0},
+    {name: "Ca Tim Kho (Braised Eggplant)", viet: "Cà Tím Kho", cal: 90, prot: 2, fat: 5, carb: 10, sugar: 4.5, fiber: 2.5},
+    {name: "Canh Chua (Sour Soup)", viet: "Canh Chua", cal: 60, prot: 6, fat: 1, carb: 7, sugar: 5.5, fiber: 1.2},
+    {name: "Canh Khổ Qua (Bitter Melon Soup)", viet: "Canh Khổ Qua", cal: 50, prot: 4, fat: 1, carb: 6, sugar: 2.1, fiber: 1.8},
+    {name: "Cha Ca (Turmeric Fish w/ Dill)", viet: "Chả Cá", cal: 200, prot: 22, fat: 10, carb: 5, sugar: 1.5, fiber: 0.5},
+    {name: "Cha Gio (Fried Spring Roll, 1 roll)", viet: "Chả Giò", cal: 120, prot: 5, fat: 7, carb: 10, sugar: 2.0, fiber: 1.2},
+    {name: "Chao (Rice Porridge, plain)", viet: "Cháo", cal: 50, prot: 2, fat: 1, carb: 10, sugar: 0.1, fiber: 0.3},
+    {name: "Chao Ga (Chicken Porridge)", viet: "Cháo Gà", cal: 70, prot: 6, fat: 2, carb: 9, sugar: 0.2, fiber: 0.3},
+    {name: "Chao Long (Offal Porridge)", viet: "Cháo Lòng", cal: 85, prot: 8, fat: 3, carb: 8, sugar: 0.2, fiber: 0.3},
+    {name: "Che (Sweet Dessert Soup)", viet: "Chè", cal: 150, prot: 2, fat: 2, carb: 30, sugar: 25.0, fiber: 2.0},
+    {name: "Com Tam (Broken Rice w/ Grill)", viet: "Cơm Tấm", cal: 400, prot: 25, fat: 12, carb: 50, sugar: 4.0, fiber: 1.8},
+    {name: "Do Chua (Pickled Carrot & Daikon)", viet: "Đồ Chua", cal: 25, prot: 0, fat: 0, carb: 6, sugar: 5.0, fiber: 1.5},
+    {name: "Dua Gia (Pickled Bean Sprouts)", viet: "Dưa Giá", cal: 30, prot: 2, fat: 0, carb: 5, sugar: 2.0, fiber: 1.8},
+    {name: "Ga Nuong (Grilled Chicken)", viet: "Gà Nướng", cal: 180, prot: 25, fat: 8, carb: 2, sugar: 1.5, fiber: 0},
+    {name: "Ga Xao Xa Ot (Lemongrass Chicken)", viet: "Gà Xào Sả Ớt", cal: 170, prot: 22, fat: 7, carb: 5, sugar: 3.5, fiber: 0.8},
+    {name: "Goi Cuon (Fresh Spring Roll, 1 roll)", viet: "Gỏi Cuốn", cal: 80, prot: 4, fat: 1, carb: 12, sugar: 1.2, fiber: 1.5},
+    {name: "Goi Ga (Chicken Cabbage Salad)", viet: "Gỏi Gà", cal: 150, prot: 10, fat: 7, carb: 12, sugar: 4.5, fiber: 2.5},
+    {name: "Goi Sua (Jellyfish Salad)", viet: "Gỏi Sứa", cal: 80, prot: 10, fat: 1, carb: 8, sugar: 3.5, fiber: 0.5},
+    {name: "Heo Nuong (Grilled Pork)", viet: "Heo Nướng", cal: 220, prot: 23, fat: 12, carb: 3, sugar: 2.5, fiber: 0},
+    {name: "Lau (Hot Pot, broth only)", viet: "Lẩu", cal: 30, prot: 3, fat: 1, carb: 2, sugar: 1.5, fiber: 0.2},
+    {name: "Mam Nem (Fermented Fish Sauce)", viet: "Mắm Nêm", cal: 60, prot: 8, fat: 1, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Mi Quang (Turmeric Noodles)", viet: "Mì Quảng", cal: 280, prot: 12, fat: 10, carb: 35, sugar: 4.5, fiber: 2.0},
+    {name: "Muc Nuong (Grilled Squid)", viet: "Mực Nướng", cal: 150, prot: 25, fat: 3, carb: 5, sugar: 2.0, fiber: 0},
+    {name: "Nom Hoa Chuoi (Banana Flower Salad)", viet: "Nộm Hoa Chuối", cal: 120, prot: 4, fat: 3, carb: 20, sugar: 6.5, fiber: 5.0},
+    {name: "Nuoc Cham (Dipping Sauce)", viet: "Nước Chấm", cal: 50, prot: 1, fat: 0, carb: 12, sugar: 11.0, fiber: 0},
+    {name: "Pho Ap Chao (Pan-fried Noodles)", viet: "Phở Áp Chảo", cal: 300, prot: 12, fat: 12, carb: 35, sugar: 4.0, fiber: 1.8},
+    {name: "Pho Bo (Beef Noodle Soup)", viet: "Phở Bò", cal: 350, prot: 15, fat: 10, carb: 45, sugar: 3.5, fiber: 1.5},
+    {name: "Pho Cuon (Fresh Rice Noodle Rolls)", viet: "Phở Cuốn", cal: 130, prot: 8, fat: 3, carb: 18, sugar: 1.8, fiber: 1.0},
+    {name: "Pho Ga (Chicken Noodle Soup)", viet: "Phở Gà", cal: 320, prot: 14, fat: 9, carb: 42, sugar: 3.0, fiber: 1.5},
+    {name: "Rau Cau (Vietnamese Jelly)", viet: "Rau Câu", cal: 70, prot: 1, fat: 0, carb: 16, sugar: 15.0, fiber: 0.8},
+    {name: "Rau Mong Toi (Stir-fried Malabar Spinach)", viet: "Rau Mồng Tơi", cal: 35, prot: 3, fat: 1, carb: 5, sugar: 0.5, fiber: 2.8},
+    {name: "Rau Muong Xao (Stir-fried Water Spinach)", viet: "Rau Muống Xào", cal: 45, prot: 3, fat: 2, carb: 5, sugar: 0.4, fiber: 2.2},
+    {name: "Thit Kho (Braised Pork & Eggs)", viet: "Thịt Kho", cal: 250, prot: 20, fat: 16, carb: 5, sugar: 8.0, fiber: 0},
+    {name: "Tiet Canh (Blood Pudding)", viet: "Tiết Canh", cal: 120, prot: 15, fat: 6, carb: 2, sugar: 0.5, fiber: 0},
+    {name: "Tom Rim (Caramelized Shrimp)", viet: "Tôm Rim", cal: 160, prot: 22, fat: 5, carb: 8, sugar: 9.5, fiber: 0.2},
+    {name: "Xoi (Sticky Rice, plain)", viet: "Xôi", cal: 220, prot: 4, fat: 2, carb: 45, sugar: 0.5, fiber: 1.5},
+    {name: "Xoi Ga (Sticky Rice w/ Chicken)", viet: "Xôi Gà", cal: 280, prot: 15, fat: 8, carb: 40, sugar: 1.2, fiber: 1.5},
+    {name: "Xoi Man (Savory Sticky Rice)", viet: "Xôi Mặn", cal: 300, prot: 10, fat: 10, carb: 42, sugar: 2.5, fiber: 1.5},
+    {name: "Xoi Ngot (Sweet Sticky Rice)", viet: "Xôi Ngọt", cal: 280, prot: 5, fat: 5, carb: 55, sugar: 18.0, fiber: 1.8}
+  ],
+  fastfood: [
+    {name: "10 pc Chicken McNuggets", cal: 410, prot: 24, fat: 24, carb: 24, sugar: 0.5, fiber: 1.0},
+    {name: "2 Slices Cheese Pizza (Domino's)", cal: 480, prot: 20, fat: 18, carb: 60, sugar: 6.0, fiber: 3.5},
+    {name: "5-piece Chicken Tenders", cal: 320, prot: 22, fat: 18, carb: 16, sugar: 0.2, fiber: 1.2},
+    {name: "6\" Turkey Breast Sub (Subway)", cal: 280, prot: 18, fat: 3.5, carb: 46, sugar: 7.0, fiber: 5.0},
+    {name: "Bacon Cheeseburger (Sonic)", cal: 720, prot: 33, fat: 41, carb: 52, sugar: 11.0, fiber: 3.0},
+    {name: "Baconator", cal: 630, prot: 37, fat: 35, carb: 46, sugar: 9.0, fiber: 2.0},
+    {name: "Bacon, Egg & Cheese Biscuit", cal: 450, prot: 18, fat: 27, carb: 35, sugar: 3.0, fiber: 1.5},
+    {name: "Baked Potato w/ Butter", cal: 350, prot: 6, fat: 12, carb: 55, sugar: 3.5, fiber: 6.5},
+    {name: "Beef Burrito (regular)", cal: 380, prot: 15, fat: 16, carb: 45, sugar: 3.0, fiber: 4.5},
+    {name: "Beef Tostada", cal: 280, prot: 10, fat: 12, carb: 30, sugar: 2.5, fiber: 5.0},
+    {name: "Big Mac", cal: 590, prot: 26, fat: 34, carb: 45, sugar: 9.0, fiber: 3.0},
+    {name: "Bloomin' Onion (appetizer)", cal: 450, prot: 6, fat: 22, carb: 55, sugar: 8.0, fiber: 4.0},
+    {name: "Buffalo Chicken Wrap", cal: 380, prot: 22, fat: 18, carb: 30, sugar: 2.5, fiber: 2.0},
+    {name: "Chicken & Waffles", cal: 780, prot: 35, fat: 38, carb: 75, sugar: 18.0, fiber: 2.5},
+    {name: "Chicken Caesar Salad (no dressing)", cal: 220, prot: 30, fat: 7, carb: 10, sugar: 2.0, fiber: 3.0},
+    {name: "Chicken Fajita Roll-up", cal: 320, prot: 18, fat: 12, carb: 35, sugar: 4.0, fiber: 2.5},
+    {name: "Chicken Gyro", cal: 420, prot: 25, fat: 16, carb: 45, sugar: 5.5, fiber: 2.8},
+    {name: "Chicken Parmesan Sub", cal: 620, prot: 35, fat: 28, carb: 55, sugar: 8.5, fiber: 4.0},
+    {name: "Chicken Quesadilla", cal: 520, prot: 30, fat: 28, carb: 35, sugar: 3.5, fiber: 2.5},
+    {name: "Chicken Taco (hard shell)", cal: 170, prot: 8, fat: 10, carb: 13, sugar: 1.5, fiber: 2.0},
+    {name: "Chili Cheese Fries", cal: 420, prot: 12, fat: 22, carb: 45, sugar: 3.0, fiber: 4.5},
+    {name: "Chili Dog", cal: 320, prot: 12, fat: 18, carb: 25, sugar: 5.0, fiber: 2.0},
+    {name: "Corn Dog", cal: 280, prot: 8, fat: 14, carb: 30, sugar: 6.0, fiber: 1.5},
+    {name: "Crunchwrap Supreme", cal: 540, prot: 16, fat: 26, carb: 60, sugar: 6.0, fiber: 6.0},
+    {name: "Double Cheeseburger", cal: 490, prot: 28, fat: 27, carb: 35, sugar: 7.0, fiber: 2.0},
+    {name: "Fish & Chips (regular)", cal: 750, prot: 25, fat: 38, carb: 75, sugar: 1.5, fiber: 4.5},
+    {name: "Fish Fillet Sandwich", cal: 380, prot: 15, fat: 18, carb: 42, sugar: 5.0, fiber: 2.0},
+    {name: "Fried Pickle Spears", cal: 300, prot: 4, fat: 18, carb: 30, sugar: 2.5, fiber: 2.5},
+    {name: "Fried Shrimp Basket", cal: 420, prot: 20, fat: 22, carb: 35, sugar: 1.5, fiber: 2.0},
+    {name: "Grilled Cheese Sandwich", cal: 400, prot: 15, fat: 22, carb: 35, sugar: 4.5, fiber: 2.5},
+    {name: "Grilled Chicken Sandwich", cal: 350, prot: 28, fat: 9, carb: 40, sugar: 8.0, fiber: 3.0},
+    {name: "Hash Browns (2 pieces)", cal: 300, prot: 3, fat: 18, carb: 30, sugar: 0.5, fiber: 2.5},
+    {name: "Margherita Pizza Slice", cal: 200, prot: 9, fat: 8, carb: 24, sugar: 3.0, fiber: 1.5},
+    {name: "McChicken", cal: 400, prot: 14, fat: 21, carb: 39, sugar: 5.0, fiber: 2.0},
+    {name: "Meatball Marinara Sub (6\")", cal: 480, prot: 20, fat: 18, carb: 60, sugar: 12.0, fiber: 4.5},
+    {name: "Medium French Fries", cal: 320, prot: 4, fat: 15, carb: 44, sugar: 0.3, fiber: 3.8},
+    {name: "Mozzarella Sticks (6 pc)", cal: 450, prot: 20, fat: 25, carb: 35, sugar: 2.5, fiber: 2.0},
+    {name: "Nachos w/ Cheese (regular)", cal: 450, prot: 12, fat: 22, carb: 50, sugar: 3.5, fiber: 4.0},
+    {name: "Onion Rings (medium)", cal: 400, prot: 5, fat: 22, carb: 48, sugar: 6.0, fiber: 3.0},
+    {name: "Original Chicken Sandwich", cal: 660, prot: 28, fat: 38, carb: 51, sugar: 7.5, fiber: 2.5},
+    {name: "Pancake Breakfast (3 pancakes)", cal: 400, prot: 9, fat: 12, carb: 65, sugar: 14.0, fiber: 2.5},
+    {name: "Personal Pepperoni Pizza", cal: 620, prot: 28, fat: 26, carb: 70, sugar: 7.5, fiber: 4.0},
+    {name: "Philly Cheesesteak (medium)", cal: 550, prot: 30, fat: 28, carb: 45, sugar: 6.0, fiber: 2.5},
+    {name: "Popcorn Chicken (medium)", cal: 360, prot: 20, fat: 18, carb: 28, sugar: 1.5, fiber: 2.0},
+    {name: "Pulled Pork Sandwich", cal: 450, prot: 22, fat: 18, carb: 50, sugar: 18.5, fiber: 3.0},
+    {name: "Quarter Pounder w/ Cheese", cal: 520, prot: 30, fat: 27, carb: 41, sugar: 10.0, fiber: 2.5},
+    {name: "Sausage Biscuit", cal: 420, prot: 11, fat: 28, carb: 30, sugar: 2.5, fiber: 1.5},
+    {name: "Spicy Chicken Sandwich", cal: 450, prot: 28, fat: 16, carb: 51, sugar: 7.0, fiber: 2.5},
+    {name: "Spicy Chicken Wings (6 pc)", cal: 430, prot: 30, fat: 30, carb: 10, sugar: 0.5, fiber: 0},
+    {name: "Steak Soft Taco", cal: 200, prot: 10, fat: 8, carb: 20, sugar: 1.5, fiber: 2.0},
+    {name: "Veggie Burger", cal: 350, prot: 15, fat: 12, carb: 45, sugar: 5.5, fiber: 6.5},
+    {name: "Whopper", cal: 660, prot: 28, fat: 40, carb: 49, sugar: 11.0, fiber: 2.5},
+    {name: "Whopper Jr.", cal: 310, prot: 13, fat: 16, carb: 30, sugar: 6.0, fiber: 1.5}
+  ],
+  vegetables: [
+    {name: "Artichoke", viet: "Atiso", cal: 47, prot: 3.3, fat: 0.2, carb: 11, sugar: 1.0, fiber: 5.4},
+    {name: "Arugula", viet: "Rau Arugula", cal: 25, prot: 2.6, fat: 0.7, carb: 3.7, sugar: 2.1, fiber: 1.6},
+    {name: "Asparagus", viet: "Măng Tây", cal: 20, prot: 2.2, fat: 0.1, carb: 4, sugar: 1.9, fiber: 2.1},
+    {name: "Bell Peppers (red)", viet: "Ớt Chuông Đỏ", cal: 31, prot: 1, fat: 0.3, carb: 6, sugar: 4.2, fiber: 2.1},
+    {name: "Bok Choy", viet: "Cải Thìa", cal: 13, prot: 1.5, fat: 0.2, carb: 2.2, sugar: 1.2, fiber: 1.0},
+    {name: "Broccoli", viet: "Bông Cải Xanh", cal: 34, prot: 2.8, fat: 0.4, carb: 7, sugar: 1.7, fiber: 2.6},
+    {name: "Brussels Sprouts", viet: "Cải Brussels", cal: 43, prot: 3.4, fat: 0.3, carb: 9, sugar: 2.2, fiber: 3.8},
+    {name: "Cabbage (green)", viet: "Bắp Cải", cal: 25, prot: 1.3, fat: 0.1, carb: 6, sugar: 3.2, fiber: 2.5},
+    {name: "Carrots", viet: "Cà Rốt", cal: 41, prot: 0.9, fat: 0.2, carb: 10, sugar: 4.7, fiber: 2.8},
+    {name: "Cauliflower", viet: "Súp Lơ Trắng", cal: 25, prot: 2, fat: 0.3, carb: 5, sugar: 1.9, fiber: 2.0},
+    {name: "Celery", viet: "Cần Tây", cal: 14, prot: 0.7, fat: 0.2, carb: 3, sugar: 1.3, fiber: 1.6},
+    {name: "Corn on the cob", viet: "Bắp Ngô", cal: 86, prot: 3.3, fat: 1.2, carb: 19, sugar: 6.3, fiber: 2.0},
+    {name: "Cucumber", viet: "Dưa Chuột", cal: 15, prot: 0.7, fat: 0.1, carb: 3.6, sugar: 1.7, fiber: 0.5},
+    {name: "Daikon Radish", viet: "Củ Cải Trắng", cal: 18, prot: 0.6, fat: 0.1, carb: 4.1, sugar: 2.5, fiber: 1.6},
+    {name: "Eggplant", viet: "Cà Tím", cal: 25, prot: 1, fat: 0.2, carb: 6, sugar: 3.5, fiber: 3.0},
+    {name: "Endive", viet: "Rau Endive", cal: 17, prot: 1.3, fat: 0.2, carb: 3.4, sugar: 0.3, fiber: 3.1},
+    {name: "Fennel", viet: "Thì Là", cal: 31, prot: 1.2, fat: 0.2, carb: 7, sugar: 3.9, fiber: 3.1},
+    {name: "Garlic", viet: "Tỏi", cal: 149, prot: 6.4, fat: 0.5, carb: 33, sugar: 1.0, fiber: 2.1},
+    {name: "Ginger", viet: "Gừng", cal: 80, prot: 1.8, fat: 0.8, carb: 18, sugar: 1.7, fiber: 2.0},
+    {name: "Green Beans", viet: "Đậu Cô Ve", cal: 31, prot: 1.8, fat: 0.1, carb: 7, sugar: 3.3, fiber: 2.7},
+    {name: "Jicama", viet: "Củ Sắn", cal: 38, prot: 0.7, fat: 0.1, carb: 9, sugar: 1.8, fiber: 4.9},
+    {name: "Kale", viet: "Cải Xoăn", cal: 49, prot: 4.3, fat: 0.9, carb: 9, sugar: 2.3, fiber: 3.6},
+    {name: "Kelp (Seaweed)", viet: "Rong Biển", cal: 43, prot: 1.7, fat: 0.6, carb: 9.6, sugar: 0.6, fiber: 1.3},
+    {name: "Kohlrabi", viet: "Su Hào", cal: 27, prot: 1.7, fat: 0.1, carb: 6, sugar: 2.6, fiber: 3.6},
+    {name: "Leeks", viet: "Tỏi Tây", cal: 61, prot: 1.5, fat: 0.3, carb: 14, sugar: 3.9, fiber: 1.8},
+    {name: "Lettuce (Romaine)", viet: "Xà Lách Romaine", cal: 17, prot: 1.2, fat: 0.3, carb: 3.3, sugar: 1.2, fiber: 2.1},
+    {name: "Mushrooms (white)", viet: "Nấm Trắng", cal: 22, prot: 3.1, fat: 0.3, carb: 3.3, sugar: 2.0, fiber: 1.0},
+    {name: "Okra", viet: "Đậu Bắp", cal: 33, prot: 2, fat: 0.2, carb: 7, sugar: 1.5, fiber: 3.2},
+    {name: "Onions", viet: "Hành Tây", cal: 40, prot: 1.1, fat: 0.1, carb: 9, sugar: 4.2, fiber: 1.7},
+    {name: "Parsnips", viet: "Củ Cải Vàng", cal: 75, prot: 1.2, fat: 0.3, carb: 18, sugar: 4.8, fiber: 4.9},
+    {name: "Potato (white)", viet: "Khoai Tây", cal: 77, prot: 2, fat: 0.1, carb: 17, sugar: 0.8, fiber: 2.2},
+    {name: "Pumpkin", viet: "Bí Đỏ", cal: 26, prot: 1, fat: 0.1, carb: 7, sugar: 2.8, fiber: 0.5},
+    {name: "Radishes", viet: "Củ Cải Đỏ", cal: 16, prot: 0.7, fat: 0.1, carb: 3.4, sugar: 1.9, fiber: 1.6},
+    {name: "Snow Peas", viet: "Đậu Hà Lan", cal: 42, prot: 2.8, fat: 0.2, carb: 7.6, sugar: 4.0, fiber: 2.6},
+    {name: "Spinach", viet: "Rau Bina", cal: 23, prot: 3, fat: 0.4, carb: 3.6, sugar: 0.4, fiber: 2.2},
+    {name: "Spirulina (dried)", viet: "Tảo Spirulina", cal: 290, prot: 57, fat: 7.7, carb: 24, sugar: 3.1, fiber: 3.6},
+    {name: "Sweet Potato", viet: "Khoai Lang", cal: 86, prot: 1.6, fat: 0.1, carb: 20, sugar: 4.2, fiber: 3.0},
+    {name: "Swiss Chard", viet: "Cải Cầu Vồng", cal: 19, prot: 1.8, fat: 0.2, carb: 3.7, sugar: 1.1, fiber: 1.6},
+    {name: "Tomato", viet: "Cà Chua", cal: 18, prot: 0.9, fat: 0.2, carb: 3.9, sugar: 2.6, fiber: 1.2},
+    {name: "Turnips", viet: "Củ Cải Turnip", cal: 28, prot: 0.9, fat: 0.1, carb: 6, sugar: 3.8, fiber: 1.8},
+    {name: "Watercress", viet: "Cải Xoong", cal: 11, prot: 2.3, fat: 0.1, carb: 1.3, sugar: 0.2, fiber: 0.5},
+    {name: "Zucchini", viet: "Bí Ngòi", cal: 17, prot: 1.2, fat: 0.3, carb: 3.1, sugar: 2.5, fiber: 1.0}
+  ],
+  fruits: [
+    {name: "Apple (with skin)", viet: "Táo", cal: 52, prot: 0.3, fat: 0.2, carb: 14, sugar: 10.4, fiber: 2.4},
+    {name: "Apricot", viet: "Mơ", cal: 48, prot: 1.4, fat: 0.4, carb: 11, sugar: 9.2, fiber: 2.0},
+    {name: "Avocado", viet: "Bơ", cal: 160, prot: 2, fat: 15, carb: 9, sugar: 0.7, fiber: 6.7},
+    {name: "Banana", viet: "Chuối", cal: 89, prot: 1.1, fat: 0.3, carb: 23, sugar: 12.2, fiber: 2.6},
+    {name: "Blackberries", viet: "Mâm Xôi Đen", cal: 43, prot: 1.4, fat: 0.5, carb: 10, sugar: 4.9, fiber: 5.3},
+    {name: "Blueberries", viet: "Việt Quất", cal: 57, prot: 0.7, fat: 0.3, carb: 14, sugar: 10.0, fiber: 2.4},
+    {name: "Cantaloupe", viet: "Dưa Lưới", cal: 34, prot: 0.8, fat: 0.2, carb: 8, sugar: 7.9, fiber: 0.9},
+    {name: "Cherries (sweet)", viet: "Anh Đào", cal: 63, prot: 1.1, fat: 0.2, carb: 16, sugar: 12.8, fiber: 2.1},
+    {name: "Coconut (fresh meat)", viet: "Dừa", cal: 354, prot: 3.3, fat: 33, carb: 15, sugar: 6.2, fiber: 9.0},
+    {name: "Cranberries (raw)", viet: "Nam Việt Quất", cal: 46, prot: 0.5, fat: 0.1, carb: 12, sugar: 4.0, fiber: 4.6},
+    {name: "Dates (Medjool)", viet: "Chà Là", cal: 277, prot: 2, fat: 0.2, carb: 75, sugar: 66.5, fiber: 6.7},
+    {name: "Dragon Fruit", viet: "Thanh Long", cal: 60, prot: 1.2, fat: 0.4, carb: 13, sugar: 8.0, fiber: 1.2},
+    {name: "Durian", viet: "Sầu Riêng", cal: 147, prot: 1.5, fat: 5.3, carb: 27, sugar: 10.0, fiber: 3.8},
+    {name: "Fig (fresh)", viet: "Quả Vả", cal: 74, prot: 0.8, fat: 0.3, carb: 19, sugar: 16.3, fiber: 2.9},
+    {name: "Goji Berries (dried)", viet: "Kỷ Tử", cal: 349, prot: 14, fat: 0.4, carb: 77, sugar: 45.0, fiber: 13.0},
+    {name: "Grapefruit", viet: "Bưởi", cal: 42, prot: 0.8, fat: 0.1, carb: 11, sugar: 7.0, fiber: 1.6},
+    {name: "Grapes (red/green)", viet: "Nho", cal: 69, prot: 0.7, fat: 0.2, carb: 18, sugar: 15.5, fiber: 0.9},
+    {name: "Guava", viet: "Ổi", cal: 68, prot: 2.6, fat: 1, carb: 14, sugar: 8.9, fiber: 5.4},
+    {name: "Honeydew", viet: "Dưa Mật", cal: 36, prot: 0.5, fat: 0.1, carb: 9, sugar: 8.1, fiber: 0.8},
+    {name: "Jackfruit", viet: "Mít", cal: 95, prot: 1.7, fat: 0.6, carb: 23, sugar: 19.1, fiber: 1.5},
+    {name: "Kiwi", viet: "Kiwi", cal: 61, prot: 1.1, fat: 0.5, carb: 15, sugar: 9.0, fiber: 3.0},
+    {name: "Lemon", viet: "Chanh Vàng", cal: 29, prot: 1.1, fat: 0.3, carb: 9, sugar: 2.5, fiber: 2.8},
+    {name: "Lime", viet: "Chanh Xanh", cal: 30, prot: 0.7, fat: 0.2, carb: 11, sugar: 1.7, fiber: 2.8},
+    {name: "Lychee", viet: "Vải Thiều", cal: 66, prot: 0.8, fat: 0.4, carb: 17, sugar: 15.2, fiber: 1.3},
+    {name: "Mango", viet: "Xoài", cal: 60, prot: 0.8, fat: 0.4, carb: 15, sugar: 13.7, fiber: 1.6},
+    {name: "Nectarine", viet: "Xuân Đào", cal: 44, prot: 1.1, fat: 0.3, carb: 11, sugar: 7.9, fiber: 1.7},
+    {name: "Orange", viet: "Cam", cal: 47, prot: 0.9, fat: 0.1, carb: 12, sugar: 9.4, fiber: 2.4},
+    {name: "Papaya", viet: "Đu Đủ", cal: 43, prot: 0.5, fat: 0.3, carb: 11, sugar: 7.8, fiber: 1.7},
+    {name: "Passion Fruit", viet: "Chanh Dây", cal: 97, prot: 2.2, fat: 0.7, carb: 23, sugar: 11.2, fiber: 10.4},
+    {name: "Peach", viet: "Đào", cal: 39, prot: 0.9, fat: 0.3, carb: 10, sugar: 8.4, fiber: 1.5},
+    {name: "Pear", viet: "Lê", cal: 57, prot: 0.4, fat: 0.1, carb: 15, sugar: 9.8, fiber: 3.1},
+    {name: "Persimmon", viet: "Quả Hồng", cal: 127, prot: 0.8, fat: 0.4, carb: 34, sugar: 12.5, fiber: 3.6},
+    {name: "Pineapple", viet: "Dứa", cal: 50, prot: 0.5, fat: 0.1, carb: 13, sugar: 9.9, fiber: 1.4},
+    {name: "Plantain (raw)", viet: "Chuối Sứ", cal: 122, prot: 1.3, fat: 0.4, carb: 32, sugar: 15.0, fiber: 2.3},
+    {name: "Plum", viet: "Mận", cal: 46, prot: 0.7, fat: 0.3, carb: 11, sugar: 9.9, fiber: 1.4},
+    {name: "Pomegranate", viet: "Lựu", cal: 83, prot: 1.7, fat: 1.2, carb: 19, sugar: 13.7, fiber: 4.0},
+    {name: "Rambutan", viet: "Chôm Chôm", cal: 68, prot: 0.9, fat: 0.2, carb: 16, sugar: 15.0, fiber: 0.9},
+    {name: "Raspberries", viet: "Mâm Xôi", cal: 52, prot: 1.2, fat: 0.7, carb: 12, sugar: 4.4, fiber: 6.5},
+    {name: "Strawberries", viet: "Dâu Tây", cal: 32, prot: 0.7, fat: 0.3, carb: 7.7, sugar: 4.9, fiber: 2.0},
+    {name: "Tangerine", viet: "Quýt", cal: 53, prot: 0.8, fat: 0.3, carb: 13, sugar: 10.6, fiber: 1.8},
+    {name: "Watermelon", viet: "Dưa Hấu", cal: 30, prot: 0.6, fat: 0.2, carb: 8, sugar: 6.2, fiber: 0.4}
+  ],
+  drinks: [
+    {name: "Almond Milk (unsweetened)", viet: "Sữa Hạnh Nhân", cal: 30, prot: 1, fat: 2.5, carb: 1, sugar: 0.1, fiber: 0.5},
+    {name: "Apple Juice", viet: "Nước Táo", cal: 114, prot: 0.2, fat: 0.3, carb: 28, sugar: 24.0, fiber: 0.5},
+    {name: "Black Coffee", viet: "Cà Phê Đen", cal: 2, prot: 0.3, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Cappuccino (whole milk)", viet: "Cappuccino", cal: 80, prot: 4, fat: 4, carb: 6, sugar: 6.0, fiber: 0},
+    {name: "Chai Tea Latte", viet: "Trà Chai Latte", cal: 200, prot: 7, fat: 6, carb: 30, sugar: 28.0, fiber: 0},
+    {name: "Club Soda", viet: "Nước Soda", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Coca-Cola (Classic)", viet: "Coca-Cola", cal: 100, prot: 0, fat: 0, carb: 27, sugar: 27.0, fiber: 0},
+    {name: "Coconut Water", viet: "Nước Dừa", cal: 19, prot: 0.7, fat: 0.2, carb: 4, sugar: 2.6, fiber: 1.1},
+    {name: "Cranberry Juice", viet: "Nước Nam Việt Quất", cal: 116, prot: 0, fat: 0, carb: 31, sugar: 30.0, fiber: 0.1},
+    {name: "Diet Cola", viet: "Cola Ăn Kiêng", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Energy Drink (Red Bull)", viet: "Nước Tăng Lực", cal: 110, prot: 0, fat: 0, carb: 28, sugar: 27.0, fiber: 0},
+    {name: "Espresso (1 shot)", viet: "Espresso", cal: 3, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Flax Milk", viet: "Sữa Hạt Lanh", cal: 25, prot: 0, fat: 2.5, carb: 1, sugar: 0, fiber: 0},
+    {name: "Ginger Ale", viet: "Nước Gừng", cal: 90, prot: 0, fat: 0, carb: 23, sugar: 22.5, fiber: 0},
+    {name: "Grape Juice", viet: "Nước Nho", cal: 152, prot: 0.5, fat: 0, carb: 38, sugar: 36.0, fiber: 0.2},
+    {name: "Green Tea (brewed)", viet: "Trà Xanh", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Hemp Milk", viet: "Sữa Hạt Gai", cal: 70, prot: 3, fat: 6, carb: 1, sugar: 0.1, fiber: 0.5},
+    {name: "Horchata", viet: "Nước Horchata", cal: 180, prot: 3, fat: 3, carb: 35, sugar: 22.0, fiber: 1.5},
+    {name: "Hot Chocolate (with milk)", viet: "Sôcôla Nóng", cal: 190, prot: 8, fat: 6, carb: 26, sugar: 24.0, fiber: 1.0},
+    {name: "Iced Tea (sweetened)", viet: "Trà Đá Ngọt", cal: 90, prot: 0, fat: 0, carb: 23, sugar: 22.0, fiber: 0},
+    {name: "Iced Tea (unsweetened)", viet: "Trá Đá Không Đường", cal: 2, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Lemonade", viet: "Nước Chanh", cal: 99, prot: 0, fat: 0, carb: 26, sugar: 25.0, fiber: 0.1},
+    {name: "Matcha Latte", viet: "Matcha Latte", cal: 150, prot: 6, fat: 5, carb: 18, sugar: 15.0, fiber: 0.5},
+    {name: "Milkshake (vanilla)", viet: "Sữa Lắc Vani", cal: 250, prot: 6, fat: 8, carb: 40, sugar: 35.0, fiber: 0},
+    {name: "Oat Milk (unsweetened)", viet: "Sữa Yến Mạch", cal: 120, prot: 3, fat: 5, carb: 16, sugar: 7.0, fiber: 2.0},
+    {name: "Orange Juice", viet: "Nước Cam", cal: 112, prot: 1.7, fat: 0.5, carb: 26, sugar: 21.0, fiber: 0.5},
+    {name: "Pineapple Juice", viet: "Nước Dứa", cal: 132, prot: 0.5, fat: 0, carb: 32, sugar: 30.0, fiber: 0.5},
+    {name: "Prune Juice", viet: "Nước Mận Khô", cal: 182, prot: 1, fat: 0, carb: 45, sugar: 42.0, fiber: 2.6},
+    {name: "Protein Shake (whey)", viet: "Sữa Protein", cal: 120, prot: 25, fat: 2, carb: 3, sugar: 1.5, fiber: 0},
+    {name: "Rice Milk", viet: "Sữa Gạo", cal: 120, prot: 1, fat: 2, carb: 23, sugar: 12.0, fiber: 0.3},
+    {name: "Root Beer", viet: "Bia Gốc", cal: 110, prot: 0, fat: 0, carb: 28, sugar: 27.5, fiber: 0},
+    {name: "Smoothie (fruit)", viet: "Sinh Tố Trái Cây", cal: 56, prot: 1, fat: 0.5, carb: 13, sugar: 11.0, fiber: 2.0},
+    {name: "Soy Milk (unsweetened)", viet: "Sữa Đậu Nành", cal: 80, prot: 7, fat: 4, carb: 4, sugar: 1.0, fiber: 1.2},
+    {name: "Sparkling Water (plain)", viet: "Nước Có Ga", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Sports Drink (Gatorade)", viet: "Nước Thể Thao", cal: 80, prot: 0, fat: 0, carb: 21, sugar: 21.0, fiber: 0},
+    {name: "Tomato Juice", viet: "Nước Cà Chua", cal: 41, prot: 1, fat: 0, carb: 10, sugar: 6.5, fiber: 1.0},
+    {name: "Vegetable Juice (V8)", viet: "Nước Rau Củ", cal: 50, prot: 1, fat: 0, carb: 11, sugar: 8.0, fiber: 1.5},
+    {name: "Water", viet: "Nước Lọc", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Whole Milk", viet: "Sữa Tươi", cal: 61, prot: 3.2, fat: 3.3, carb: 4.8, sugar: 5.0, fiber: 0}
+  ],
+  alcohol: [
+    {name: "Absinthe", viet: "Rượu Absinthe", cal: 272, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Baijiu", viet: "Rượu Bạch Tửu", cal: 272, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beer (IPA/Craft)", viet: "Bia IPA", cal: 56, prot: 0.6, fat: 0, carb: 5.1, sugar: 0, fiber: 0},
+    {name: "Beer (Light)", viet: "Bia Nhẹ", cal: 29, prot: 0.2, fat: 0, carb: 1.7, sugar: 0, fiber: 0},
+    {name: "Beer (Non-Alcoholic)", viet: "Bia Không Cồn", cal: 20, prot: 0.1, fat: 0, carb: 3.9, sugar: 0.3, fiber: 0},
+    {name: "Beer (Regular/Lager)", viet: "Bia Thường", cal: 43, prot: 0.4, fat: 0, carb: 3.6, sugar: 0, fiber: 0},
+    {name: "Beer (Stout)", viet: "Bia Stout", cal: 59, prot: 0.6, fat: 0, carb: 5.6, sugar: 0, fiber: 0},
+    {name: "Beer (Wheat)", viet: "Bia Lúa Mì", cal: 48, prot: 0.6, fat: 0, carb: 3.9, sugar: 0, fiber: 0},
+    {name: "Bloody Mary", viet: "Bloody Mary", cal: 51, prot: 0.8, fat: 0, carb: 4.2, sugar: 2.8, fiber: 0.6},
+    {name: "Brandy/Cognac", viet: "Rượu Brandy", cal: 220, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Champagne", viet: "Sâm Banh", cal: 81, prot: 0.1, fat: 0, carb: 2.7, sugar: 1.0, fiber: 0},
+    {name: "Cosmopolitan", viet: "Cosmopolitan", cal: 169, prot: 0, fat: 0, carb: 17.0, sugar: 15.2, fiber: 0},
+    {name: "Daiquiri", viet: "Daiquiri", cal: 141, prot: 0, fat: 0, carb: 17.0, sugar: 15.8, fiber: 0},
+    {name: "Dessert Wine (Port)", viet: "Rượu Vang Tráng Miệng", cal: 185, prot: 0, fat: 0, carb: 15.7, sugar: 13.5, fiber: 0},
+    {name: "Eggnog (with rum)", viet: "Eggnog", cal: 144, prot: 4.2, fat: 4.2, carb: 12.7, sugar: 9.3, fiber: 0},
+    {name: "Gin/Vodka/Whiskey (40%)", viet: "Rượu Mạnh", cal: 220, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Gin & Tonic", viet: "Gin & Tonic", cal: 85, prot: 0, fat: 0, carb: 8.5, sugar: 7.6, fiber: 0},
+    {name: "Irish Coffee", viet: "Cà Phê Irish", cal: 89, prot: 0.4, fat: 3.4, carb: 6.3, sugar: 5.1, fiber: 0},
+    {name: "Jägermeister", viet: "Rượu Jägermeister", cal: 250, prot: 0, fat: 0, carb: 25.0, sugar: 25.0, fiber: 0},
+    {name: "Long Island Iced Tea", viet: "Trà Đá Long Island", cal: 93, prot: 0, fat: 0, carb: 8.3, sugar: 8.0, fiber: 0},
+    {name: "Mai Tai", viet: "Mai Tai", cal: 148, prot: 0, fat: 0, carb: 16.9, sugar: 14.8, fiber: 0},
+    {name: "Manhattan", viet: "Manhattan", cal: 185, prot: 0, fat: 0, carb: 5.6, sugar: 3.4, fiber: 0},
+    {name: "Margarita", viet: "Margarita", cal: 119, prot: 0, fat: 0, carb: 15.2, sugar: 13.6, fiber: 0},
+    {name: "Martini (Gin)", viet: "Martini", cal: 202, prot: 0, fat: 0, carb: 0.6, sugar: 0.1, fiber: 0},
+    {name: "Mimosa", viet: "Mimosa", cal: 85, prot: 0.6, fat: 0, carb: 8.5, sugar: 6.8, fiber: 0.1},
+    {name: "Mojito", viet: "Mojito", cal: 91, prot: 0, fat: 0, carb: 10.6, sugar: 9.3, fiber: 0.1},
+    {name: "Old Fashioned", viet: "Old Fashioned", cal: 152, prot: 0, fat: 0, carb: 6.8, sugar: 5.9, fiber: 0},
+    {name: "Pina Colada", viet: "Pina Colada", cal: 180, prot: 0.8, fat: 4.2, carb: 25.4, sugar: 23.3, fiber: 0.4},
+    {name: "Red Wine", viet: "Rượu Vang Đỏ", cal: 84, prot: 0.1, fat: 0, carb: 2.7, sugar: 0.6, fiber: 0},
+    {name: "Rosé Wine", viet: "Rượu Vang Hồng", cal: 81, prot: 0.1, fat: 0, carb: 2.7, sugar: 0.8, fiber: 0},
+    {name: "Rum & Coke", viet: "Rum & Coke", cal: 78, prot: 0, fat: 0, carb: 8.5, sugar: 8.3, fiber: 0},
+    {name: "Sake", viet: "Rượu Sake", cal: 102, prot: 0.3, fat: 0, carb: 5.6, sugar: 1.1, fiber: 0},
+    {name: "Sangria", viet: "Sangria", cal: 76, prot: 0.4, fat: 0, carb: 8.5, sugar: 7.6, fiber: 0.2},
+    {name: "Soju", viet: "Rượu Soju", cal: 102, prot: 0, fat: 0, carb: 2.3, sugar: 1.1, fiber: 0},
+    {name: "Tequila/Vodka/Whiskey", viet: "Rượu Mạnh", cal: 220, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Vodka Cranberry", viet: "Vodka Cranberry", cal: 95, prot: 0, fat: 0, carb: 12.7, sugar: 11.8, fiber: 0},
+    {name: "Vodka Soda", viet: "Vodka Soda", cal: 42, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Whiskey Sour", viet: "Whiskey Sour", cal: 135, prot: 0, fat: 0, carb: 12.7, sugar: 11.8, fiber: 0},
+    {name: "White Wine", viet: "Rượu Vang Trắng", cal: 82, prot: 0.1, fat: 0, carb: 2.7, sugar: 0.8, fiber: 0}
+  ],
+  meats: [
+    {name: "Bacon (pork, pan-fried)", viet: "Thịt Xông Khói", cal: 540, prot: 37, fat: 42, carb: 1.7, sugar: 1.5, fiber: 0},
+    {name: "Beef Brisket", viet: "Ức Bò", cal: 220, prot: 25, fat: 13, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beef Liver", viet: "Gan Bò", cal: 175, prot: 26, fat: 5, carb: 5, sugar: 0, fiber: 0},
+    {name: "Beef Ribs", viet: "Sườn Bò", cal: 300, prot: 22, fat: 23, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beef Steak (filet mignon)", viet: "Thăn Bò", cal: 220, prot: 27, fat: 12, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beef Steak (flank)", viet: "Sườn Bò Flank", cal: 200, prot: 28, fat: 9, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beef Steak (ribeye)", viet: "Ribeye", cal: 250, prot: 25, fat: 16, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beef Steak (sirloin)", viet: "Sườn Bò Sirloin", cal: 205, prot: 30, fat: 9, carb: 0, sugar: 0, fiber: 0},
+    {name: "Beef Steak (T-bone)", viet: "T-bone", cal: 240, prot: 25, fat: 15, carb: 0, sugar: 0, fiber: 0},
+    {name: "Chicken Breast (skinless)", viet: "Ức Gà", cal: 165, prot: 31, fat: 3.6, carb: 0, sugar: 0, fiber: 0},
+    {name: "Chicken Drumstick (skinless)", viet: "Đùi Gà", cal: 172, prot: 28, fat: 6, carb: 0, sugar: 0, fiber: 0},
+    {name: "Chicken Liver", viet: "Gan Gà", cal: 167, prot: 24, fat: 6.5, carb: 1, sugar: 0, fiber: 0},
+    {name: "Chicken Thigh (skinless)", viet: "Đùi Gà Trên", cal: 209, prot: 26, fat: 11, carb: 0, sugar: 0, fiber: 0},
+    {name: "Chicken Wing (skinless)", viet: "Cánh Gà", cal: 203, prot: 30, fat: 8, carb: 0, sugar: 0, fiber: 0},
+    {name: "Duck (skinless)", viet: "Vịt", cal: 200, prot: 25, fat: 11, carb: 0, sugar: 0, fiber: 0},
+    {name: "Duck (with skin)", viet: "Vịt Có Da", cal: 340, prot: 19, fat: 28, carb: 0, sugar: 0, fiber: 0},
+    {name: "Goose", viet: "Ngỗng", cal: 250, prot: 25, fat: 16, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Beef (70% lean)", viet: "Thịt Bò Xay 70%", cal: 280, prot: 20, fat: 22, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Beef (80% lean)", viet: "Thịt Bò Xay 80%", cal: 250, prot: 21, fat: 18, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Beef (85% lean)", viet: "Thịt Bò Xay 85%", cal: 240, prot: 21, fat: 17, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Beef (90% lean)", viet: "Thịt Bò Xay 90%", cal: 210, prot: 22, fat: 13, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Beef (95% lean)", viet: "Thịt Bò Xay 95%", cal: 170, prot: 23, fat: 8, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Bison", viet: "Thịt Bò Rừng Xay", cal: 190, prot: 23, fat: 10, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Chicken", viet: "Thịt Gà Xay", cal: 190, prot: 22, fat: 11, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Elk", viet: "Thịt Nai Xay", cal: 180, prot: 24, fat: 8, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Lamb", viet: "Thịt Cừu Xay", cal: 260, prot: 22, fat: 19, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Pork (lean)", viet: "Thịt Heo Xay Nạc", cal: 220, prot: 23, fat: 14, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Pork (regular)", viet: "Thịt Heo Xay Thường", cal: 270, prot: 22, fat: 20, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Turkey (85% lean)", viet: "Thịt Gà Tây Xay 85%", cal: 220, prot: 20, fat: 15, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Turkey (93% lean)", viet: "Thịt Gà Tây Xay 93%", cal: 170, prot: 22, fat: 9, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Turkey (99% lean)", viet: "Thịt Gà Tây Xay 99%", cal: 150, prot: 24, fat: 5, carb: 0, sugar: 0, fiber: 0},
+    {name: "Ground Veal", viet: "Thịt Bê Xay", cal: 220, prot: 23, fat: 14, carb: 0, sugar: 0, fiber: 0},
+    {name: "Lamb Chop", viet: "Sườn Cừu", cal: 250, prot: 22, fat: 18, carb: 0, sugar: 0, fiber: 0},
+    {name: "Lamb Leg", viet: "Đùi Cừu", cal: 200, prot: 25, fat: 11, carb: 0, sugar: 0, fiber: 0},
+    {name: "Lamb Shoulder", viet: "Vai Cừu", cal: 280, prot: 20, fat: 22, carb: 0, sugar: 0, fiber: 0},
+    {name: "Pork Belly", viet: "Ba Chỉ Heo", cal: 500, prot: 10, fat: 50, carb: 0, sugar: 0, fiber: 0},
+    {name: "Pork Chop (loin, lean)", viet: "Sườn Heo Nạc", cal: 211, prot: 29, fat: 10, carb: 0, sugar: 0, fiber: 0},
+    {name: "Pork Shoulder (Boston butt)", viet: "Vai Heo", cal: 250, prot: 22, fat: 18, carb: 0, sugar: 0, fiber: 0},
+    {name: "Pork Tenderloin", viet: "Thăn Heo", cal: 143, prot: 26, fat: 3.5, carb: 0, sugar: 0, fiber: 0},
+    {name: "Turkey Breast (skinless)", viet: "Ức Gà Tây", cal: 135, prot: 30, fat: 1, carb: 0, sugar: 0, fiber: 0},
+    {name: "Turkey Thigh (skinless)", viet: "Đùi Gà Tây", cal: 160, prot: 25, fat: 6, carb: 0, sugar: 0, fiber: 0},
+    {name: "Veal Chop", viet: "Sườn Bê", cal: 180, prot: 28, fat: 7, carb: 0, sugar: 0, fiber: 0},
+    {name: "Venison", viet: "Thịt Nai", cal: 160, prot: 30, fat: 3, carb: 0, sugar: 0, fiber: 0}
+  ],
+  fish: [
+    {name: "Anchovies (canned in oil)", viet: "Cá Cơm", cal: 210, prot: 29, fat: 10, carb: 0, sugar: 0, fiber: 0},
+    {name: "Bass (sea, cooked)", viet: "Cá Vược", cal: 124, prot: 23, fat: 3, carb: 0, sugar: 0, fiber: 0},
+    {name: "Catfish (cooked)", viet: "Cá Trê", cal: 150, prot: 18, fat: 8, carb: 0, sugar: 0, fiber: 0},
+    {name: "Cod (Atlantic, cooked)", viet: "Cá Tuyết", cal: 105, prot: 23, fat: 1, carb: 0, sugar: 0, fiber: 0},
+    {name: "Crab (blue, cooked)", viet: "Cua Xanh", cal: 97, prot: 20, fat: 1.5, carb: 0, sugar: 0, fiber: 0},
+    {name: "Crayfish (cooked)", viet: "Tôm Hùm Đất", cal: 87, prot: 17, fat: 1.4, carb: 0, sugar: 0, fiber: 0},
+    {name: "Eel (cooked)", viet: "Lươn", cal: 184, prot: 18, fat: 12, carb: 0, sugar: 0, fiber: 0},
+    {name: "Flounder (cooked)", viet: "Cá Bơn", cal: 117, prot: 24, fat: 1.5, carb: 0, sugar: 0, fiber: 0},
+    {name: "Grouper (cooked)", viet: "Cá Mú", cal: 118, prot: 24, fat: 1.3, carb: 0, sugar: 0, fiber: 0},
+    {name: "Haddock (cooked)", viet: "Cá Thu Đao", cal: 112, prot: 24, fat: 0.9, carb: 0, sugar: 0, fiber: 0},
+    {name: "Halibut (cooked)", viet: "Cá Bơn Halibut", cal: 140, prot: 27, fat: 2.9, carb: 0, sugar: 0, fiber: 0},
+    {name: "Herring (cooked)", viet: "Cá Trích", cal: 203, prot: 23, fat: 12, carb: 0, sugar: 0, fiber: 0},
+    {name: "Lobster (cooked)", viet: "Tôm Hùm", cal: 98, prot: 21, fat: 0.6, carb: 0.5, sugar: 0.1, fiber: 0},
+    {name: "Mackerel (Atlantic, cooked)", viet: "Cá Thu", cal: 262, prot: 24, fat: 18, carb: 0, sugar: 0, fiber: 0},
+    {name: "Mahi Mahi (cooked)", viet: "Cá Mahi Mahi", cal: 109, prot: 23, fat: 0.9, carb: 0, sugar: 0, fiber: 0},
+    {name: "Mussels (cooked)", viet: "Con Trai", cal: 172, prot: 24, fat: 4.5, carb: 7, sugar: 0.1, fiber: 0},
+    {name: "Octopus (cooked)", viet: "Bạch Tuộc", cal: 164, prot: 30, fat: 2.1, carb: 4.4, sugar: 0, fiber: 0},
+    {name: "Oysters (raw)", viet: "Hàu", cal: 81, prot: 9, fat: 2.3, carb: 4.2, sugar: 0.5, fiber: 0},
+    {name: "Perch (cooked)", viet: "Cá Rô", cal: 117, prot: 24, fat: 1.2, carb: 0, sugar: 0, fiber: 0},
+    {name: "Pollock (cooked)", viet: "Cá Pollock", cal: 111, prot: 23, fat: 1.2, carb: 0, sugar: 0, fiber: 0},
+    {name: "Rainbow Trout (cooked)", viet: "Cá Hồi Cầu Vồng", cal: 168, prot: 24, fat: 7, carb: 0, sugar: 0, fiber: 0},
+    {name: "Red Snapper (cooked)", viet: "Cá Hồng", cal: 128, prot: 26, fat: 1.7, carb: 0, sugar: 0, fiber: 0},
+    {name: "Salmon (Atlantic, cooked)", viet: "Cá Hồi", cal: 206, prot: 22, fat: 12, carb: 0, sugar: 0, fiber: 0},
+    {name: "Sardines (canned in oil)", viet: "Cá Mòi", cal: 208, prot: 25, fat: 11, carb: 0, sugar: 0, fiber: 0},
+    {name: "Scallops (cooked)", viet: "Sò Điệp", cal: 112, prot: 23, fat: 1.4, carb: 5.4, sugar: 0, fiber: 0},
+    {name: "Sea Bass (cooked)", viet: "Cá Vược Biển", cal: 124, prot: 23, fat: 3, carb: 0, sugar: 0, fiber: 0},
+    {name: "Shrimp (cooked)", viet: "Tôm", cal: 99, prot: 24, fat: 0.3, carb: 0.2, sugar: 0, fiber: 0},
+    {name: "Squid (cooked)", viet: "Mực", cal: 175, prot: 18, fat: 7.5, carb: 8, sugar: 0, fiber: 0},
+    {name: "Swordfish (cooked)", viet: "Cá Kiếm", cal: 155, prot: 23, fat: 6, carb: 0, sugar: 0, fiber: 0},
+    {name: "Tilapia (cooked)", viet: "Cá Rô Phi", cal: 128, prot: 26, fat: 2.7, carb: 0, sugar: 0, fiber: 0},
+    {name: "Tuna (Yellowfin, cooked)", viet: "Cá Ngừ Vàng", cal: 139, prot: 30, fat: 1, carb: 0, sugar: 0, fiber: 0},
+    {name: "Tuna (canned in water)", viet: "Cá Ngừ Đóng Hộp", cal: 116, prot: 26, fat: 1, carb: 0, sugar: 0, fiber: 0},
+    {name: "Whitefish (cooked)", viet: "Cá Trắng", cal: 172, prot: 24, fat: 7.5, carb: 0, sugar: 0, fiber: 0}
+  ],
+  grains: [
+    {name: "Bagel (plain)", viet: "Bánh Bagel", cal: 275, prot: 11, fat: 1.5, carb: 54, sugar: 6.5, fiber: 2.5},
+    {name: "Baguette", viet: "Bánh Mì Baguette", cal: 270, prot: 10, fat: 1.5, carb: 52, sugar: 2.5, fiber: 2.5},
+    {name: "Brown Rice (cooked)", viet: "Gạo Lứt", cal: 123, prot: 2.7, fat: 1, carb: 26, sugar: 0.4, fiber: 1.8},
+    {name: "Bulgur Wheat (cooked)", viet: "Lúa Mì Bulgur", cal: 83, prot: 3, fat: 0.2, carb: 19, sugar: 0.1, fiber: 4.5},
+    {name: "Ciabatta", viet: "Bánh Ciabatta", cal: 270, prot: 9, fat: 3, carb: 50, sugar: 1.5, fiber: 2.0},
+    {name: "Couscous (cooked)", viet: "Couscous", cal: 112, prot: 4, fat: 0.2, carb: 23, sugar: 0.1, fiber: 1.5},
+    {name: "Croissant", viet: "Bánh Sừng Bò", cal: 406, prot: 8, fat: 21, carb: 46, sugar: 11.5, fiber: 2.5},
+    {name: "English Muffin", viet: "Bánh Mì Anh", cal: 235, prot: 8, fat: 2, carb: 46, sugar: 4.5, fiber: 2.0},
+    {name: "Farro (cooked)", viet: "Lúa Mì Farro", cal: 120, prot: 4, fat: 0.5, carb: 26, sugar: 0, fiber: 3.5},
+    {name: "Focaccia", viet: "Bánh Focaccia", cal: 320, prot: 9, fat: 14, carb: 40, sugar: 1.2, fiber: 2.0},
+    {name: "Grits (cooked)", viet: "Bột Ngô", cal: 71, prot: 1.5, fat: 0.5, carb: 15, sugar: 0.1, fiber: 0.5},
+    {name: "Multigrain Bread", viet: "Bánh Mì Ngũ Cốc", cal: 260, prot: 10, fat: 5, carb: 45, sugar: 5.5, fiber: 6.5},
+    {name: "Naan", viet: "Bánh Naan", cal: 310, prot: 10, fat: 8, carb: 50, sugar: 4.0, fiber: 2.0},
+    {name: "Oats (rolled, dry)", viet: "Yến Mạch", cal: 379, prot: 13, fat: 6.5, carb: 68, sugar: 1.0, fiber: 10.1},
+    {name: "Pita Bread", viet: "Bánh Pita", cal: 275, prot: 9, fat: 1.2, carb: 56, sugar: 2.5, fiber: 2.2},
+    {name: "Polenta (cooked)", viet: "Bột Ngô Polenta", cal: 70, prot: 1.5, fat: 0.5, carb: 15, sugar: 0.1, fiber: 1.1},
+    {name: "Pumpernickel Bread", viet: "Bánh Mì Đen", cal: 250, prot: 9, fat: 3, carb: 48, sugar: 4.0, fiber: 6.5},
+    {name: "Quinoa (cooked)", viet: "Diêm Mạch", cal: 120, prot: 4.4, fat: 1.9, carb: 21, sugar: 0.9, fiber: 2.8},
+    {name: "Rice Noodles (cooked)", viet: "Bún Gạo", cal: 110, prot: 1, fat: 0.2, carb: 25, sugar: 0.1, fiber: 1.0},
+    {name: "Rye Bread", viet: "Bánh Mì Lúa Mạch Đen", cal: 259, prot: 9, fat: 3, carb: 48, sugar: 3.8, fiber: 5.8},
+    {name: "Soba Noodles (cooked)", viet: "Mì Soba", cal: 99, prot: 5, fat: 0.1, carb: 21, sugar: 0.5, fiber: 2.5},
+    {name: "Sourdough Bread", viet: "Bánh Mì Sourdough", cal: 270, prot: 10, fat: 2, carb: 52, sugar: 1.5, fiber: 2.4},
+    {name: "Spaghetti (cooked)", viet: "Mì Spaghetti", cal: 158, prot: 6, fat: 0.9, carb: 31, sugar: 0.6, fiber: 1.8},
+    {name: "Tortilla (corn, 6-inch)", viet: "Bánh Tortilla Ngô", cal: 60, prot: 1.5, fat: 1, carb: 12, sugar: 0.3, fiber: 1.5},
+    {name: "Tortilla (flour, 10-inch)", viet: "Bánh Tortilla Bột", cal: 160, prot: 4, fat: 4, carb: 27, sugar: 1.5, fiber: 1.5},
+    {name: "Udon Noodles (cooked)", viet: "Mì Udon", cal: 130, prot: 4, fat: 0.5, carb: 25, sugar: 0.5, fiber: 1.5},
+    {name: "White Bread", viet: "Bánh Mì Trắng", cal: 265, prot: 9, fat: 3.2, carb: 49, sugar: 5.0, fiber: 2.7},
+    {name: "White Rice (cooked)", viet: "Gạo Trắng", cal: 130, prot: 2.7, fat: 0.3, carb: 28, sugar: 0.1, fiber: 0.4},
+    {name: "Whole Wheat Bread", viet: "Bánh Mì Nguyên Cám", cal: 265, prot: 13, fat: 4, carb: 44, sugar: 5.0, fiber: 7.0},
+    {name: "Whole Wheat Pasta (cooked)", viet: "Mì Nguyên Cám", cal: 148, prot: 6, fat: 1, carb: 30, sugar: 0.5, fiber: 4.5},
+    {name: "Wild Rice (cooked)", viet: "Gạo Dại", cal: 101, prot: 4, fat: 0.3, carb: 21, sugar: 0.7, fiber: 1.8}
+  ],
+  dairy: [
+    {name: "American Cheese (processed)", viet: "Phô Mai Mỹ", cal: 330, prot: 18, fat: 25, carb: 8, sugar: 8.0, fiber: 0},
+    {name: "Blue Cheese", viet: "Phô Mai Xanh", cal: 353, prot: 21, fat: 29, carb: 2, sugar: 0.5, fiber: 0},
+    {name: "Brie Cheese", viet: "Phô Mai Brie", cal: 334, prot: 21, fat: 28, carb: 0.5, sugar: 0.5, fiber: 0},
+    {name: "Butter (salted)", viet: "Bơ", cal: 717, prot: 0.9, fat: 81, carb: 0.1, sugar: 0.1, fiber: 0},
+    {name: "Camembert Cheese", viet: "Phô Mai Camembert", cal: 300, prot: 20, fat: 24, carb: 0.5, sugar: 0.5, fiber: 0},
+    {name: "Cheddar Cheese", viet: "Phô Mai Cheddar", cal: 404, prot: 23, fat: 33, carb: 1.3, sugar: 0.5, fiber: 0},
+    {name: "Cottage Cheese (2% fat)", viet: "Phô Mai Cottage", cal: 84, prot: 11, fat: 2.3, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Cream Cheese (full fat)", viet: "Phô Mai Kem", cal: 342, prot: 6, fat: 34, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Crème Fraîche", viet: "Kem Chua Pháp", cal: 350, prot: 2, fat: 37, carb: 3, sugar: 3.0, fiber: 0},
+    {name: "Egg (whole, large)", viet: "Trứng Gà", cal: 72, prot: 6.3, fat: 5, carb: 0.4, sugar: 0.4, fiber: 0},
+    {name: "Egg White", viet: "Lòng Trắng Trứng", cal: 52, prot: 11, fat: 0.2, carb: 0.7, sugar: 0.7, fiber: 0},
+    {name: "Egg Yolk", viet: "Lòng Đỏ Trứng", cal: 322, prot: 16, fat: 27, carb: 3.6, sugar: 0.6, fiber: 0},
+    {name: "Evaporated Milk", viet: "Sữa Đặc Không Đường", cal: 134, prot: 7, fat: 8, carb: 10, sugar: 10.0, fiber: 0},
+    {name: "Feta Cheese", viet: "Phô Mai Feta", cal: 264, prot: 14, fat: 21, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Ghee", viet: "Bơ Sữa Trâu", cal: 900, prot: 0, fat: 100, carb: 0, sugar: 0, fiber: 0},
+    {name: "Goat Cheese (chevre)", viet: "Phô Mai Dê", cal: 360, prot: 22, fat: 30, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Goat Milk", viet: "Sữa Dê", cal: 69, prot: 3.6, fat: 4, carb: 4.5, sugar: 4.5, fiber: 0},
+    {name: "Greek Yogurt (0% fat)", viet: "Sữa Chua Hy Lạp", cal: 59, prot: 10, fat: 0.4, carb: 3.6, sugar: 3.6, fiber: 0},
+    {name: "Greek Yogurt (full fat)", viet: "Sữa Chua Hy Lạp Béo", cal: 97, prot: 9, fat: 5, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Half & Half (10.5% fat)", viet: "Sữa Half & Half", cal: 130, prot: 3, fat: 12, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Heavy Cream (36% fat)", viet: "Kem Béo", cal: 345, prot: 2, fat: 37, carb: 3, sugar: 3.0, fiber: 0},
+    {name: "Kefir", viet: "Sữa Kefir", cal: 61, prot: 3.8, fat: 3.5, carb: 4.5, sugar: 4.5, fiber: 0},
+    {name: "Light Cream (20% fat)", viet: "Kem Nhẹ", cal: 195, prot: 3, fat: 18, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Low Fat Milk (1%)", viet: "Sữa Ít Béo 1%", cal: 42, prot: 3.4, fat: 1, carb: 5, sugar: 5.0, fiber: 0},
+    {name: "Mascarpone Cheese", viet: "Phô Mai Mascarpone", cal: 430, prot: 4, fat: 45, carb: 0, sugar: 0, fiber: 0},
+    {name: "Mozzarella Cheese (whole milk)", viet: "Phô Mai Mozzarella", cal: 280, prot: 22, fat: 21, carb: 2, sugar: 1.0, fiber: 0},
+    {name: "Mozzarella Cheese (part-skim)", viet: "Phô Mai Mozzarella Ít Béo", cal: 280, prot: 24, fat: 17, carb: 2.5, sugar: 1.0, fiber: 0},
+    {name: "Neufchâtel Cheese", viet: "Phô Mai Neufchâtel", cal: 253, prot: 9, fat: 22, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Parmesan Cheese", viet: "Phô Mai Parmesan", cal: 420, prot: 28, fat: 28, carb: 14, sugar: 1.5, fiber: 0},
+    {name: "Pecorino Romano", viet: "Phô Mai Pecorino", cal: 387, prot: 26, fat: 29, carb: 3.6, sugar: 1.0, fiber: 0},
+    {name: "Provolone Cheese", viet: "Phô Mai Provolone", cal: 351, prot: 26, fat: 27, carb: 2, sugar: 2.0, fiber: 0},
+    {name: "Reduced Fat Milk (2%)", viet: "Sữa Giảm Béo 2%", cal: 50, prot: 3.3, fat: 2, carb: 5, sugar: 5.0, fiber: 0},
+    {name: "Ricotta Cheese (whole milk)", viet: "Phô Mai Ricotta", cal: 174, prot: 11, fat: 13, carb: 3, sugar: 3.0, fiber: 0},
+    {name: "Skim Milk (0%)", viet: "Sữa Không Béo", cal: 34, prot: 3.4, fat: 0.1, carb: 5, sugar: 5.0, fiber: 0},
+    {name: "Skyr", viet: "Sữa Skyr", cal: 65, prot: 11, fat: 0.2, carb: 4, sugar: 4.0, fiber: 0},
+    {name: "Sour Cream (full fat)", viet: "Kem Chua", cal: 200, prot: 2.5, fat: 19, carb: 4, sugar: 3.5, fiber: 0},
+    {name: "String Cheese", viet: "Phô Mai Sợi", cal: 280, prot: 17, fat: 22, carb: 2, sugar: 1.0, fiber: 0},
+    {name: "Sweetened Condensed Milk", viet: "Sữa Đặc Có Đường", cal: 321, prot: 8, fat: 9, carb: 54, sugar: 54.0, fiber: 0},
+    {name: "Swiss Cheese", viet: "Phô Mai Thụy Sĩ", cal: 380, prot: 27, fat: 28, carb: 5, sugar: 1.5, fiber: 0},
+    {name: "Velveeta Cheese", viet: "Phô Mai Velveeta", cal: 303, prot: 16, fat: 22, carb: 10, sugar: 9.5, fiber: 0},
+    {name: "Whipped Cream (canned)", viet: "Kem Đánh Bông", cal: 250, prot: 3, fat: 22, carb: 12, sugar: 12.0, fiber: 0},
+    {name: "Whole Milk (3.25%)", viet: "Sữa Nguyên Kem", cal: 61, prot: 3.2, fat: 3.3, carb: 4.8, sugar: 5.0, fiber: 0},
+    {name: "Yogurt (full fat)", viet: "Sữa Chua", cal: 61, prot: 3.5, fat: 3.3, carb: 4.7, sugar: 4.7, fiber: 0}
+  ],
+  spices: [
+    {name: "Agave Nectar", viet: "Mật Agave", cal: 310, prot: 0.5, fat: 0.1, carb: 76, sugar: 68.0, fiber: 0.2},
+    {name: "Black Pepper", viet: "Tiêu Đen", cal: 251, prot: 10, fat: 3.3, carb: 64, sugar: 0.6, fiber: 25.3},
+    {name: "Brown Sugar", viet: "Đường Nâu", cal: 380, prot: 0, fat: 0, carb: 98, sugar: 97, fiber: 0},
+    {name: "Cayenne Pepper", viet: "Ớt Cayenne", cal: 318, prot: 12, fat: 17, carb: 57, sugar: 10.3, fiber: 27.2},
+    {name: "Chili Powder", viet: "Bột Ớt", cal: 282, prot: 14, fat: 13, carb: 50, sugar: 7.2, fiber: 34.8},
+    {name: "Cinnamon (ground)", viet: "Bột Quế", cal: 247, prot: 4, fat: 1.2, carb: 81, sugar: 2.2, fiber: 53.1},
+    {name: "Cocoa Powder (unsweetened)", viet: "Bột Ca Cao", cal: 228, prot: 20, fat: 14, carb: 58, sugar: 1.8, fiber: 33.2},
+    {name: "Cumin", viet: "Thì Là Ai Cập", cal: 375, prot: 18, fat: 22, carb: 44, sugar: 2.3, fiber: 10.5},
+    {name: "Garlic Powder", viet: "Bột Tỏi", cal: 331, prot: 17, fat: 0.7, carb: 73, sugar: 24.0, fiber: 9.0},
+    {name: "Green Pepper (dried)", viet: "Ớt Xanh Khô", cal: 324, prot: 12, fat: 17, carb: 56, sugar: 10.3, fiber: 28.7},
+    {name: "Green Pepper (fresh)", viet: "Ớt Xanh Tươi", cal: 40, prot: 2, fat: 0.4, carb: 9, sugar: 5.0, fiber: 3.0},
+    {name: "Himalayan Pink Salt", viet: "Muối Hồng Himalaya", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Honey", viet: "Mật Ong", cal: 304, prot: 0.3, fat: 0, carb: 82, sugar: 82.1, fiber: 0.2},
+    {name: "Maple Syrup", viet: "Si rô Phong", cal: 260, prot: 0, fat: 0.1, carb: 67, sugar: 60.0, fiber: 0},
+    {name: "MSG", viet: "Bột Ngọt", cal: 0, prot: 13, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Mustard Seeds", viet: "Hạt Mù Tạt", cal: 508, prot: 26, fat: 36, carb: 28, sugar: 6.8, fiber: 12.2},
+    {name: "Nutmeg (ground)", viet: "Bột Nhục Đậu Khấu", cal: 525, prot: 6, fat: 36, carb: 49, sugar: 28.5, fiber: 20.8},
+    {name: "Nutritional Yeast", viet: "Men Dinh Dưỡng", cal: 325, prot: 50, fat: 0, carb: 36, sugar: 0, fiber: 24.0},
+    {name: "Onion Powder", viet: "Bột Hành", cal: 341, prot: 10, fat: 1, carb: 79, sugar: 35.0, fiber: 15.0},
+    {name: "Oregano (dried)", viet: "Lá Oregano Khô", cal: 265, prot: 9, fat: 4.3, carb: 69, sugar: 4.1, fiber: 42.5},
+    {name: "Paprika", viet: "Ớt Bột", cal: 282, prot: 14, fat: 13, carb: 54, sugar: 10.3, fiber: 34.9},
+    {name: "Parsley (dried)", viet: "Mùi Tây Khô", cal: 292, prot: 23, fat: 4.4, carb: 50, sugar: 7.3, fiber: 26.7},
+    {name: "Rosemary (dried)", viet: "Hương Thảo Khô", cal: 331, prot: 5, fat: 15, carb: 64, sugar: 0, fiber: 42.6},
+    {name: "Sage (dried)", viet: "Xô Thơm Khô", cal: 315, prot: 11, fat: 13, carb: 61, sugar: 1.7, fiber: 40.3},
+    {name: "Sesame Seeds", viet: "Hạt Vừng", cal: 573, prot: 18, fat: 50, carb: 23, sugar: 0.3, fiber: 11.8},
+    {name: "Stevia Powder", viet: "Bột Stevia", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Table Salt", viet: "Muối Ăn", cal: 0, prot: 0, fat: 0, carb: 0, sugar: 0, fiber: 0},
+    {name: "Thyme (dried)", viet: "Cỏ Xạ Hương Khô", cal: 276, prot: 9, fat: 7, carb: 63, sugar: 1.7, fiber: 37.0},
+    {name: "Turmeric (ground)", viet: "Bột Nghệ", cal: 312, prot: 10, fat: 3.3, carb: 65, sugar: 3.2, fiber: 21.1},
+    {name: "Vanilla Extract", viet: "Chiết Xuất Vanilla", cal: 288, prot: 0.1, fat: 0.1, carb: 13, sugar: 12.5, fiber: 0},
+    {name: "White Granulated Sugar", viet: "Đường Trắng", cal: 387, prot: 0, fat: 0, carb: 100, sugar: 100.0, fiber: 0},
+    {name: "Xylitol", viet: "Xylitol", cal: 240, prot: 0, fat: 0, carb: 100, sugar: 0, fiber: 0}
+  ],
+  condiments: [
+    {name: "Alfredo Sauce", viet: "Sốt Alfredo", cal: 300, prot: 5, fat: 30, carb: 5, sugar: 2.5, fiber: 0},
+    {name: "BBQ Sauce", viet: "Sốt BBQ", cal: 150, prot: 1, fat: 0, carb: 37, sugar: 33.0, fiber: 1.0},
+    {name: "Balsamic Vinaigrette", viet: "Dầu Giấm Balsamic", cal: 350, prot: 0, fat: 34, carb: 12, sugar: 11.0, fiber: 0},
+    {name: "Blue Cheese Dressing", viet: "Sốt Blue Cheese", cal: 450, prot: 2, fat: 47, carb: 5, sugar: 4.0, fiber: 0},
+    {name: "Caesar Dressing", viet: "Sốt Caesar", cal: 470, prot: 2, fat: 50, carb: 4, sugar: 2.5, fiber: 0},
+    {name: "Chimichurri", viet: "Sốt Chimichurri", cal: 250, prot: 2, fat: 23, carb: 8, sugar: 0.5, fiber: 1.5},
+    {name: "Cocktail Sauce", viet: "Sốt Cocktail", cal: 140, prot: 2, fat: 0.5, carb: 30, sugar: 24.5, fiber: 1.5},
+    {name: "Dijon Mustard", viet: "Mù Tạt Dijon", cal: 120, prot: 7, fat: 8, carb: 6, sugar: 2.5, fiber: 3.5},
+    {name: "Enchilada Sauce", viet: "Sốt Enchilada", cal: 60, prot: 2, fat: 2, carb: 10, sugar: 4.5, fiber: 1.5},
+    {name: "Fish Sauce", viet: "Nước Mắm", cal: 35, prot: 5, fat: 0, carb: 3.5, sugar: 3.5, fiber: 0},
+    {name: "French Dressing", viet: "Sốt Pháp", cal: 400, prot: 0, fat: 35, carb: 20, sugar: 18.0, fiber: 0.5},
+    {name: "Gochujang", viet: "Tương Ớt Hàn Quốc", cal: 180, prot: 4, fat: 1, carb: 36, sugar: 28.5, fiber: 2.5},
+    {name: "Guacamole", viet: "Sốt Bơ", cal: 160, prot: 2, fat: 15, carb: 9, sugar: 1.0, fiber: 6.7},
+    {name: "Harissa", viet: "Sốt Harissa", cal: 100, prot: 2, fat: 4, carb: 15, sugar: 4.5, fiber: 6.5},
+    {name: "Hoisin Sauce", viet: "Tương Hoa", cal: 220, prot: 3, fat: 3, carb: 45, sugar: 38.0, fiber: 1.5},
+    {name: "Honey Mustard Dressing", viet: "Sốt Mật Ong Mù Tạt", cal: 380, prot: 1, fat: 28, carb: 30, sugar: 25.5, fiber: 0.5},
+    {name: "Hummus", viet: "Sốt Hummus", cal: 166, prot: 8, fat: 10, carb: 14, sugar: 0.5, fiber: 6.0},
+    {name: "Italian Dressing", viet: "Sốt Ý", cal: 350, prot: 0, fat: 36, carb: 8, sugar: 7.0, fiber: 0},
+    {name: "Ketchup", viet: "Tương Cà", cal: 111, prot: 1.3, fat: 0.2, carb: 27, sugar: 22.0, fiber: 0.7},
+    {name: "Light Mayonnaise", viet: "Sốt Mayonnaise Nhẹ", cal: 350, prot: 1, fat: 35, carb: 8, sugar: 6.5, fiber: 0},
+    {name: "Marinara Sauce", viet: "Sốt Marinara", cal: 70, prot: 2, fat: 2, carb: 10, sugar: 6.5, fiber: 2.5},
+    {name: "Mayonnaise", viet: "Sốt Mayonnaise", cal: 680, prot: 1, fat: 75, carb: 0.6, sugar: 0.6, fiber: 0},
+    {name: "Miso Paste", viet: "Tương Miso", cal: 199, prot: 12, fat: 6, carb: 25, sugar: 6.5, fiber: 5.5},
+    {name: "Mustard (yellow)", viet: "Mù Tạt Vàng", cal: 66, prot: 4, fat: 3.7, carb: 6, sugar: 0.1, fiber: 3.3},
+    {name: "Oyster Sauce", viet: "Dầu Hào", cal: 120, prot: 3, fat: 0.5, carb: 25, sugar: 21.0, fiber: 0},
+    {name: "Pesto Sauce", viet: "Sốt Pesto", cal: 450, prot: 6, fat: 43, carb: 10, sugar: 1.5, fiber: 2.5},
+    {name: "Pico de Gallo", viet: "Sốt Pico de Gallo", cal: 30, prot: 1, fat: 0, carb: 7, sugar: 3.8, fiber: 1.8},
+    {name: "Pizza Sauce", viet: "Sốt Pizza", cal: 80, prot: 2, fat: 2, carb: 12, sugar: 6.5, fiber: 2.2},
+    {name: "Ranch Dressing", viet: "Sốt Ranch", cal: 430, prot: 1.5, fat: 44, carb: 7, sugar: 6.0, fiber: 0},
+    {name: "Remoulade", viet: "Sốt Remoulade", cal: 450, prot: 2, fat: 45, carb: 8, sugar: 5.5, fiber: 0},
+    {name: "Salsa", viet: "Sốt Salsa", cal: 36, prot: 2, fat: 0.2, carb: 7, sugar: 4.0, fiber: 1.8},
+    {name: "Sour Cream", viet: "Kem Chua", cal: 200, prot: 2.5, fat: 19, carb: 4, sugar: 3.5, fiber: 0},
+    {name: "Soy Sauce", viet: "Nước Tương", cal: 53, prot: 8, fat: 0, carb: 5, sugar: 0.6, fiber: 0.8},
+    {name: "Sriracha", viet: "Tương Sriracha", cal: 90, prot: 2, fat: 0.8, carb: 18, sugar: 15.0, fiber: 1.5},
+    {name: "Sweet Chili Sauce", viet: "Tương Ớt Ngọt", cal: 220, prot: 0.5, fat: 0, carb: 55, sugar: 50.0, fiber: 0.5},
+    {name: "Tahini", viet: "Sốt Tahini", cal: 595, prot: 17, fat: 50, carb: 21, sugar: 0.5, fiber: 9.3},
+    {name: "Tartar Sauce", viet: "Sốt Tartar", cal: 400, prot: 1, fat: 38, carb: 15, sugar: 8.5, fiber: 0.5},
+    {name: "Teriyaki Sauce", viet: "Sốt Teriyaki", cal: 160, prot: 4, fat: 2, carb: 30, sugar: 25.0, fiber: 0.2},
+    {name: "Thousand Island Dressing", viet: "Sốt Thousand Island", cal: 380, prot: 1, fat: 35, carb: 15, sugar: 12.0, fiber: 0.5},
+    {name: "Tzatziki", viet: "Sốt Tzatziki", cal: 90, prot: 4, fat: 6, carb: 6, sugar: 3.5, fiber: 0.5},
+    {name: "Vinegar (apple cider)", viet: "Giấm Táo", cal: 21, prot: 0, fat: 0, carb: 1, sugar: 0.4, fiber: 0},
+    {name: "Vinegar (balsamic)", viet: "Giấm Balsamic", cal: 88, prot: 0.5, fat: 0, carb: 17, sugar: 15.0, fiber: 0},
+    {name: "Whole Grain Mustard", viet: "Mù Tạt Nguyên Hạt", cal: 130, prot: 6, fat: 8, carb: 8, sugar: 1.5, fiber: 4.0},
+    {name: "Worcestershire Sauce", viet: "Sốt Worcestershire", cal: 78, prot: 0, fat: 0, carb: 19, sugar: 10.5, fiber: 0}
+  ],
+  sweets: [
+    {name: "Apple Pie", viet: "Bánh Táo", cal: 265, prot: 2, fat: 12, carb: 40, sugar: 18.0, fiber: 2.1},
+    {name: "Blueberry Muffin", viet: "Bánh Muffin Việt Quất", cal: 375, prot: 5, fat: 18, carb: 50, sugar: 28.5, fiber: 1.5},
+    {name: "Brownie", viet: "Bánh Brownie", cal: 460, prot: 5, fat: 25, carb: 60, sugar: 45.0, fiber: 2.8},
+    {name: "Cannoli", viet: "Bánh Cannoli", cal: 390, prot: 8, fat: 22, carb: 40, sugar: 22.0, fiber: 1.0},
+    {name: "Caramel", viet: "Kẹo Caramel", cal: 382, prot: 2, fat: 8, carb: 77, sugar: 65.5, fiber: 0},
+    {name: "Cheesecake", viet: "Bánh Phô Mai", cal: 350, prot: 5, fat: 23, carb: 30, sugar: 21.0, fiber: 0.5},
+    {name: "Chocolate Cake (with frosting)", viet: "Bánh Sôcôla", cal: 450, prot: 4, fat: 22, carb: 60, sugar: 48.0, fiber: 2.5},
+    {name: "Chocolate Chip Cookie", viet: "Bánh Quy Sôcôla", cal: 480, prot: 5, fat: 24, carb: 65, sugar: 35.0, fiber: 1.8},
+    {name: "Chocolate Ice Cream", viet: "Kem Sôcôla", cal: 216, prot: 3.8, fat: 11, carb: 28, sugar: 25.0, fiber: 1.2},
+    {name: "Cinnamon Roll (with icing)", viet: "Bánh Quế Quế", cal: 420, prot: 6, fat: 20, carb: 55, sugar: 28.0, fiber: 1.5},
+    {name: "Cookies & Cream Ice Cream", viet: "Kem Cookies & Cream", cal: 230, prot: 4, fat: 12, carb: 30, sugar: 24.5, fiber: 0.5},
+    {name: "Cotton Candy", viet: "Kẹo Bông", cal: 385, prot: 0, fat: 0, carb: 100, sugar: 100.0, fiber: 0},
+    {name: "Creme Brulee", viet: "Bánh Creme Brulee", cal: 300, prot: 4, fat: 20, carb: 25, sugar: 24.0, fiber: 0},
+    {name: "Croissant (plain)", viet: "Bánh Sừng Bò", cal: 406, prot: 8, fat: 21, carb: 46, sugar: 11.5, fiber: 2.5},
+    {name: "Danish Pastry", viet: "Bánh Danish", cal: 380, prot: 6, fat: 20, carb: 45, sugar: 18.5, fiber: 1.5},
+    {name: "Dark Chocolate (70%)", viet: "Sôcôla Đen", cal: 600, prot: 8, fat: 43, carb: 45, sugar: 24.5, fiber: 11.0},
+    {name: "Doughnut (glazed)", viet: "Bánh Donut", cal: 380, prot: 4, fat: 22, carb: 44, sugar: 24.0, fiber: 1.0},
+    {name: "Eclair", viet: "Bánh Eclair", cal: 320, prot: 6, fat: 18, carb: 35, sugar: 22.5, fiber: 0.8},
+    {name: "Flan", viet: "Bánh Flan", cal: 145, prot: 5, fat: 3, carb: 25, sugar: 23.0, fiber: 0},
+    {name: "Frozen Yogurt", viet: "Sữa Chua Đông Lạnh", cal: 160, prot: 3, fat: 4, carb: 30, sugar: 24.0, fiber: 0.5},
+    {name: "Fudge", viet: "Kẹo Fudge", cal: 410, prot: 2, fat: 13, carb: 75, sugar: 68.0, fiber: 1.2},
+    {name: "Gelato", viet: "Kem Gelato", cal: 200, prot: 3, fat: 10, carb: 25, sugar: 24.0, fiber: 0.2},
+    {name: "Gummy Bears", viet: "Kẹo Gấu Dẻo", cal: 340, prot: 7, fat: 0.2, carb: 77, sugar: 46.5, fiber: 0},
+    {name: "Hard Candy", viet: "Kẹo Cứng", cal: 390, prot: 0, fat: 0, carb: 98, sugar: 85.0, fiber: 0},
+    {name: "Jelly Beans", viet: "Kẹo Đậu", cal: 375, prot: 0, fat: 0, carb: 93, sugar: 70.0, fiber: 0},
+    {name: "Key Lime Pie", viet: "Bánh Key Lime", cal: 280, prot: 3, fat: 15, carb: 35, sugar: 28.5, fiber: 0.8},
+    {name: "Licorice", viet: "Kẹo Cam Thảo", cal: 350, prot: 0, fat: 0, carb: 85, sugar: 70.0, fiber: 0},
+    {name: "Macaron", viet: "Bánh Macaron", cal: 460, prot: 8, fat: 22, carb: 60, sugar: 48.5, fiber: 1.5},
+    {name: "Marshmallows", viet: "Kẹo Dẻo", cal: 318, prot: 1.8, fat: 0, carb: 81, sugar: 57.5, fiber: 0},
+    {name: "Milk Chocolate Bar", viet: "Thanh Sôcôla Sữa", cal: 535, prot: 7, fat: 30, carb: 59, sugar: 51.5, fiber: 3.4},
+    {name: "Mint Chocolate Chip Ice Cream", viet: "Kem Bạc Hà Sôcôla", cal: 220, prot: 3, fat: 12, carb: 26, sugar: 23.5, fiber: 0.5},
+    {name: "Oatmeal Raisin Cookie", viet: "Bánh Quy Yến Mạch", cal: 450, prot: 6, fat: 18, carb: 68, sugar: 32.5, fiber: 3.5},
+    {name: "Pecan Pie", viet: "Bánh Hồ Đào", cal: 410, prot: 5, fat: 20, carb: 55, sugar: 32.0, fiber: 3.5},
+    {name: "Pudding (chocolate)", viet: "Bánh Pudding", cal: 150, prot: 3, fat: 4, carb: 26, sugar: 21.0, fiber: 0.5},
+    {name: "Pumpkin Pie", viet: "Bánh Bí Đỏ", cal: 240, prot: 4, fat: 12, carb: 30, sugar: 21.0, fiber: 2.5},
+    {name: "Sherbet", viet: "Kem Sherbet", cal: 140, prot: 1, fat: 2, carb: 30, sugar: 26.5, fiber: 0},
+    {name: "Sorbet", viet: "Kem Trái Cây", cal: 130, prot: 0, fat: 0, carb: 33, sugar: 30.0, fiber: 1.5},
+    {name: "Strawberry Ice Cream", viet: "Kem Dâu", cal: 210, prot: 3, fat: 11, carb: 25, sugar: 24.0, fiber: 1.0},
+    {name: "Sugar Cookie", viet: "Bánh Quy Đường", cal: 470, prot: 5, fat: 20, carb: 70, sugar: 38.0, fiber: 0.8},
+    {name: "Tiramisu", viet: "Bánh Tiramisu", cal: 300, prot: 6, fat: 18, carb: 30, sugar: 21.5, fiber: 1.0},
+    {name: "Toffee", viet: "Kẹo Toffee", cal: 560, prot: 1, fat: 35, carb: 64, sugar: 55.0, fiber: 0},
+    {name: "Vanilla Cake (with frosting)", viet: "Bánh Vani", cal: 430, prot: 3, fat: 18, carb: 65, sugar: 52.0, fiber: 0.5},
+    {name: "Vanilla Ice Cream", viet: "Kem Vani", cal: 207, prot: 3.5, fat: 11, carb: 24, sugar: 21.0, fiber: 0},
+    {name: "White Chocolate", viet: "Sôcôla Trắng", cal: 539, prot: 6, fat: 32, carb: 59, sugar: 58.5, fiber: 0}
+  ]
+};
+
+function saveFoodsDB() {
+  localStorage.setItem('foodsDB', JSON.stringify(foodsDB));
+}
+
+function sortCategory(category) {
+  foodsDB[category].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function getAllFoods() {
+  return Object.values(foodsDB).flat();
+}
+
+function updateFoodCategoryDropdown() {
+  const select = document.getElementById('foodCategory');
+  const current = select.value;
+
+  select.innerHTML = '';
+
+  Object.keys(foodsDB).sort().forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat.replace('_', ' ');
+    select.appendChild(opt);
+  });
+
+  const newOpt = document.createElement('option');
+  newOpt.value = "__new__";
+  newOpt.textContent = "+ Add New Category";
+  select.appendChild(newOpt);
+
+  select.value = current;
+}
+
+function updateFoodList() {
+  const category = document.getElementById('foodCategory').value;
+  const select = document.getElementById('foodSelect');
+  select.innerHTML = '<option value="">-- Select or search --</option>';
+
+  let foods = category === 'all' ? getAllFoods() : (foodsDB[category] || []);
+
+  foods.forEach(food => {
+    const opt = document.createElement('option');
+    opt.value = JSON.stringify(food);
+    opt.textContent = food.name + (food.viet ? ` (${food.viet})` : '');
+    select.appendChild(opt);
+  });
+}
+
+function filterFoods() {
+  const searchTerm = document.getElementById('foodSearch').value.toLowerCase().trim();
+  const select = document.getElementById('foodSelect');
+  const options = select.querySelectorAll('option:not(:first-child)');
+
+  options.forEach(opt => {
+    const text = opt.textContent.toLowerCase();
+    opt.style.display = text.includes(searchTerm) ? '' : 'none';
+  });
+}
+
+const portionGrams = {
+  '100g': 100,
+  'tsp': 5,
+  'tbsp': 15,
+  'cup': 240,
+  'can': 330,   // Add this
+  'shot': 44    // Add this (Standard 1.5oz shot)
+};
+
+function populateNutrition() {
+  const select = document.getElementById('foodSelect');
+  const selected = select.value;
+  if(!selected) return;
+
+  document.getElementById('portionUnit').value = '100g';
+  document.getElementById('portionQty').value = 1;
+  updateNutritionFromPortion();
+}
+
+function updateNutritionFromPortion() {
+  const selectElement = document.getElementById('foodSelect');
+  const selectedValue = selectElement.value;
+  if(!selectedValue) return;
+
+  const food = JSON.parse(selectedValue);
+  const unit = document.getElementById('portionUnit').value;
+  const qty = parseFloat(document.getElementById('portionQty').value) || 1;
+
+  // Portion multiplier
+  const multiplier = (portionGrams[unit] / 100) * qty;
+
+  // Fill standard fields
+  document.getElementById('calories').value = Math.round((food.cal || 0) * multiplier);
+  document.getElementById('protein').value = ((food.prot || 0) * multiplier).toFixed(1);
+  document.getElementById('carbs').value = ((food.carb || 0) * multiplier).toFixed(1);
+  document.getElementById('fats').value = ((food.fat || 0) * multiplier).toFixed(1);
+  document.getElementById('sugar').value = ((food.sugar || 0) * multiplier).toFixed(1);
+  document.getElementById('fiber').value = ((food.fiber || 0) * multiplier).toFixed(1);
+
+  // SODIUM LOGIC
+  const currentCategory = document.getElementById('foodCategory').value;
+  // Pass food name, category, and the whole object to the estimator
+  const sodiumPer100g = estimateSodium(food.name, currentCategory, food);
+  
+  const sodiumElement = document.getElementById('dailySodium');
+  if (sodiumElement) {
+    sodiumElement.value = Math.round(sodiumPer100g * multiplier);
+  }
+}
+
+function estimateSodium(foodName, category, foodObj) {
+  if (foodObj && foodObj.sodium !== undefined && foodObj.sodium > 0) return foodObj.sodium;
+
+  const name = foodName.toLowerCase();
+  const cat = (category || "").toLowerCase();
+
+  // 1. LIQUIDS / RAW FRUIT (Almost Zero Sodium)
+  if (name.includes('coffee') || name.includes('tea') || name.includes('smoothie') || 
+      name.includes('beer') || name.includes('wine') || cat === 'fruits') {
+      return 5; // Trace amounts only
+  }
+
+  // 2. VERY HIGH (Sauces / Processed)
+  if (name.includes('sauce') || name.includes('mắm') || name.includes('soy') || name.includes('ketchup') || name.includes('instant')) return 1100;
+  if (name.includes('bacon') || name.includes('sausage') || name.includes('salami')) return 950;
+  
+  // 3. MODERATE-HIGH (Bread / Curry / Fast Food)
+  if (name.includes('bread') || name.includes('baguette') || name.includes('pizza') || name.includes('burger')) return 480;
+  if (name.includes('curry') || cat === 'fastfood' || cat === 'vietnamese') return 450;
+
+  // 4. NATURAL LOWS
+  if (cat === 'vegetables') return 15;
+  if (cat === 'meats' || cat === 'fish') return 70;
+  if (cat === 'dairy' || name.includes('milk')) return 45;
+
+  return 20; // Lowered default from 50 to 20 to prevent "ghost" salt accumulation
+}
+
+function addFoodToDB() {
+  const name = document.getElementById('newFoodName').value.trim();
+  if (!name) return alert("Enter food name");
+
+  const newFood = {
+    name: name,
+    viet: document.getElementById('newFoodViet')?.value.trim() || "",
+    cal: parseFloat(document.getElementById('newFoodCal').value) || 0,
+    prot: parseFloat(document.getElementById('newFoodProt').value) || 0,
+    carb: parseFloat(document.getElementById('newFoodCarb').value) || 0,
+    fat: parseFloat(document.getElementById('newFoodFat').value) || 0,
+    sugar: parseFloat(document.getElementById('newFoodSugar').value) || 0,
+    fiber: parseFloat(document.getElementById('newFoodFiber').value) || 0
+  };
+
+  let category = document.getElementById('foodCategory').value;
+
+  // Create new category if selected
+  if (category === "__new__") {
+    category = prompt("Enter new category name (lowercase, no spaces):");
+    if (!category) return;
+
+    if (!foodsDB[category]) foodsDB[category] = [];
+  }
+
+  if (!foodsDB[category]) foodsDB[category] = [];
+
+  foodsDB[category].push(newFood);
+
+  sortCategory(category);   // 🔤 alphabetize
+  saveFoodsDB();            // 💾 save permanently
+
+  updateFoodCategoryDropdown();
+  updateFoodList();
+
+  alert("Food saved in " + category);
+}
+
+function addEntry() {
+  const calField = document.getElementById('calories');
+  const cal = parseFloat(calField.value) || 0;
+  
+  if(cal === 0) {
+    alert("Please select a food item or enter calories first.");
+    return;
+  }
+
+  let entryDate = document.getElementById('entryDate').value;
+  if (!entryDate) {
+    entryDate = new Date().toISOString().split('T')[0];
+    document.getElementById('entryDate').value = entryDate;
+  }
+
+  // --- IMPROVED CATEGORY DETECTION ---
+  const selectEl = document.getElementById('foodSelect');
+  const foodName = selectEl.options[selectEl.selectedIndex]?.text || "Manual Entry";
+  
+  // Get the selected category from the dropdown
+  let cat = document.getElementById('foodCategory').value;
+
+  // If "All Categories" is selected, we find the real category by searching the DB
+  if (cat === 'all') {
+      for (let category in foodsDB) {
+          if (foodsDB[category].some(f => f.name === foodName || (f.name + " (" + f.viet + ")") === foodName)) {
+              cat = category;
+              break;
+          }
+      }
+  }
+
+  const entry = {
+    date: entryDate,
+    name: foodName,
+    cat: cat, // This will now be "fruits" even if "All Categories" was selected
+    cal: cal,
+    p: parseFloat(document.getElementById('protein').value) || 0,
+    c: parseFloat(document.getElementById('carbs').value) || 0,
+    f: parseFloat(document.getElementById('fats').value) || 0,
+    sugar: parseFloat(document.getElementById('sugar').value) || 0,
+    fiber: parseFloat(document.getElementById('fiber').value) || 0,
+    sodium: parseFloat(document.getElementById('dailySodium').value) || 0
+  };
+
+  entries.push(entry);
+  localStorage.setItem('hit_v10_entries', JSON.stringify(entries));
+  
+  let savedData = JSON.parse(localStorage.getItem('hit_v10_data')) || {};
+  savedData.entries = entries;
+  localStorage.setItem('hit_v10_data', JSON.stringify(savedData));
+
+  updateEntriesTable();
+  updateDailyWeeklyProgress();
+  analyzeBioNutrition();
+  
+  // Clear the fields
+  const fieldsToReset = ['calories', 'protein', 'carbs', 'fats', 'sugar', 'fiber', 'dailySodium', 'foodSearch'];
+  fieldsToReset.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = ''; 
+  });
+  document.getElementById('foodSelect').value = '';
+}
+
+function updateEntriesTable() {
+  const body = document.getElementById('entriesBody');
+  body.innerHTML = '';
+
+  // We loop through the array. We use the index (i) so we know which one to delete.
+  // Note: We show them in the order they were added, or you can .reverse() them.
+  entries.forEach((e, index) => {
+    body.innerHTML += `
+      <tr>
+        <td style="font-size:0.8em; color:var(--clay);">${e.date || ''}</td>
+        <td style="font-weight:600; color:var(--stone);">${e.name || 'Food'}</td>
+        <td style="text-align:center;">${Math.round(e.cal)}</td>
+        <td style="text-align:center;">${Math.round(e.p)}g</td>
+        <td style="text-align:center;">${Math.round(e.c)}g</td>
+        <td style="text-align:center;">${Math.round(e.f)}g</td>
+        <td style="text-align:center;">${Math.round(e.sugar || 0)}g</td>
+        <td style="text-align:center;">${Math.round(e.fiber || 0)}g</td>
+        <td style="text-align:center;">
+          <button onclick="deleteSpecificEntry(${index})" 
+                  style="background:none; border:none; color:var(--red-ui); font-weight:bold; cursor:pointer; padding:0 5px;">
+            ×
+          </button>
+        </td>
+      </tr>`;
+  });
+}
+
+function deleteSpecificEntry(index) {
+  if (confirm("Delete this entry?")) {
+    // 1. Remove from the array
+    entries.splice(index, 1);
+    
+    // 2. Save the updated array to LocalStorage
+    localStorage.setItem('hit_v10_entries', JSON.stringify(entries));
+    
+    // 3. Sync with main profile data
+    let savedData = JSON.parse(localStorage.getItem('hit_v10_data')) || {};
+    savedData.entries = entries;
+    localStorage.setItem('hit_v10_data', JSON.stringify(savedData));
+
+    // 4. Refresh all UI components
+    updateEntriesTable();
+    updateDailyWeeklyProgress();
+    analyzeBioNutrition();
+  }
+}
+
+function updateDailyWeeklyProgress() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayEntries = entries.filter(e => e.date === today);
+
+  const dailyCal = todayEntries.reduce((sum, e) => sum + e.cal, 0);
+  const dailyPro = todayEntries.reduce((sum, e) => sum + e.p, 0);
+  const dailyFat = todayEntries.reduce((sum, e) => sum + e.f, 0);
+  const dailyCarb = todayEntries.reduce((sum, e) => sum + e.c, 0);
+  const dailySugar = todayEntries.reduce((sum, e) => sum + (e.sugar || 0), 0);
+  const dailyFiber = todayEntries.reduce((sum, e) => sum + (e.fiber || 0), 0);
+
+  const targetDaily = parseFloat(document.getElementById('targetCalories').value) || 0;
+  const targetWeekly = targetDaily * 7;
+
+  // Daily
+  document.getElementById('dailyCalValue').textContent = `${Math.round(dailyCal)} / ${Math.round(targetDaily)}`;
+  document.getElementById('dailyCalFill').style.width = targetDaily ? Math.min((dailyCal / targetDaily) * 100, 100) + '%' : '0%';
+
+  const proRatio = currentPlan === 'aggressive' ? 0.5 : 0.4;
+  const targetPro = (targetDaily * proRatio) / 4;
+  document.getElementById('dailyProValue').textContent = `${Math.round(dailyPro)}g / ${Math.round(targetPro)}g`;
+  document.getElementById('dailyProFill').style.width = targetPro ? Math.min((dailyPro / targetPro) * 100, 100) + '%' : '0%';
+
+  const fatRatio = 0.2;
+  const targetFat = (targetDaily * fatRatio) / 9;
+  document.getElementById('dailyFatValue').textContent = `${Math.round(dailyFat)}g / ${Math.round(targetFat)}g`;
+  document.getElementById('dailyFatFill').style.width = targetFat ? Math.min((dailyFat / targetFat) * 100, 100) + '%' : '0%';
+
+  const carbRatio = currentPlan === 'aggressive' ? 0.3 : 0.4;
+  const targetCarb = (targetDaily * carbRatio) / 4;
+  document.getElementById('dailyCarbValue').textContent = `${Math.round(dailyCarb)}g / ${Math.round(targetCarb)}g`;
+  document.getElementById('dailyCarbFill').style.width = targetCarb ? Math.min((dailyCarb / targetCarb) * 100, 100) + '%' : '0%';
+
+  const targetSugar = 50;
+  document.getElementById('dailySugarValue').textContent = `${Math.round(dailySugar)}g / ${targetSugar}g`;
+  document.getElementById('dailySugarFill').style.width = targetSugar ? Math.min((dailySugar / targetSugar) * 100, 100) + '%' : '0%';
+
+  const targetFiber = 30;
+  document.getElementById('dailyFiberValue').textContent = `${Math.round(dailyFiber)}g / ${targetFiber}g`;
+  document.getElementById('dailyFiberFill').style.width = targetFiber ? Math.min((dailyFiber / targetFiber) * 100, 100) + '%' : '0%';
+
+  // Weekly
+  const weeklyCal = entries.reduce((sum, e) => sum + e.cal, 0);
+  document.getElementById('weeklyCalValue').textContent = `Weekly: ${Math.round(weeklyCal)} / ${Math.round(targetWeekly)}`;
+  document.getElementById('weeklyCalFill').style.width = targetWeekly ? Math.min((weeklyCal / targetWeekly) * 100, 100) + '%' : '0%';
+
+  const weeklyPro = entries.reduce((sum, e) => sum + e.p, 0);
+  document.getElementById('weeklyProValue').textContent = `Weekly: ${Math.round(weeklyPro)}g / ${Math.round(targetPro * 7)}g`;
+  document.getElementById('weeklyProFill').style.width = (targetPro * 7) ? Math.min((weeklyPro / (targetPro * 7)) * 100, 100) + '%' : '0%';
+
+  const weeklyFat = entries.reduce((sum, e) => sum + e.f, 0);
+  document.getElementById('weeklyFatValue').textContent = `Weekly: ${Math.round(weeklyFat)}g / ${Math.round(targetFat * 7)}g`;
+  document.getElementById('weeklyFatFill').style.width = (targetFat * 7) ? Math.min((weeklyFat / (targetFat * 7)) * 100, 100) + '%' : '0%';
+
+  const weeklyCarb = entries.reduce((sum, e) => sum + e.c, 0);
+  document.getElementById('weeklyCarbValue').textContent = `Weekly: ${Math.round(weeklyCarb)}g / ${Math.round(targetCarb * 7)}g`;
+  document.getElementById('weeklyCarbFill').style.width = (targetCarb * 7) ? Math.min((weeklyCarb / (targetCarb * 7)) * 100, 100) + '%' : '0%';
+
+  const weeklySugar = entries.reduce((sum, e) => sum + (e.sugar || 0), 0);
+  document.getElementById('weeklySugarValue').textContent = `Weekly: ${Math.round(weeklySugar)}g / ${targetSugar * 7}g`;
+  document.getElementById('weeklySugarFill').style.width = (targetSugar * 7) ? Math.min((weeklySugar / (targetSugar * 7)) * 100, 100) + '%' : '0%';
+
+  const weeklyFiber = entries.reduce((sum, e) => sum + (e.fiber || 0), 0);
+  document.getElementById('weeklyFiberValue').textContent = `Weekly: ${Math.round(weeklyFiber)}g / ${targetFiber * 7}g`;
+  document.getElementById('weeklyFiberFill').style.width = (targetFiber * 7) ? Math.min((weeklyFiber / (targetFiber * 7)) * 100, 100) + '%' : '0%';
+}
+
+function updateBioNutritionAnalysis() {
+  const container = document.getElementById('bioAnalysisContent');
+  if (!container) return;
+
+  if (entries.length === 0) {
+    container.innerHTML = `
+      <p style="text-align:center; margin-top:40px; font-style:italic;">
+        No meals logged yet. Add food to see your biological nutrition analysis.
+      </p>`;
+    return;
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const todayEntries = entries.filter(e => e.date === today);
+
+  const cal = todayEntries.reduce((s,e)=>s+e.cal,0);
+  const p   = todayEntries.reduce((s,e)=>s+e.p,0);
+  const c   = todayEntries.reduce((s,e)=>s+e.c,0);
+  const f   = todayEntries.reduce((s,e)=>s+e.f,0);
+  const sugar = todayEntries.reduce((s,e)=>s+(e.sugar||0),0);
+  const fiber = todayEntries.reduce((s,e)=>s+(e.fiber||0),0);
+
+  let analysis = [];
+
+  // Protein
+  if (p < 50) analysis.push("🧬 <b>Low protein intake</b> — recovery, metabolism, and muscle maintenance may be under-supported.");
+  else if (p < 100) analysis.push("💪 <b>Moderate protein intake</b> — decent support for muscle and metabolic health.");
+  else analysis.push("🏋️ <b>High protein intake</b> — strong support for muscle repair and fat metabolism.");
+
+  // Carbs & Sugar
+  if (sugar > 60) analysis.push("🍬 <b>High sugar load</b> — may increase fat storage and blood sugar swings.");
+  else if (c > 250) analysis.push("🍞 <b>High carb intake</b> — ensure activity levels match energy intake.");
+  else analysis.push("⚡ <b>Carb intake balanced</b> — providing steady fuel.");
+
+  // Fats
+  if (f < 30) analysis.push("🥑 <b>Low fat intake</b> — hormones and vitamin absorption may be under-supported.");
+  else if (f > 100) analysis.push("🛢️ <b>High fat intake</b> — energy dense, watch total calories.");
+  else analysis.push("🧈 <b>Fat intake in healthy range</b>.");
+
+  // Fiber
+  if (fiber < 15) analysis.push("🌾 <b>Low fiber</b> — gut health and cholesterol regulation may suffer.");
+  else analysis.push("🌿 <b>Good fiber intake</b> — supporting digestion and blood sugar control.");
+
+  // Calories
+  if (cal < 1200) analysis.push("🔥 <b>Very low calorie intake</b> — may slow metabolism if prolonged.");
+  else if (cal > 3000) analysis.push("🍽️ <b>High calorie intake</b> — surplus energy may convert to fat storage.");
+  else analysis.push("⚖️ <b>Calorie intake within a normal daily range</b>.");
+
+  container.innerHTML = analysis.map(a => `<div style="margin-bottom:8px;">${a}</div>`).join("");
+}
+
+function updateTargets() {
+  const daily = parseFloat(document.getElementById('targetCalories').value) || 0;
+  document.getElementById('weeklyTargetDisplay').value = Math.round(daily * 7);
+  calculateMacros();
+  updateDailyWeeklyProgress();
+}
+
+function deleteAllEntries() {
+  if (confirm("Delete ALL nutrition entries?")) {
+    entries = []; // Clear current list
+    
+    // Clear the standalone list
+    localStorage.removeItem('hit_v10_entries'); 
+    
+    // Clear entries inside the profile data
+    let savedData = JSON.parse(localStorage.getItem('hit_v10_data'));
+    if (savedData) {
+      savedData.entries = [];
+      localStorage.setItem('hit_v10_data', JSON.stringify(savedData));
+    }
+    
+    updateEntriesTable();
+    updateDailyWeeklyProgress();
+    updateBioNutritionAnalysis();
+    alert("History cleared successfully.");
+  }
+}
+// =============================================
+// Custom Food Addition Functions
+// =============================================
+
+// Get all current categories
+function getExistingCategories() {
+  return Object.keys(foodsDB);
+}
+
+// Populate datalist with existing categories
+function populateCategorySuggestions() {
+  const datalist = document.getElementById('categorySuggestions');
+  if (!datalist) return;
+  
+  datalist.innerHTML = '';
+  getExistingCategories().forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat;
+    datalist.appendChild(option);
+  });
+}
+
+// Save new food to database (in memory + localStorage)
+function saveNewFood() {
+  const name = document.getElementById('newFoodName').value.trim();
+  let category = document.getElementById('newCategory').value.trim().toLowerCase();
+
+  if (!name || !category) {
+    alert("Please enter both Name and Category!");
+    return;
+  }
+
+  const newFood = {
+    name: name,
+    cal: parseFloat(document.getElementById('newCal').value) || 0,
+    prot: parseFloat(document.getElementById('newProt').value) || 0,
+    carb: parseFloat(document.getElementById('newCarb').value) || 0,
+    fat: parseFloat(document.getElementById('newFat').value) || 0,
+    sugar: parseFloat(document.getElementById('newSugar').value) || 0,
+    fiber: parseFloat(document.getElementById('newFiber').value) || 0
+  };
+
+  // 1. Add to the active session database
+  if (!foodsDB[category]) foodsDB[category] = [];
+  foodsDB[category].push(newFood);
+
+  // 2. Save ONLY the custom items to localStorage
+  let customOnly = JSON.parse(localStorage.getItem('customFoodsDB_Only')) || {};
+  if (!customOnly[category]) customOnly[category] = [];
+  customOnly[category].push(newFood);
+  localStorage.setItem('customFoodsDB_Only', JSON.stringify(customOnly));
+
+  alert(`Food "${name}" saved!`);
+
+  // Clear form and refresh list
+  document.getElementById('newFoodName').value = '';
+  ['newCal','newProt','newCarb','newFat','newSugar','newFiber'].forEach(id => document.getElementById(id).value = '');
+  updateFoodList();
+}
+
+// Load custom foods on startup and merge with built-in
+function loadCustomFoods() {
+  const saved = localStorage.getItem('customFoodsDB_Only');
+  if (!saved) return;
+  
+  const customDB = JSON.parse(saved);
+  
+  Object.keys(customDB).forEach(cat => {
+    if (!foodsDB[cat]) foodsDB[cat] = [];
+    
+    customDB[cat].forEach(newFood => {
+      // Check if food already exists in the list to prevent duplicates
+      const exists = foodsDB[cat].some(existing => existing.name === newFood.name);
+      if (!exists) {
+        foodsDB[cat].push(newFood);
+      }
+    });
+  });
+}
+
+// Auto-set the date fields to today on load
+window.addEventListener('load', () => {
+  const today = new Date().toISOString().split('T')[0];
+  if(document.getElementById('entryDate')) document.getElementById('entryDate').value = today;
+  if(document.getElementById('readingDate')) document.getElementById('readingDate').value = today;
+});
+function updateGoalGapAnalysis() {
+  const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+
+  // Current
+  const curW = getVal('weight'), curF = getVal('bodyFat'), curV = getVal('visceralFat'), 
+        curM = getVal('muscle'), curT = getVal('tScore'), curZ = getVal('zScore');
+  // Targets
+  const tarW = getVal('targetWeight'), tarF = getVal('targetBodyFat'), tarV = getVal('targetVisceralFat'), 
+        tarM = getVal('targetMuscle'), tarT = getVal('targetTScore'), tarZ = getVal('targetZScore');
+
+  const display = document.getElementById('goalGapDisplay');
+  if (!display || curW === 0 || tarW === 0) return;
+
+  // MATH LOGIC
+  const wGap = (curW - tarW).toFixed(1);
+  const wPct = Math.min(Math.round((tarW / curW) * 100), 100);
+  const fGap = (curF - tarF).toFixed(1);
+  const fPct = Math.min(Math.round((tarF / curF) * 100), 100);
+  const mGap = (tarM - curM).toFixed(1);
+  const tGap = (tarT - curT).toFixed(2);
+
+  // Helper for Colors
+  const clr = (gap) => gap <= 0 ? 'var(--green-ui)' : 'var(--red-ui)';
+  const mClr = (gap) => gap <= 0 ? 'var(--green-ui)' : 'var(--red-ui)'; // Muscle is target - current
+
+  display.innerHTML = `
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <div>
+        <b style="color:${clr(wGap)}">Weight Gap:</b> ${wGap > 0 ? wGap + 'kg' : 'Target Reached'} (${wPct}%)<br>
+        <div class="progress-bg" style="height:6px; margin:4px 0;"><div class="progress-fill" style="width:${wPct}%; background:${clr(wGap)}"></div></div>
+        
+        <b style="color:${clr(fGap)}">Fat Gap:</b> ${fGap > 0 ? fGap + '%' : 'Target Reached'} (${fPct}%)<br>
+        <div class="progress-bg" style="height:6px; margin:4px 0;"><div class="progress-fill" style="width:${fPct}%; background:${clr(fGap)}"></div></div>
+      </div>
+      <div>
+        <b style="color:${clr(curV - tarV)}">Visceral:</b> ${curV > tarV ? (curV - tarV).toFixed(1) + ' lv to lose' : 'Optimal'}<br>
+        <b style="color:${mGap <= 0 ? 'var(--green-ui)' : 'var(--stone)'}">Muscle:</b> ${mGap > 0 ? mGap + '% to gain' : 'Target Reached'}<br>
+        <b style="color:${tGap <= 0 ? 'var(--green-ui)' : 'var(--stone)'}">Bone T-Score Gap:</b> ${tGap > 0 ? tGap : '✅'}<br>
+        <b style="color:var(--stone)">Bone Z-Score Gap:</b> ${(tarZ - curZ).toFixed(2) <= 0 ? '✅' : (tarZ - curZ).toFixed(2)}
+      </div>
+    </div>
+  `;
+}
+
+function printToPDF() {
+  const sections = {
+    'chk-p': 'print-profile',
+    'chk-r': 'print-readings',
+    'chk-a': 'print-ai',
+    'chk-n': 'print-nutrition',
+    'chk-h': 'print-report'
+  };
+
+  for (let [chkId, secId] of Object.entries(sections)) {
+    const section = document.getElementById(secId);
+    if (section) {
+      if (!document.getElementById(chkId).checked) {
+        section.classList.add('no-print');
+      } else {
+        section.classList.remove('no-print');
+      }
+    }
+  }
+  window.print();
+}
+</script>
+</body>
+</html>
