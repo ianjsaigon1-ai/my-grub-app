@@ -650,7 +650,18 @@ function analyzeBioNutrition() {
   // UI PERCENTAGES
   const calGoalPct = Math.round((totals.cal / targetCal) * 100);
   const proGoalPct = Math.round((totals.p / targetPro) * 100);
-  const sodiumPct  = Math.round((totals.sodium / 2300) * 100);
+  // Clinical Sodium Check
+  const sodiumPctWHO = Math.round((totals.sodium / 1500) * 100);
+  const sodiumPctLimit = Math.round((totals.sodium / 2300) * 100);
+  let sodiumColor = 'inherit';
+  if (totals.sodium > 1500) sodiumColor = 'var(--amber-ui)';
+  if (totals.sodium > 2300) sodiumColor = 'var(--red-ui)';
+
+  // Inside the analysisHTML template, update the Sodium line:
+  <div class="nutrient-metric" style="color:${sodiumColor};">
+    <strong>Sodium Control:</strong> ${Math.round(totals.sodium)}mg 
+    <small>(Ideal: 1500mg [${sodiumPctWHO}%] | Max: 2300mg [${sodiumPctLimit}%])</small>
+  </div>
 
   const analysisHTML = `
     <div style="margin-bottom: 15px;">
